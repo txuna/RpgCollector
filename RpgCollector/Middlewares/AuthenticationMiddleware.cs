@@ -86,7 +86,6 @@ namespace RpgCollector.Middlewares
          */
         public bool VerifyHeader(HttpContext httpContext)
         {
-            
             if (!httpContext.Request.Headers.ContainsKey("User-Id"))
             {
                 return false; 
