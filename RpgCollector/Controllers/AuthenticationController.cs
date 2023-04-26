@@ -12,23 +12,6 @@ namespace RpgCollector.Controllers
         {
             _authenticationService = authenticationService;
         }
-
-        [Route("/Register")]
-        [HttpPost]
-        public async Task<IActionResult> Register([FromBody]UserRequest userRequest)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid Register Request");
-            }
-            var (success, content) = await _authenticationService.Register(userRequest.UserName, userRequest.Password);
-            if (!success)
-            {
-                return BadRequest(content);
-            }
-            return Ok(content);
-        }
-
         /*
          * 로그인 요청 컨트롤러
          * 1. 모델 바인딩시 유효성 판단 
@@ -51,24 +34,6 @@ namespace RpgCollector.Controllers
             return Content(content, "application/json");
         }
 
-        [Route("/Logout")]
-        [HttpPost]
-        public async Task<IActionResult> Logout()
-        {
-            var userName = HttpContext.Request.Headers["User-Name"];
-            var (success, content) = await _authenticationService.Logout(userName);
-            if (!success)
-            {
-                return BadRequest(content);
-            }
-            return Ok(content);
-        }
-
-        [Route("/")]
-        [HttpGet]
-        public IActionResult Index()
-        {
-            return Content("HELLO WORLD");
-        }
+        
     }
 }

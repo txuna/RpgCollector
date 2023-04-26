@@ -27,8 +27,6 @@ namespace RpgCollector.Services
 
     public class AuthenticationService : ICustomAuthenticationService
     {
-        private IOptions<DbConfig> _dbConfig;
-        
         private IDbConnection? _dbConnection;
         private ConnectionMultiplexer? redisClient;
 
@@ -38,8 +36,6 @@ namespace RpgCollector.Services
 
         public AuthenticationService(IOptions<DbConfig> dbConfig) 
         {
-            _dbConfig = dbConfig;
-
             _dbConnection = DatabaseSuppoter.OpenMysql(dbConfig.Value.MysqlAccountDb);
             redisClient = DatabaseSuppoter.OpenRedis(dbConfig.Value.RedisDb);
 
