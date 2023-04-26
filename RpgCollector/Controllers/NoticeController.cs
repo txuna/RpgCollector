@@ -24,7 +24,7 @@ namespace RpgCollector.Controllers
             {
                 return BadRequest(content); 
             }
-            return Json(content);
+            return Content(content, "application/json");
         }
     }
 }

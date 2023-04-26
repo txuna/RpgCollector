@@ -36,12 +36,12 @@ namespace RpgCollector.Services
         private QueryFactory _queryFactory;
 
 
-        public AuthenticationService(IOptions<DbConfig> dbconfig) 
+        public AuthenticationService(IOptions<DbConfig> dbConfig) 
         {
-            _dbConfig = dbconfig;
+            _dbConfig = dbConfig;
 
-            _dbConnection = DatabaseSuppoter.OpenMysql(dbconfig.Value.MysqlAccountDb);
-            redisClient = DatabaseSuppoter.OpenRedis(dbconfig.Value.RedisDb);
+            _dbConnection = DatabaseSuppoter.OpenMysql(dbConfig.Value.MysqlAccountDb);
+            redisClient = DatabaseSuppoter.OpenRedis(dbConfig.Value.RedisDb);
 
             if (IsOpenDB())
             {
@@ -142,6 +142,7 @@ namespace RpgCollector.Services
                 UserName = userName,
                 AuthToken = authToken,
             };
+            Console.WriteLine(userLoginResponse);
             return (true, JsonSerializer.Serialize(userLoginResponse));
         }
 

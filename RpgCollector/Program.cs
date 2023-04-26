@@ -57,7 +57,6 @@ async Task<bool> LoadData()
 
     ConfigurationOptions option = new ConfigurationOptions
     {
-        //AbortOnConnectFail = false,
         EndPoints = { redisDBAddress }
     };
 
@@ -76,14 +75,15 @@ async Task<bool> LoadData()
 
         // 데이터베이스에 존재하는 공지사항을 가지고온다. 
         IEnumerable<Notice> notices = await _gameQueryFactory.Query("notices").GetAsync<Notice>();
-        List<Notice> noticeList = notices.ToList();
         // Redis에 공지사항을 저장한다. + 이미 Notices 키가 있다면 날림
         if (await redisDB.KeyExistsAsync("Notices"))
         {
             await redisDB.KeyDeleteAsync("Notices");
         }
-        RedisValue[] redisNotices = notices.Select(n => (RedisValue)JsonSerializer.Serialize(notices)).ToArray();
-        await redisDB.ListLeftPushAsync("Notices", redisNotices);
+        foreach(Notice value in notices)
+        {
+            await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(value)); 
+        }
     }
     catch (Exception e)
     {
