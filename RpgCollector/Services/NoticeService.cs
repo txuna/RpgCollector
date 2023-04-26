@@ -50,7 +50,15 @@ namespace RpgCollector.Services
             // Redis에 공지사항이 저장되어 있다면
             if (await redisDB.KeyExistsAsync("Notices"))
             {
-                RedisValue[] noticesRedis = await redisDB.ListRangeAsync("Notices");
+                RedisValue[] noticesRedis;
+                try
+                {
+                    noticesRedis = await redisDB.ListRangeAsync("Notices");
+                }
+                catch(Exception ex)
+                {
+                    return (false, "Database Connection Failed");
+                }
                 NoticeResponse[] noticesArray = new NoticeResponse[noticesRedis.Length];
                 for (int i = 0; i < noticesRedis.Length; i++)
                 {
@@ -59,12 +67,20 @@ namespace RpgCollector.Services
                 return (true, JsonSerializer.Serialize(noticesArray));
             }
             // 데이터베이스에 존재하는 공지사항을 가지고와서 Redis에 저장한다. 
-            IEnumerable<Notice> noticesData = await _queryFactory.Query("notices").GetAsync<Notice>();
-            foreach (Notice value in noticesData)
+            try
             {
-                await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(value));
+                IEnumerable<Notice> noticesData = await _queryFactory.Query("notices").GetAsync<Notice>();
+                foreach (Notice value in noticesData)
+                {
+                    await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(value));
+                }
+                return (true, JsonSerializer.Serialize(noticesData));
             }
-            return (true, JsonSerializer.Serialize(noticesData));
+            catch (Exception ex)
+            {
+                return (false, "Database Connection Failed");
+            }
+            
         }
 
         public bool IsOpenDB()
