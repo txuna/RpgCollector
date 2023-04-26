@@ -28,22 +28,22 @@ namespace RpgCollector.Services
 
     public class AuthenticationService : ICustomAuthenticationService
     {
-        private IDbConnection? _dbConnection;
+        private IDbConnection? dbConnection;
         private ConnectionMultiplexer? redisClient;
 
-        private MySqlCompiler _compiler;
-        private QueryFactory _queryFactory;
+        private MySqlCompiler compiler;
+        private QueryFactory queryFactory;
 
 
         public AuthenticationService(IOptions<DbConfig> dbConfig) 
         {
-            _dbConnection = DatabaseSuppoter.OpenMysql(dbConfig.Value.MysqlAccountDb);
+            dbConnection = DatabaseSuppoter.OpenMysql(dbConfig.Value.MysqlAccountDb);
             redisClient = DatabaseSuppoter.OpenRedis(dbConfig.Value.RedisDb);
 
             if (IsOpenDB())
             {
-                _compiler = new MySqlCompiler();
-                _queryFactory = new QueryFactory(_dbConnection, _compiler);
+                compiler = new MySqlCompiler();
+                queryFactory = new QueryFactory(dbConnection, compiler);
             }
         }
 
@@ -72,7 +72,7 @@ namespace RpgCollector.Services
                     Permission = 0
                 };
                 user.SetupSaltAndHash();
-                await _queryFactory.Query("users").InsertAsync(new
+                await queryFactory.Query("users").InsertAsync(new
                 {
                     userName = user.UserName,
                     password = user.Password,
@@ -106,7 +106,7 @@ namespace RpgCollector.Services
             User user;
             try
             {
-                user = await _queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
+                user = await queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
             }
             catch (Exception ex)
             {
@@ -224,7 +224,7 @@ namespace RpgCollector.Services
         {
             try
             {
-                User user = await _queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
+                User user = await queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
                 return user.UserId;
             }
             catch (Exception ex)
@@ -235,7 +235,7 @@ namespace RpgCollector.Services
 
         public bool IsOpenDB()
         {
-            if(redisClient != null && _dbConnection != null)
+            if(redisClient != null && dbConnection != null)
             {
                 return true;
             }
@@ -248,9 +248,9 @@ namespace RpgCollector.Services
             {
                 redisClient.CloseRedis();
             }
-            if(_dbConnection != null)
+            if(dbConnection != null)
             {
-                _dbConnection.CloseMysql();
+                dbConnection.CloseMysql();
             }
         }
     }

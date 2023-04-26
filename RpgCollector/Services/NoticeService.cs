@@ -16,22 +16,22 @@ namespace RpgCollector.Services
 
     public class NoticeService : INoticeService
     {
-        private IDbConnection? _dbConnection;
+        private IDbConnection? dbConnection;
         private ConnectionMultiplexer? redisClient;
 
-        private MySqlCompiler _compiler;
-        private QueryFactory _queryFactory;
+        private MySqlCompiler compiler;
+        private QueryFactory queryFactory;
 
 
         public NoticeService(IOptions<DbConfig> dbConfig)
         {
-            _dbConnection = DatabaseSuppoter.OpenMysql(dbConfig.Value.MysqlGameDb);
+            dbConnection = DatabaseSuppoter.OpenMysql(dbConfig.Value.MysqlGameDb);
             redisClient = DatabaseSuppoter.OpenRedis(dbConfig.Value.RedisDb);
 
             if (IsOpenDB())
             {
-                _compiler = new MySqlCompiler();
-                _queryFactory = new QueryFactory(_dbConnection, _compiler);
+                compiler = new MySqlCompiler();
+                queryFactory = new QueryFactory(dbConnection, compiler);
             }
         }
         /*
@@ -69,7 +69,7 @@ namespace RpgCollector.Services
             // 데이터베이스에 존재하는 공지사항을 가지고와서 Redis에 저장한다. 
             try
             {
-                IEnumerable<Notice> noticesData = await _queryFactory.Query("notices").GetAsync<Notice>();
+                IEnumerable<Notice> noticesData = await queryFactory.Query("notices").GetAsync<Notice>();
                 foreach (Notice value in noticesData)
                 {
                     await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(value));
@@ -85,7 +85,7 @@ namespace RpgCollector.Services
 
         public bool IsOpenDB()
         {
-            if (redisClient != null && _dbConnection != null)
+            if (redisClient != null && dbConnection != null)
             {
                 return true;
             }
