@@ -34,7 +34,6 @@ namespace RpgCollector.Services
         private MySqlCompiler compiler;
         private QueryFactory queryFactory;
 
-
         public AuthenticationService(IOptions<DbConfig> dbConfig) 
         {
             dbConnection = DatabaseSuppoter.OpenMysql(dbConfig.Value.MysqlAccountDb);

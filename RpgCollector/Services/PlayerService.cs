@@ -23,7 +23,14 @@ namespace RpgCollector.Services
         {
             dbConnection = DatabaseSuppoter.OpenMysql(dbConfig.Value.MysqlGameDb); 
             redisClient = DatabaseSuppoter.OpenRedis(dbConfig.Value.RedisDb);
+
+            if(dbConnection != null && redisClient != null)
+            {
+                compiler = new MySqlCompiler();
+                queryFactory = new QueryFactory(dbConnection, compiler);
+            }
         }
+
         public async Task<(bool success, string content)> CreatePlayer(int userId)
         {
             Player player = new Player
@@ -35,9 +42,25 @@ namespace RpgCollector.Services
                 MaxExp = 0,
                 Level = 0, 
                 Money = 0,
-
             };
-            return (true, "Created");
+            try
+            {
+                await queryFactory.Query("players").InsertAsync(new
+                {
+                    userId = player.UserId,
+                    currentHealth = player.CurrentHealth,
+                    maxHealth = player.MaxHealth,
+                    currentExp = player.CurrentExp,
+                    maxExp = player.MaxExp,
+                    level = player.Level,
+                    money = player.Money,
+                });
+                return (true, "Created");
+            }
+            catch(Exception ex)
+            {
+                return (false, "asd");
+            }
         }
 
         public void Dispose()
