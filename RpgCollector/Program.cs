@@ -84,6 +84,10 @@ async Task<bool> LoadData()
         {
             await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(value)); 
         }
+
+        // Client Version과 MasterData Version을 Redis에 등록 
+        await redisDB.StringSetAsync("ClientVersion", "1.0.0");
+        await redisDB.StringSetAsync("MasterDataVersion", "1.0.0");
     }
     catch (Exception e)
     {
@@ -92,8 +96,6 @@ async Task<bool> LoadData()
 
     _gameDbConnection.CloseMysql();
     redisClient.CloseRedis();
-
-
 
     return true;
 }

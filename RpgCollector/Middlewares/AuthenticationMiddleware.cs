@@ -45,13 +45,13 @@ namespace RpgCollector.Middlewares
                     return;
                 }
                 // 유효한 UserId와 AuthToken인지 확인 
-                if (!VerifyToken(httpContext))
+                if (!await VerifyToken(httpContext))
                 {
                     httpContext.Response.StatusCode = 401;
                     await httpContext.Response.WriteAsync("Invalid Token");
                     return;
                 }
-                if (!VerifyVersion())
+                if (!await VerifyVersion(httpContext))
                 {
                     httpContext.Response.StatusCode = 401;
                     await httpContext.Response.WriteAsync("Invalid Data Version");
@@ -92,10 +92,23 @@ namespace RpgCollector.Middlewares
             {
                 return false; 
             }
+            if (!httpContext.Request.Headers.ContainsKey("Client-Version"))
+            {
+                return false;
+            }
+            if (!httpContext.Request.Headers.ContainsKey("MasterData-Version"))
+            {
+                return false;
+            }
+            string requestClientVersion = httpContext.Request.Headers["Client-Version"];
+            string requestMasterDataVersion = httpContext.Request.Headers["MasterData-Version"];
             string? authToken = httpContext.Request.Headers["Auth-Token"];
             string? userName = httpContext.Request.Headers["User-Name"];
             // 둘다 빈값이라면
-            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(authToken))
+            if (string.IsNullOrEmpty(userName) 
+                || string.IsNullOrEmpty(authToken) 
+                || string.IsNullOrEmpty(requestClientVersion) 
+                || string.IsNullOrEmpty(requestMasterDataVersion))
             {
                 return false; 
             }
@@ -106,7 +119,7 @@ namespace RpgCollector.Middlewares
         /*
          * 전송받은 UserId와 AuthToken이 Redis에 저장되어 있는지 저장되어있다면 올바른 토큰인지 확인한다.  
          */
-        public bool VerifyToken(HttpContext httpContext)
+        public async Task<bool> VerifyToken(HttpContext httpContext)
         {
             string? authToken = httpContext.Request.Headers["Auth-Token"];
             string? userName = httpContext.Request.Headers["User-Name"];
@@ -114,12 +127,12 @@ namespace RpgCollector.Middlewares
             try
             {
                 // userId가 존재한다면 해당 userId를 불러와서 token 비교
-                if (!redisDB.HashExists("Users", userName))
+                if (!await redisDB.HashExistsAsync("Users", userName))
                 {
                     return false;
                 }
 
-                RedisValue content = redisDB.HashGet("Users", userName);
+                RedisValue content = await redisDB.HashGetAsync("Users", userName);
                 RedisUser? redisUser = JsonSerializer.Deserialize<RedisUser>(content.ToString());
 
                 if (redisUser == null)
@@ -139,7 +152,7 @@ namespace RpgCollector.Middlewares
                 }
                 // 최신 timestamp 넣고 재설정
                 redisUser.TimeStamp = timeStamp;
-                redisDB.HashSet("Users", userName, JsonSerializer.Serialize(redisUser));
+                await redisDB.HashSetAsync("Users", userName, JsonSerializer.Serialize(redisUser));
                 return true;
             }catch (Exception ex)
             {
@@ -149,9 +162,26 @@ namespace RpgCollector.Middlewares
 
         /*
          * 마스터 데이터와 클라이언트의 버전을 확인하는 로직
+         * Redis에서 검증
          */
-        public bool VerifyVersion()
+        public async Task<bool> VerifyVersion(HttpContext httpContext)
         {
+            IDatabase redisDB = redisClient.GetDatabase();
+            string requestClientVersion = httpContext.Request.Headers["Client-Version"];
+            string requestMasterDataVersion = httpContext.Request.Headers["MasterData-Version"];
+
+            string redisClientVersion = await redisDB.StringGetAsync("ClientVersion");
+            string redisMasterDataVersion = await redisDB.StringGetAsync("MasterDataVersion"); 
+
+            if(requestClientVersion != redisClientVersion)
+            {
+                return false; 
+            }
+            if(requestMasterDataVersion != redisMasterDataVersion)
+            {
+                return false;
+            }
+
             return true;
         }
 
