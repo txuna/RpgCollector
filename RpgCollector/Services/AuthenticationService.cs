@@ -28,24 +28,22 @@ namespace RpgCollector.Services
     public class AuthenticationService : ICustomAuthenticationService
     {
         private IOptions<DbConfig> _dbConfig;
-        private QueryFactory _queryFactory;
-        private IDbConnection _dbConnection;
-        private MySqlCompiler _compiler;
-        private ConnectionMultiplexer redisClient;
+        
+        private IDbConnection? _dbConnection;
+        private ConnectionMultiplexer? redisClient;
 
-        /* 
-            디비서버와 레디스 서버의 연결 오류로 인한 확인 프로퍼티
-        */
-        private bool is_open_database;
-        private bool is_open_redis; 
+        private MySqlCompiler _compiler;
+        private QueryFactory _queryFactory;
+
 
         public AuthenticationService(IOptions<DbConfig> dbconfig) 
         {
             _dbConfig = dbconfig;
 
-            OpenDatabase();
-            OpenRedis();
-            if (is_open_database)
+            _dbConnection = DatabaseSuppoter.OpenMysql(dbconfig.Value.MysqlAccountDb);
+            redisClient = DatabaseSuppoter.OpenRedis(dbconfig.Value.RedisDb);
+
+            if (IsOpenDB())
             {
                 _compiler = new MySqlCompiler();
                 _queryFactory = new QueryFactory(_dbConnection, _compiler);
@@ -64,7 +62,7 @@ namespace RpgCollector.Services
         {
             if (!IsOpenDB())
             {
-                return (false, "Redis Server or Mysql Database Down");
+                return (false, "Database Connection Failed");
             }
             try
             {
@@ -102,12 +100,12 @@ namespace RpgCollector.Services
          */ 
         public async Task<(bool success, string content)> Login(string userName, string password)
         {
+            if(!IsOpenDB())
+            {
+                return (false, "DB Connection Failed");
+            }
             IDatabase redisDB = redisClient.GetDatabase();
             User user;
-            if (!IsOpenDB())
-            {
-                return (false, "Redis Server or Mysql Database Down");
-            }
             try
             {
                 user = await _queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
@@ -225,74 +223,23 @@ namespace RpgCollector.Services
 
         public bool IsOpenDB()
         {
-            if(is_open_redis && is_open_database)
+            if(redisClient != null && _dbConnection != null)
             {
                 return true;
             }
             return false;
         }
 
-        public void OpenDatabase()
-        {
-            try
-            {
-                _dbConnection = new MySqlConnection(_dbConfig.Value.MysqlAccountDb);
-                _dbConnection.Open(); 
-                is_open_database = true;
-            }
-            catch (Exception ex)
-            {
-                is_open_database = false;
-            }
-        }
-
-        public void OpenRedis()
-        {
-            ConfigurationOptions option = new ConfigurationOptions
-            {
-                //AbortOnConnectFail = false,
-                EndPoints = { _dbConfig.Value.RedisDb }
-            };
-            try
-            {
-                redisClient = ConnectionMultiplexer.Connect(option);
-                is_open_redis = true;
-            }
-            catch (Exception e)
-            {
-                is_open_redis = false;
-            }
-        }
-
-        public void CloseDatabase()
-        {
-            try
-            {
-                _dbConnection.Close();
-                is_open_database = false;
-            }
-            catch (Exception e)
-            {
-                is_open_database = false;
-            }
-        }
-
-        public void CloseRedis()
-        {
-            try
-            {
-                redisClient.Dispose();
-                is_open_redis = false;
-            }
-            catch (Exception e)
-            {
-                is_open_redis = false;
-            }
-        }
-
         public void Dispose()
         {
-            CloseDatabase();
+            if(redisClient != null)
+            {
+                redisClient.CloseRedis();
+            }
+            if(_dbConnection != null)
+            {
+                _dbConnection.CloseMysql();
+            }
         }
     }
 }

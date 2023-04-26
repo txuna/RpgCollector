@@ -1,8 +1,73 @@
-﻿using RpgCollector.Models;
+﻿using MySqlConnector;
+using RpgCollector.Models;
+using StackExchange.Redis;
+using System.Data;
+using System.Data.Common;
 using System.Security.Cryptography;
 
 namespace RpgCollector
 {
+    /*
+     * 확장 메서드를 사용할 경우 인수에 있는객체가 복사가 아닌 참조로 이루어짐
+     */
+    public static class DatabaseSuppoter
+    {
+        public static IDbConnection? OpenMysql(string connectString)
+        {
+            IDbConnection dbConnection;
+            try
+            {
+                dbConnection = new MySqlConnection(connectString);
+                dbConnection.Open();
+            }
+            catch ( Exception ex)
+            {
+                return null;
+            }
+            return dbConnection;
+        }
+
+        public static void CloseMysql(this IDbConnection dbConnection)
+        {
+            try
+            {
+                dbConnection.Close();
+            }
+            catch ( Exception ex)
+            {
+            }
+        }
+
+        public static ConnectionMultiplexer? OpenRedis(string connectString)
+        {
+            ConnectionMultiplexer redisClient;
+            ConfigurationOptions option = new ConfigurationOptions
+            {
+                EndPoints = { connectString }
+            };
+            try
+            {
+                redisClient = ConnectionMultiplexer.Connect(option);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+            return redisClient;
+        }
+
+        public static void CloseRedis(this ConnectionMultiplexer redisClient)
+        {
+            try
+            {
+                redisClient.Dispose();
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+    }
+
     public static class TimeSupporter
     {
         public static DateTime GetDateTime(this long timestamp)

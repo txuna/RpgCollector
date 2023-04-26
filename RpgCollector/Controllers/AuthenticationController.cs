@@ -29,7 +29,6 @@ namespace RpgCollector.Controllers
             return Ok(content);
         }
 
-
         /*
          * 로그인 요청 컨트롤러
          * 1. 모델 바인딩시 유효성 판단 
@@ -49,7 +48,7 @@ namespace RpgCollector.Controllers
             {
                 return BadRequest(content);
             }
-            return Ok(content);
+            return Json(content);
         }
 
         [Route("/Logout")]

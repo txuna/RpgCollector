@@ -16,21 +16,19 @@ namespace RpgCollector.Middlewares
     {
         private readonly RequestDelegate _next;
         private readonly string[] exclusivePaths = new[] { "/Login", "/Register" };
-        private bool is_open_redis;
         ConnectionMultiplexer? redisClient;
         private string _redisAddress; 
 
         public AuthenticationMiddleware(RequestDelegate next, string redisAddress)
         {
             _next = next;
-            is_open_redis = false;
             _redisAddress = redisAddress;
         }
 
         public async Task Invoke(HttpContext httpContext)
         {
             OpenRedis();
-            if (!is_open_redis)
+            if (redisClient == null)
             {
                 httpContext.Response.StatusCode = 401;
                 await httpContext.Response.WriteAsync("Redis Server Down");
@@ -60,7 +58,7 @@ namespace RpgCollector.Middlewares
                     return;
                 }
             }
-            CloseRedis();
+            redisClient.CloseRedis();
             await _next(httpContext);
         }
 
@@ -159,32 +157,7 @@ namespace RpgCollector.Middlewares
 
         public void OpenRedis()
         {
-            ConfigurationOptions option = new ConfigurationOptions
-            {
-                EndPoints = { _redisAddress }
-            };
-            try
-            {
-                redisClient = ConnectionMultiplexer.Connect(option);
-                is_open_redis = true;
-            }
-            catch (Exception e)
-            {
-                is_open_redis = false;
-            }
-        }
-
-        public void CloseRedis()
-        {
-            try
-            {
-                redisClient.Dispose();
-                is_open_redis = false;
-            }
-            catch (Exception e)
-            {
-                is_open_redis = false;
-            }
+            redisClient = DatabaseSuppoter.OpenRedis(_redisAddress);
         }
     }
 
