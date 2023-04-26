@@ -21,7 +21,7 @@ namespace RpgCollector.CustomConstraints
         { 
             Regex regex = new Regex("^(?=^\\w{3,20}$)[a-z0-9]+_?[a-z0-9]+$");
             UserRequest userRequest = (UserRequest)validationContext.ObjectInstance;
-            if (!regex.IsMatch(userRequest.UserId))
+            if (!regex.IsMatch(userRequest.UserName))
             {
                 return new ValidationResult(GetErrorMessage());
             }

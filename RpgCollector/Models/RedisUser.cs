@@ -10,8 +10,8 @@
 
     public class RedisUser
     {
-        public int Index { get; set; }
-        public string UserId { get; set; }
+        public int UserId { get; set; }
+        public string UserName { get; set; }
         public string AuthToken { get; set; }
         public UserState State { get; set; }
         public long TimeStamp { get; set; }

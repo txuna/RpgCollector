@@ -21,7 +21,7 @@ namespace RpgCollector.Controllers
             {
                 return BadRequest("Invalid Register Request");
             }
-            var (success, content) = await _authenticationService.Register(userRequest.UserId, userRequest.Password);
+            var (success, content) = await _authenticationService.Register(userRequest.UserName, userRequest.Password);
             if (!success)
             {
                 return BadRequest(content);
@@ -44,7 +44,7 @@ namespace RpgCollector.Controllers
             {
                 return BadRequest("Invalid Login Request");
             }
-            var (success, content) = await _authenticationService.Login(userRequest.UserId, userRequest.Password);
+            var (success, content) = await _authenticationService.Login(userRequest.UserName, userRequest.Password);
             if(!success)
             {
                 return BadRequest(content);
@@ -56,8 +56,8 @@ namespace RpgCollector.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
-            var userId = HttpContext.Request.Headers["User-Id"];
-            var (success, content) = await _authenticationService.Logout(userId);
+            var userName = HttpContext.Request.Headers["User-Name"];
+            var (success, content) = await _authenticationService.Logout(userName);
             if (!success)
             {
                 return BadRequest(content);

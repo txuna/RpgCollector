@@ -86,7 +86,7 @@ namespace RpgCollector.Middlewares
          */
         public bool VerifyHeader(HttpContext httpContext)
         {
-            if (!httpContext.Request.Headers.ContainsKey("User-Id"))
+            if (!httpContext.Request.Headers.ContainsKey("User-Name"))
             {
                 return false; 
             }
@@ -95,9 +95,9 @@ namespace RpgCollector.Middlewares
                 return false; 
             }
             string? authToken = httpContext.Request.Headers["Auth-Token"];
-            string? userId = httpContext.Request.Headers["User-Id"];
+            string? userName = httpContext.Request.Headers["User-Name"];
             // 둘다 빈값이라면
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(authToken))
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(authToken))
             {
                 return false; 
             }
@@ -111,17 +111,17 @@ namespace RpgCollector.Middlewares
         public bool VerifyToken(HttpContext httpContext)
         {
             string? authToken = httpContext.Request.Headers["Auth-Token"];
-            string? userId = httpContext.Request.Headers["User-Id"];
+            string? userName = httpContext.Request.Headers["User-Name"];
             IDatabase redisDB = redisClient.GetDatabase();
             try
             {
                 // userId가 존재한다면 해당 userId를 불러와서 token 비교
-                if (!redisDB.HashExists("Users", userId))
+                if (!redisDB.HashExists("Users", userName))
                 {
                     return false;
                 }
 
-                RedisValue content = redisDB.HashGet("Users", userId);
+                RedisValue content = redisDB.HashGet("Users", userName);
                 RedisUser? redisUser = JsonSerializer.Deserialize<RedisUser>(content.ToString());
 
                 if (redisUser == null)
@@ -141,7 +141,7 @@ namespace RpgCollector.Middlewares
                 }
                 // 최신 timestamp 넣고 재설정
                 redisUser.TimeStamp = timeStamp;
-                redisDB.HashSet("Users", userId, JsonSerializer.Serialize(redisUser));
+                redisDB.HashSet("Users", userName, JsonSerializer.Serialize(redisUser));
                 return true;
             }catch (Exception ex)
             {

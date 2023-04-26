@@ -17,12 +17,12 @@ namespace RpgCollector.Services
 {
     public interface ICustomAuthenticationService 
     {
-        Task<(bool success, string content)> Login(string username, string password);
-        Task<(bool success, string content)> Register(string username, string password);
-        Task<(bool success, string content)> Logout(string userId);
-        Task<bool> CheckAlreadyLogin(string userId, IDatabase redisDB);
+        Task<(bool success, string content)> Login(string userName, string password);
+        Task<(bool success, string content)> Register(string userName, string password);
+        Task<(bool success, string content)> Logout(string userName);
+        Task<bool> CheckAlreadyLogin(string userName, IDatabase redisDB);
         bool IsOpenDB();
-        Task<bool> StoreUserInRedis(int index, string userId, string authToken, IDatabase redisDB);
+        Task<bool> StoreUserInRedis(int userId, string userName, string authToken, IDatabase redisDB);
     }
 
     public class AuthenticationService : ICustomAuthenticationService
@@ -60,7 +60,7 @@ namespace RpgCollector.Services
          * 성공적으로 수행이 된다면 true 
          * 실패한다면 false
          */
-        public async Task<(bool success, string content)> Register(string userId, string password)
+        public async Task<(bool success, string content)> Register(string userName, string password)
         {
             if (!IsOpenDB())
             {
@@ -70,7 +70,7 @@ namespace RpgCollector.Services
             {
                 User user = new User
                 {
-                    UserId = userId,
+                    UserName = userName,
                     Password = password,
                     PasswordSalt = "",
                     Permission = 0
@@ -78,7 +78,7 @@ namespace RpgCollector.Services
                 user.SetupSaltAndHash();
                 await _queryFactory.Query("users").InsertAsync(new
                 {
-                    userId = user.UserId,
+                    userName = user.UserName,
                     password = user.Password,
                     passwordSalt = user.PasswordSalt,
                     permission = user.Permission
@@ -100,7 +100,7 @@ namespace RpgCollector.Services
          * 성공적으로 로그인이 수행된다면 true와 인증토큰을 반환한다. 
          * 실패한다면 false와 메시지 전달 
          */ 
-        public async Task<(bool success, string content)> Login(string userId, string password)
+        public async Task<(bool success, string content)> Login(string userName, string password)
         {
             IDatabase redisDB = redisClient.GetDatabase();
             User user;
@@ -110,7 +110,7 @@ namespace RpgCollector.Services
             }
             try
             {
-                user = await _queryFactory.Query("users").Where("userId", userId).FirstAsync<User>();
+                user = await _queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
             }
             catch (Exception ex)
             {
@@ -123,17 +123,17 @@ namespace RpgCollector.Services
                 return (false, "Invalid Password");
             }
             // 이미 로그인된 사용자라면
-            bool success = await CheckAlreadyLogin(userId, redisDB);
+            bool success = await CheckAlreadyLogin(userName, redisDB);
             if (!success)
             {
-                return (false, "Already Login UserId");
+                return (false, "Already Login UserName");
             }
             // 로그인에 성공한 User에게 Token 발급
             string authToken = AuthenticationSupporter.GenerateAuthToken();
             // 유니코드 변환 문제
             authToken = authToken.Replace("+", "d");
             // 유저정보 Redis에 저장
-            success = await StoreUserInRedis(user.Index, userId, authToken, redisDB);
+            success = await StoreUserInRedis(user.UserId, userName, authToken, redisDB);
             if (!success)
             {
                 return (false, "Redis Server Error");
@@ -141,7 +141,7 @@ namespace RpgCollector.Services
 
             UserLoginResponse userLoginResponse = new UserLoginResponse
             {
-                UserId = userId,
+                UserName = userName,
                 AuthToken = authToken,
             };
             return (true, JsonSerializer.Serialize(userLoginResponse));
@@ -153,12 +153,12 @@ namespace RpgCollector.Services
          * 만약 성공적으로 삭제가 된다면 true 
          * 삭제가 실패한다면 false 
          */
-        public async Task<(bool success, string content)> Logout(string userId)
+        public async Task<(bool success, string content)> Logout(string userName)
         {
             IDatabase redisDB = redisClient.GetDatabase();
             try
             {
-                await redisDB.HashDeleteAsync("Users", userId);
+                await redisDB.HashDeleteAsync("Users", userName);
             }
             catch (Exception ex)
             {
@@ -168,12 +168,12 @@ namespace RpgCollector.Services
         }
 
 
-        public async Task<bool> StoreUserInRedis(int index, string userId, string authToken, IDatabase redisDB)
+        public async Task<bool> StoreUserInRedis(int userId, string userName, string authToken, IDatabase redisDB)
         {
             RedisUser redisUser = new RedisUser
             {
-                Index = index, 
-                UserId = userId,
+                UserId = userId, 
+                UserName = userName,
                 AuthToken = authToken,
                 State = UserState.Login,
                 TimeStamp = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond
@@ -181,7 +181,7 @@ namespace RpgCollector.Services
             // 발급한 Token Redis에 저장
             try
             {
-                await redisDB.HashSetAsync("Users", userId, JsonSerializer.Serialize(redisUser));
+                await redisDB.HashSetAsync("Users", userName, JsonSerializer.Serialize(redisUser));
             }catch (Exception ex)
             {
                 return false;
@@ -194,7 +194,7 @@ namespace RpgCollector.Services
          * 만들어진 토큰이 있다면 false 
          * 만들어진 토큰이 없다면 true
          */
-        public async Task<bool> CheckAlreadyLogin(string userId, IDatabase redisDB)
+        public async Task<bool> CheckAlreadyLogin(string userName, IDatabase redisDB)
         {
             try
             {
@@ -211,7 +211,7 @@ namespace RpgCollector.Services
                     {
                         return false;
                     }
-                    if (_redisUser.UserId == userId)
+                    if (_redisUser.UserName == userName)
                     {
                         return false;
                     }

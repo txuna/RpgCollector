@@ -7,7 +7,7 @@ namespace RpgCollector.RequestModels
     {
         [Required]
         [CustomUserName]
-        public string UserId { get; set; }
+        public string UserName { get; set; }
 
         [Required]
         [CustomUserPassword]
