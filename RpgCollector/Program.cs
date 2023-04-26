@@ -23,6 +23,7 @@ IConfiguration configuration = builder.Configuration;
 builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)));
 builder.Services.AddTransient<ICustomAuthenticationService, AuthenticationService>();
 builder.Services.AddTransient<INoticeService, NoticeService>();
+builder.Services.AddTransient<IPlayerService, PlayerService>();
 
 var app = builder.Build();
 

@@ -2,8 +2,8 @@
 {
     public class Notice
     {
-        public int noticeId { get; set; }
-        public string content { get; set; }
-        public int uploaderId { get; set; }
+        public int NoticeId { get; set; }
+        public string Content { get; set; }
+        public int UploaderId { get; set; }
     }
 }

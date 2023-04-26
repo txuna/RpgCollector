@@ -7,10 +7,18 @@ namespace RpgCollector.Controllers
     public class RegisterController : Controller
     {
         ICustomAuthenticationService _authenticationService;
-        public RegisterController(ICustomAuthenticationService authenticationService)
+        IPlayerService _playerService;
+
+        public RegisterController(ICustomAuthenticationService authenticationService, IPlayerService playerService)
         {
             _authenticationService = authenticationService;
+            _playerService = playerService;
         }
+
+        /**
+         *  회원가입을 진행하는 API 
+         *  성공적으로 회원가입시 Player Data 디비 초기화 진행 
+         */
         [Route("/Register")]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] UserRequest userRequest)
@@ -21,6 +29,12 @@ namespace RpgCollector.Controllers
             }
             var (success, content) = await _authenticationService.Register(userRequest.UserName, userRequest.Password);
             if (!success)
+            {
+                return BadRequest(content);
+            }
+            int userId = await _authenticationService.GetUserId(userRequest.UserName);
+            (success, content) = await _playerService.CreatePlayer(userId);
+            if(!success)
             {
                 return BadRequest(content);
             }

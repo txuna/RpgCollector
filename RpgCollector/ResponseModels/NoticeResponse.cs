@@ -2,7 +2,7 @@
 {
     public class NoticeResponse
     {
-        public int noticeId { get; set; }
-        public string content { get; set; }
+        public int NoticeId { get; set; }
+        public string Content { get; set; }
     }
 }

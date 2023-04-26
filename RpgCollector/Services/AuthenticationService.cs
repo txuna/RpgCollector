@@ -23,6 +23,7 @@ namespace RpgCollector.Services
         Task<bool> CheckAlreadyLogin(string userName, IDatabase redisDB);
         bool IsOpenDB();
         Task<bool> StoreUserInRedis(int userId, string userName, string authToken, IDatabase redisDB);
+        Task<int> GetUserId(string userName);
     }
 
     public class AuthenticationService : ICustomAuthenticationService
@@ -48,6 +49,7 @@ namespace RpgCollector.Services
 
         /*
          * 유저의 Id와 Password를 인수로 받아 디비에 저장 
+         * 
          * 0. 세션값에 IsLogin이 설정되어있다면 패스
          * 1. Id는 중복확인을 한다. 
          * 2. Password는 Salt 문자열을 만들고 해싱한다. 
@@ -215,6 +217,19 @@ namespace RpgCollector.Services
             }catch (Exception ex)
             {
                 return false;
+            }
+        }
+
+        public async Task<int> GetUserId(string userName)
+        {
+            try
+            {
+                User user = await _queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
+                return user.UserId;
+            }
+            catch (Exception ex)
+            {
+                return -1;
             }
         }
 
