@@ -1,4 +1,4 @@
-﻿namespace RpgCollector.Models
+﻿namespace RpgCollector.Models.MailData
 {
     public class Mailbox
     {

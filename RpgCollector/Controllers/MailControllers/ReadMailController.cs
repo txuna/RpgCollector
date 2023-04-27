@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RpgCollector.Models;
-using RpgCollector.RequestModels;
+using RpgCollector.Models.MailData;
+using RpgCollector.RequestModels.MailRequest;
 using RpgCollector.ResponseModels;
+using RpgCollector.ResponseModels.MailResponse;
 using RpgCollector.Services;
 
 namespace RpgCollector.Controllers.MailControllers

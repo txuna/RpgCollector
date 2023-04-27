@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models;
-using RpgCollector.RequestModels;
+using RpgCollector.Models.MailData;
+using RpgCollector.RequestModels.MailRequest;
 using RpgCollector.ResponseModels;
 using RpgCollector.Services;
 
@@ -16,6 +17,7 @@ namespace RpgCollector.Controllers.MailControllers
         {
             _mailboxAccessDB = mailboxAccessDB; 
             _playerAccessDB = playerAccessDB;
+            _accountMemoryDB = accountMemoryDB;
         }
 /*
  * 사용자가 전송한 mailId를 기반으로 아이템을 동봉하고 있는지 확인 + 이미 수령했는지 확인 및 아이템 제공
@@ -57,23 +59,23 @@ namespace RpgCollector.Controllers.MailControllers
                 });
             }
 
-            if (!await _playerAccessDB.AddItem(redisUser.UserId, mailItem.itemId, mailItem.Quantity))
-            {
-                if(!await _mailboxAccessDB.UndoMailItem(mailItem.itemId))
-                {
-                    return Json(new FailResponse
-                    {
-                        Success = false,
-                        Message = "Failed Undo Mail Item. So Sorry...!. Please Contact to Administrator"
-                    });
-                }
+            //if (!await _playerAccessDB.AddItem(redisUser.UserId, mailItem.itemId, mailItem.Quantity))
+            //{
+            //    if(!await _mailboxAccessDB.UndoMailItem(mailItem.itemId))
+            //    {
+            //        return Json(new FailResponse
+            //        {
+            //            Success = false,
+            //            Message = "Failed Undo Mail Item. So Sorry...!. Please Contact to Administrator"
+            //        });
+            //    }
 
-                return Json(new FailResponse
-                {
-                    Success = false,
-                    Message = "Failed Add Item into the Player from Mail, Undo Rollback Mail Item"
-                });
-            }
+            //    return Json(new FailResponse
+            //    {
+            //        Success = false,
+            //        Message = "Failed Add Item into the Player from Mail, Undo Rollback Mail Item"
+            //    });
+            //}
 
             return Json(new SuccessResponse
             {

@@ -1,4 +1,4 @@
-﻿namespace RpgCollector.ResponseModels
+﻿namespace RpgCollector.ResponseModels.MailResponse
 {
     public class ReadMailResponse
     {

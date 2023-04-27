@@ -1,7 +1,7 @@
 ﻿using RpgCollector.Models;
 using System.Security.Cryptography;
 
-namespace RpgCollector
+namespace RpgCollector.Utility
 {
     public static class HashManager
     {
@@ -18,7 +18,7 @@ namespace RpgCollector
         public static byte[] GenerateSalt()
         {
             var rng = RandomNumberGenerator.Create();
-            var salt = new Byte[24];
+            var salt = new byte[24];
             rng.GetBytes(salt);
 
             return salt;
@@ -38,7 +38,7 @@ namespace RpgCollector
         public static string GenerateAuthToken()
         {
             var rng = RandomNumberGenerator.Create();
-            var salt = new Byte[24];
+            var salt = new byte[24];
             rng.GetBytes(salt);
 
 #pragma warning disable SYSLIB0041

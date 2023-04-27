@@ -1,6 +1,7 @@
 ﻿using RpgCollector.Models;
+using RpgCollector.Models.MailData;
 
-namespace RpgCollector.ResponseModels
+namespace RpgCollector.ResponseModels.MailResponse
 {
     public class MailboxResponse
     {

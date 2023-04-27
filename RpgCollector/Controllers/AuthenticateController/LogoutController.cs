@@ -2,14 +2,14 @@
 using RpgCollector.ResponseModels;
 using RpgCollector.Services;
 
-namespace RpgCollector.Controllers
+namespace RpgCollector.Controllers.AuthenticateController
 {
     public class LogoutController : Controller
     {
         IAccountDB _accountDB;
         IAccountMemoryDB _memoryDB;
 
-        public LogoutController(IAccountDB accountDB, IAccountMemoryDB memoryDB) 
+        public LogoutController(IAccountDB accountDB, IAccountMemoryDB memoryDB)
         {
             _accountDB = accountDB;
             _memoryDB = memoryDB;
@@ -21,7 +21,7 @@ namespace RpgCollector.Controllers
         {
             string userName = HttpContext.Request.Headers["User-Name"];
 
-            if(! await _memoryDB.RemoveUser(userName))
+            if (!await _memoryDB.RemoveUser(userName))
             {
                 return Json(new FailResponse
                 {

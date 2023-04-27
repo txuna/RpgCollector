@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Options;
 using MySqlConnector;
-using RpgCollector;
 using RpgCollector.Middlewares;
 using RpgCollector.Models;
 using RpgCollector.Services;
+using RpgCollector.Utility;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using StackExchange.Redis;

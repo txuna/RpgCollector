@@ -4,16 +4,17 @@ using RpgCollector.Models;
 using RpgCollector.RequestModels;
 using RpgCollector.ResponseModels;
 using RpgCollector.Services;
+using RpgCollector.Utility;
 using System.Text.Json;
 
-namespace RpgCollector.Controllers
+namespace RpgCollector.Controllers.AuthenticateController
 {
     public class LoginController : Controller
     {
         IAccountDB _accountDB;
         IAccountMemoryDB _memoryDB;
 
-        public LoginController(IAccountDB accountDB, IAccountMemoryDB memoryDB) 
+        public LoginController(IAccountDB accountDB, IAccountMemoryDB memoryDB)
         {
             _accountDB = accountDB;
             _memoryDB = memoryDB;
@@ -26,7 +27,7 @@ namespace RpgCollector.Controllers
          */
         [Route("/Login")]
         [HttpPost]
-        public async Task<JsonResult> Login([FromBody]UserRequest userRequest)
+        public async Task<JsonResult> Login([FromBody] UserRequest userRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -39,7 +40,7 @@ namespace RpgCollector.Controllers
 
             User? user = await _accountDB.GetUser(userRequest.UserName);
 
-            if(user == null)
+            if (user == null)
             {
                 return Json(new FailResponse
                 {
@@ -49,7 +50,7 @@ namespace RpgCollector.Controllers
             }
 
             // 패스워드 확인
-            if(!_accountDB.VerifyPassword(user, userRequest.Password))
+            if (!_accountDB.VerifyPassword(user, userRequest.Password))
             {
                 return Json(new FailResponse
                 {
@@ -58,7 +59,7 @@ namespace RpgCollector.Controllers
                 });
             }
             // 중복 인증 확인 
-            if(!await _memoryDB.IsDuplicateLogin(userRequest.UserName))
+            if (!await _memoryDB.IsDuplicateLogin(userRequest.UserName))
             {
                 return Json(new FailResponse
                 {
@@ -70,7 +71,7 @@ namespace RpgCollector.Controllers
             string authToken = HashManager.GenerateAuthToken();
             authToken = authToken.Replace("+", "d");
 
-            if(!await _memoryDB.StoreUser(user, authToken))
+            if (!await _memoryDB.StoreUser(user, authToken))
             {
                 return Json(new FailResponse
                 {
@@ -87,6 +88,6 @@ namespace RpgCollector.Controllers
             });
         }
 
-        
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using RpgCollector.Models;
 using RpgCollector.ResponseModels;
+using RpgCollector.Utility;
 using StackExchange.Redis;
 using System.Text.Json;
 

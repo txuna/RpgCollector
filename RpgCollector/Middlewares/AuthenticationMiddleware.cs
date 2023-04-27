@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using RpgCollector.RequestModels;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
+using RpgCollector.Utility;
 
 namespace RpgCollector.Middlewares
 {
@@ -182,13 +183,18 @@ namespace RpgCollector.Middlewares
          */
         public async Task<bool> VerifyVersion(HttpContext httpContext)
         {
-            IDatabase redisDB = redisClient.GetDatabase();
+            if (redisClient == null)
+            {
+                return false;
+            }
 
-            string requestClientVersion = httpContext.Request.Headers["Client-Version"];
-            string requestMasterDataVersion = httpContext.Request.Headers["MasterData-Version"];
+            IDatabase? redisDB = redisClient.GetDatabase();
+            
+            string? requestClientVersion = httpContext.Request.Headers["Client-Version"];
+            string? requestMasterDataVersion = httpContext.Request.Headers["MasterData-Version"];
 
-            string redisClientVersion = await redisDB.StringGetAsync("ClientVersion");
-            string redisMasterDataVersion = await redisDB.StringGetAsync("MasterDataVersion"); 
+            string? redisClientVersion = await redisDB.StringGetAsync("ClientVersion");
+            string? redisMasterDataVersion = await redisDB.StringGetAsync("MasterDataVersion"); 
 
             if(requestClientVersion != redisClientVersion)
             {

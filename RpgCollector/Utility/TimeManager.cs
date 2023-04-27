@@ -1,4 +1,4 @@
-﻿namespace RpgCollector
+﻿namespace RpgCollector.Utility
 {
     public static class TimeManager
     {

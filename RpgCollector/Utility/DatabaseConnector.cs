@@ -2,7 +2,7 @@
 using StackExchange.Redis;
 using System.Data;
 
-namespace RpgCollector
+namespace RpgCollector.Utility
 {
     public static class DatabaseConnector
     {

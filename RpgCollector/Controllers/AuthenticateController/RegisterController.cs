@@ -4,7 +4,7 @@ using RpgCollector.RequestModels;
 using RpgCollector.ResponseModels;
 using RpgCollector.Services;
 
-namespace RpgCollector.Controllers
+namespace RpgCollector.Controllers.AuthenticateController
 {
     public class RegisterController : Controller
     {
@@ -30,7 +30,7 @@ namespace RpgCollector.Controllers
                 });
             }
 
-            if(!await _accountDB.RegisterUser(userRequest.UserName, userRequest.Password))
+            if (!await _accountDB.RegisterUser(userRequest.UserName, userRequest.Password))
             {
                 return Json(new FailResponse
                 {
@@ -39,9 +39,17 @@ namespace RpgCollector.Controllers
                 });
             }
 
-            User user = await _accountDB.GetUser(userRequest.UserName);
+            User? user = await _accountDB.GetUser(userRequest.UserName);
+            if (user == null)
+            {
+                return Json(new FailResponse
+                {
+                    Success = false,
+                    Message = "Failed Created Player"
+                });
+            }
 
-            if(!await _playerAccessDB.CreatePlayer(user.UserId))
+            if (!await _playerAccessDB.CreatePlayer(user.UserId))
             {
                 return Json(new FailResponse
                 {

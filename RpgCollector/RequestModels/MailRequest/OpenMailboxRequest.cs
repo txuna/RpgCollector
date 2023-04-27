@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RpgCollector.RequestModels
+namespace RpgCollector.RequestModels.MailRequest
 {
     public class OpenMailboxRequest
     {
