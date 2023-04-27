@@ -53,6 +53,20 @@ namespace RpgCollector.Services
         {
             try
             {
+                // 돈 아이템이라면
+                if(itemId == 1)
+                {
+                    PlayerData? playerData = await GetPlayerFromUserId(userId);
+                    if (playerData == null)
+                    {
+                        return false;
+                    }
+                    await queryFactory.Query("players").Where("userId", userId).UpdateAsync(new
+                    {
+                        money = playerData.Money + quantity
+                    });
+                    return true;
+                }
                 //itemId를 기반으로 master_item_info에서 해당 아이템의 프로토타입을 불러옴
                 MasterItem masterItem = await queryFactory.Query("master_item_info")
                                                           .Where("itemId", itemId)
@@ -63,8 +77,9 @@ namespace RpgCollector.Services
                                                         .Where("attributeId", masterItem.AttributeId)
                                                         .FirstAsync<MasterItemAttribute>();
 
-                //typeId가 0이라면 오버래핑 허용 1이라면 새로운 아이템으로
-                if (masterItemAttribute.TypeId == 1)
+                //typeId가 0이라면 오버래핑 허용
+                //1이라면 새로운 아이템으로
+                if (masterItemAttribute.TypeId == 0)
                 {
                     // 기존에 있다면 Update 없다면 Insert
                     int count = await queryFactory.Query("player_items").Where("userId", userId).Where("itemId", itemId).CountAsync<int>();
