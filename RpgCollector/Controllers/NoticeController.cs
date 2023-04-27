@@ -21,7 +21,7 @@ namespace RpgCollector.Controllers
         /*
          * Redis에 저장된 공지사항을 리스트형식으로 뿌려준다. 
          */
-        [Route("/Game/Notice")]
+        [Route("/Notice")]
         [HttpGet]
         public async Task<JsonResult> Notice()
         {

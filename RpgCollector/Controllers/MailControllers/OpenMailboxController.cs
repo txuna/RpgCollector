@@ -25,7 +25,7 @@ namespace RpgCollector.Controllers.MailControllers
 *  우편함을 처음 오픈하는것이라면 전채갯수/20해서 나온 TotalPageNumber 하고 날짜별로 정렬된 상위 20개만 전송 
 *  그외에는 요청받은 PageNumber에 따라서 반환
 */
-        [Route("/Game/Mail")]
+        [Route("/Mail/Open")]
         [HttpPost]
         public async Task<JsonResult> OpenMailbox([FromBody] OpenMailboxRequest openMailboxRequest)
         {
