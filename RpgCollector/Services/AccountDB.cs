@@ -67,7 +67,9 @@ namespace RpgCollector.Services
                     PasswordSalt = "",
                     Permission = 0
                 };
+
                 user.SetupSaltAndHash();
+
                 await queryFactory.Query("users").InsertAsync(new
                 {
                     userName = user.UserName,

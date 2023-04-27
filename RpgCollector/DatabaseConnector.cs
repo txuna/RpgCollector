@@ -12,6 +12,7 @@ namespace RpgCollector
             try
             {
                 dbConnection = new MySqlConnection(connectString);
+
                 dbConnection.Open();
             }
             catch (Exception ex)
@@ -35,10 +36,12 @@ namespace RpgCollector
         public static ConnectionMultiplexer? OpenRedis(string connectString)
         {
             ConnectionMultiplexer redisClient;
+
             ConfigurationOptions option = new ConfigurationOptions
             {
                 EndPoints = { connectString }
             };
+
             try
             {
                 redisClient = ConnectionMultiplexer.Connect(option);
@@ -47,6 +50,7 @@ namespace RpgCollector
             {
                 return null;
             }
+
             return redisClient;
         }
 

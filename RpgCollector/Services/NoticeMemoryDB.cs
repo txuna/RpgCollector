@@ -20,6 +20,7 @@ namespace RpgCollector.Services
         public NoticeMemoryDB(IOptions<DbConfig> dbConfig) 
         {
             redisClient = DatabaseConnector.OpenRedis(dbConfig.Value.RedisDb);
+
             if (redisClient != null)
             {
                 redisDB = redisClient.GetDatabase();
@@ -32,6 +33,7 @@ namespace RpgCollector.Services
             {
                 return null;
             }
+
             IDatabase redisDB = redisClient.GetDatabase();
 
             // Redis에 공지사항이 저장되어 있다면
@@ -46,16 +48,20 @@ namespace RpgCollector.Services
                 {
                     return null;
                 }
+
                 Notice[] noticesArray = new Notice[noticesRedis.Length];
+
                 for (int i = 0; i < noticesRedis.Length; i++)
                 {
                     noticesArray[i] = JsonSerializer.Deserialize<Notice>(noticesRedis[i]);
                 }
+
                 NoticeResponse noticeResponse = new NoticeResponse
                 {
                     Success = true,
                     NoticeList = noticesArray
                 };
+
                 return noticesArray;
             }
             return null;

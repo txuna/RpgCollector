@@ -11,7 +11,9 @@ namespace RpgCollector.Services
         Task<bool> IsDuplicateLogin(string userName);
         Task<bool> StoreUser(User user, string authToken);
         Task<bool> RemoveUser(string userName);
-        
+        Task<RedisUser?> GetUserFromName(string userName);
+
+
     }
 
     public class AccountMemoryDB : IAccountMemoryDB
@@ -28,11 +30,30 @@ namespace RpgCollector.Services
             }
         }
 
+        public async Task<RedisUser?> GetUserFromName(string userName)
+        {
+            try
+            {
+                RedisValue content = await redisDB.HashGetAsync("Users", userName);
+                RedisUser? redisUser = JsonSerializer.Deserialize<RedisUser>(content.ToString());
+                if (redisUser == null)
+                {
+                    throw new Exception("NULL");
+                }
+                return redisUser;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
         public async Task<bool> IsDuplicateLogin(string userName)
         {
             try
             {
                 HashEntry[] hashEntries = await redisDB.HashGetAllAsync("Users");
+
                 foreach (HashEntry entry in hashEntries)
                 {
                     string? key = entry.Name;
@@ -40,11 +61,14 @@ namespace RpgCollector.Services
                     {
                         return false;
                     }
+
                     RedisUser? _redisUser = JsonSerializer.Deserialize<RedisUser>(entry.Value.ToString());
+
                     if (_redisUser == null)
                     {
                         return false;
                     }
+
                     if (_redisUser.UserName == userName)
                     {
                         return false;

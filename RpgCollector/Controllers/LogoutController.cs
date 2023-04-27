@@ -19,7 +19,7 @@ namespace RpgCollector.Controllers
         [HttpPost]
         public async Task<JsonResult> Logout()
         {
-            var userName = HttpContext.Request.Headers["User-Name"];
+            string userName = HttpContext.Request.Headers["User-Name"];
 
             if(! await _memoryDB.RemoveUser(userName))
             {

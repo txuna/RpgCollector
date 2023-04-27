@@ -25,6 +25,8 @@ builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)))
 builder.Services.AddTransient<IAccountDB, AccountDB>(); 
 builder.Services.AddTransient<IAccountMemoryDB, AccountMemoryDB>();   
 builder.Services.AddTransient<INoticeMemoryDB, NoticeMemoryDB>();
+builder.Services.AddTransient<IPlayerAccessDB, PlayerAccessDB>();
+builder.Services.AddTransient<IMailboxAccessDB, MailboxAccessDB>();
 
 var app = builder.Build();
 
