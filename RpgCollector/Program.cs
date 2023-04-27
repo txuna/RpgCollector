@@ -20,12 +20,10 @@ builder.Services.AddControllers();
  설정값 읽어 들이고 서비스 객체로 등록
  */
 IConfiguration configuration = builder.Configuration;
-builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)));
-builder.Services.AddTransient<ICustomAuthenticationService, AuthenticationService>();
-builder.Services.AddTransient<INoticeService, NoticeService>();
-builder.Services.AddTransient<IPlayerService, PlayerService>();
-builder.Services.AddTransient<IPostService, PostService>();
 
+builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)));
+builder.Services.AddTransient<IAccountDB, AccountDB>(); 
+builder.Services.AddTransient<IMemoryDB, MemoryDB>();   
 
 var app = builder.Build();
 
@@ -50,11 +48,7 @@ app.Run();
 async Task<bool> LoadData()
 {
     string redisDBAddress = configuration.GetSection("DbConfig")["RedisDB"];
-    string gameDBAddress = configuration.GetSection("DbConfig")["MysqlGameDB"];
 
-    QueryFactory _gameQueryFactory;
-    IDbConnection? _gameDbConnection;
-    MySqlCompiler _gameCompiler;
     ConnectionMultiplexer? redisClient;
     IDatabase redisDB;
 
@@ -65,28 +59,30 @@ async Task<bool> LoadData()
 
     try
     {
-        redisClient = DatabaseSuppoter.OpenRedis(redisDBAddress);
-        _gameDbConnection = DatabaseSuppoter.OpenMysql(gameDBAddress);
-        if(redisClient == null || _gameDbConnection == null)
+        redisClient = DatabaseConnector.OpenRedis(redisDBAddress);
+        if (redisClient == null)
         {
             throw new Exception("DB Connection Failed");
         }
         redisDB = redisClient.GetDatabase();
 
-        _gameCompiler = new MySqlCompiler();
-        _gameQueryFactory = new QueryFactory(_gameDbConnection, _gameCompiler);
-
-        // 데이터베이스에 존재하는 공지사항을 가지고온다. 
-        IEnumerable<Notice> notices = await _gameQueryFactory.Query("notices").GetAsync<Notice>();
         // Redis에 공지사항을 저장한다. + 이미 Notices 키가 있다면 날림
         if (await redisDB.KeyExistsAsync("Notices"))
         {
             await redisDB.KeyDeleteAsync("Notices");
         }
-        foreach(Notice value in notices)
+        await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(new Notice
         {
-            await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(value)); 
-        }
+            NoticeId = 1,
+            Content = "Hello World", 
+            UploaderId = 1,
+        }));
+        await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(new Notice
+        {
+            NoticeId = 1,
+            Content = "Hello World",
+            UploaderId = 1,
+        }));
 
         // Client Version과 MasterData Version을 Redis에 등록 
         await redisDB.StringSetAsync("ClientVersion", "1.0.0");
@@ -96,8 +92,6 @@ async Task<bool> LoadData()
     {
         return false;
     }
-
-    _gameDbConnection.CloseMysql();
     redisClient.CloseRedis();
 
     return true;

@@ -1,8 +1,10 @@
-﻿namespace RpgCollector.ResponseModels
+﻿using RpgCollector.Models;
+
+namespace RpgCollector.ResponseModels
 {
     public class NoticeResponse
     {
-        public int NoticeId { get; set; }
-        public string Content { get; set; }
+        public bool Success { get; set; }
+        public Notice[] NoticeList { get; set; }
     }
 }

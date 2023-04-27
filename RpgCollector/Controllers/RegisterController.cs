@@ -1,51 +1,46 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.RequestModels;
+using RpgCollector.ResponseModels;
 using RpgCollector.Services;
 
 namespace RpgCollector.Controllers
 {
     public class RegisterController : Controller
     {
-        ICustomAuthenticationService _authenticationService;
-        IPlayerService _playerService;
+        IAccountDB _accountDB;
+        IMemoryDB _memoryDB;
 
-        public RegisterController(ICustomAuthenticationService authenticationService, IPlayerService playerService)
+        public RegisterController(IAccountDB accountDB, IMemoryDB memoryDB)
         {
-            _authenticationService = authenticationService;
-            _playerService = playerService;
+            _accountDB = accountDB;
+            _memoryDB = memoryDB;
         }
 
-        /**
-         *  회원가입을 진행하는 API 
-         *  성공적으로 회원가입시 Player Data 디비 초기화 진행 
-         */
         [Route("/Register")]
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] UserRequest userRequest)
+        public async Task<JsonResult> Register([FromBody] UserRequest userRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid Register Request");
+                return Json(new FailResponse
+                {
+                    Success = false,
+                    Message = "Invalid Model"
+                });
             }
-            var (success, content) = await _authenticationService.Register(userRequest.UserName, userRequest.Password);
-            if (!success)
+            if(!await _accountDB.RegisterUser(userRequest.UserName, userRequest.Password))
             {
-                return BadRequest(content);
+                return Json(new FailResponse
+                {
+                    Success = false,
+                    Message = "Failed Register"
+                });
             }
-            /* 
-             * 계정생성이 완료되면 Player 데이터 생성
-             */
-            int userId = await _authenticationService.GetUserId(userRequest.UserName);
-            if(userId == -1) 
+            return Json(new SuccessResponse
             {
-                return BadRequest("Can't Create Player");
-            }
-            (success, content) = await _playerService.CreatePlayer(userId);
-            if(!success)
-            {
-                return BadRequest(content);
-            }
-            return Ok(content);
+                Success = true,
+                Message = "Successfully Register"
+            });
         }
     }
 }

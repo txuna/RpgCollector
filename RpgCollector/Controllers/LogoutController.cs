@@ -1,26 +1,38 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RpgCollector.ResponseModels;
 using RpgCollector.Services;
 
 namespace RpgCollector.Controllers
 {
     public class LogoutController : Controller
     {
-        ICustomAuthenticationService _authenticationService;
-        public LogoutController(ICustomAuthenticationService authenticationService) 
+        IAccountDB _accountDB;
+        IMemoryDB _memoryDB;
+
+        public LogoutController(IAccountDB accountDB, IMemoryDB memoryDB) 
         {
-            _authenticationService = authenticationService;
+            _accountDB = accountDB;
+            _memoryDB = memoryDB;
         }
         [Route("/Logout")]
         [HttpPost]
-        public async Task<IActionResult> Logout()
+        public async Task<JsonResult> Logout()
         {
             var userName = HttpContext.Request.Headers["User-Name"];
-            var (success, content) = await _authenticationService.Logout(userName);
-            if (!success)
+            if(! await _memoryDB.RemoveUser(userName))
             {
-                return BadRequest(content);
+                return Json(new FailResponse
+                {
+                    Success = false,
+                    Message = "Failed Logout"
+                });
             }
-            return Ok(content);
+
+            return Json(new SuccessResponse
+            {
+                Success = true,
+                Message = "Successfully Logout"
+            });
         }
     }
 }

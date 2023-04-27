@@ -145,7 +145,7 @@ namespace RpgCollector.Middlewares
                     return false;
                 }
                 // 유효한 인증이라면 
-                long timeStamp = TimeSupporter.GetTimeStamp();
+                long timeStamp = TimeManager.GetTimeStamp();
                 if (redisUser == null)
                 {
                     return false;
@@ -187,7 +187,7 @@ namespace RpgCollector.Middlewares
 
         public void OpenRedis()
         {
-            redisClient = DatabaseSuppoter.OpenRedis(_redisAddress);
+            redisClient = DatabaseConnector.OpenRedis(_redisAddress);
         }
     }
 

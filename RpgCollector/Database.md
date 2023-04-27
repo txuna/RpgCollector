@@ -69,52 +69,17 @@ CREATE TABLE `mail_item` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 ```
 
-### items
+### player_items
 ```
-CREATE TABLE `items` (
-  `itemId` int NOT NULL,
-  `itemName` varchar(45) NOT NULL,
-  `attributeId` int NOT NULL,
-  `enchantMaxCount` int NOT NULL,
+CREATE TABLE `player_items` (
+  playerItemId int64 AUTO  # 고유 코드 
+  userId INT 
+  `itemId` int NOT NULL, 마스터 코드 
+  quantity int 
+  enchantCount int 
   PRIMARY KEY (`itemId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 ```
 
-### player_inventory 
 ```
-CREATE TABLE `player_inventory` (
-  `playerId` int NOT NULL,
-  `itemId` int DEFAULT NULL,
-  `quantity` int DEFAULT NULL,
-  PRIMARY KEY (`playerId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
-```
-
-### item_price 
-```
-CREATE TABLE `item_price` (
-  `itemId` int NOT NULL,
-  `sellPrice` int NOT NULL,
-  `buyPrice` int NOT NULL,
-  PRIMARY KEY (`itemId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
-```
-
-### attribute_info 
-```
-CREATE TABLE `attribute_info` (
-  `attributeId` int NOT NULL,
-  `typeId` int NOT NULL,
-  PRIMARY KEY (`attributeId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
-```
-
-
-### type_ifno
-```
-CREATE TABLE `type_info` (
-  `typeId` int NOT NULL,
-  `typeName` varchar(45) NOT NULL,
-  PRIMARY KEY (`typeId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 ```
