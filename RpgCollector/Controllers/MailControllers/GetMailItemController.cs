@@ -59,23 +59,23 @@ namespace RpgCollector.Controllers.MailControllers
                 });
             }
 
-            //if (!await _playerAccessDB.AddItem(redisUser.UserId, mailItem.itemId, mailItem.Quantity))
-            //{
-            //    if(!await _mailboxAccessDB.UndoMailItem(mailItem.itemId))
-            //    {
-            //        return Json(new FailResponse
-            //        {
-            //            Success = false,
-            //            Message = "Failed Undo Mail Item. So Sorry...!. Please Contact to Administrator"
-            //        });
-            //    }
+            if (!await _playerAccessDB.AddItem(redisUser.UserId, mailItem.itemId, mailItem.Quantity))
+            {
+                if (!await _mailboxAccessDB.UndoMailItem(mailItem.itemId))
+                {
+                    return Json(new FailResponse
+                    {
+                        Success = false,
+                        Message = "Failed Undo Mail Item. So Sorry...!. Please Contact to Administrator"
+                    });
+                }
 
-            //    return Json(new FailResponse
-            //    {
-            //        Success = false,
-            //        Message = "Failed Add Item into the Player from Mail, Undo Rollback Mail Item"
-            //    });
-            //}
+                return Json(new FailResponse
+                {
+                    Success = false,
+                    Message = "Failed Add Item into the Player from Mail, Undo Rollback Mail Item"
+                });
+            }
 
             return Json(new SuccessResponse
             {
