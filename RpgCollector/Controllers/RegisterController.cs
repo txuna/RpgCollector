@@ -32,6 +32,9 @@ namespace RpgCollector.Controllers
             {
                 return BadRequest(content);
             }
+            /* 
+             * 계정생성이 완료되면 Player 데이터 생성
+             */
             int userId = await _authenticationService.GetUserId(userRequest.UserName);
             (success, content) = await _playerService.CreatePlayer(userId);
             if(!success)
