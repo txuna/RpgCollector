@@ -18,7 +18,7 @@ namespace RpgCollector.Services
 
     public class PlayerAccessDB : IPlayerAccessDB
     {
-        IDbConnection dbConnection;
+        IDbConnection? dbConnection;
         MySqlCompiler compiler;
         QueryFactory queryFactory;
 

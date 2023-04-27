@@ -15,6 +15,9 @@ namespace RpgCollector.Services
         Task<bool> ReadMail(int mailId);
         Task<MailItem?> ReceiveMailItem(int mailId);
         Task<bool> HasMailItem(int mailId);
+        Task<bool> SendMail(int senderId, int receiverId, int title, int content); //일반 메일
+        Task<bool> SendMail(int senderId, int receiverId, int title, int content, int itemId, int quantity); //아이템 동봉 메일
+        // player의 아이템 받기가실패할시 mail undo 처리 
         Task<bool> UndoMailItem(int mailId);
     }
 
@@ -32,6 +35,48 @@ namespace RpgCollector.Services
                 compiler = new MySqlCompiler();
                 queryFactory = new QueryFactory(dbConnection, compiler);
             }
+        }
+
+        public async Task<bool> SendMail(int senderId, int receiverId, int title, int content, int itemId, int quantity)
+        {
+            try
+            {
+                await queryFactory.Query("mailbox").InsertAsync(new
+                {
+                    senderId = senderId,
+                    receiverId = receiverId,
+                    title = title,
+                    content = content,
+                    isRead = 0,
+                    hasItem = 1
+                });
+                // 추가한 mail의 id를 가지고와야하는데...
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public async Task<bool> SendMail(int senderId, int receiverId, int title, int content)
+        {
+            try {
+                await queryFactory.Query("mailbox").InsertAsync(new
+                {
+                    senderId = senderId,
+                    receiverId = receiverId,
+                    title = title,
+                    content = content,
+                    isRead = 0,
+                    hasItem = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
         }
 
         public async Task<Mailbox[]?> GetAllMailFromUserId(int userId)
