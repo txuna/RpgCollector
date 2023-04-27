@@ -40,17 +40,19 @@ namespace RpgCollector.Controllers.MailControllers
 
             var userName = HttpContext.Request.Headers["User-Name"];
             RedisUser redisUser = await _accountMemoryDB.GetUserFromName(userName);
+
             if(redisUser == null)
             {
                 return Json(new FailResponse
                 {
                     Success = false,
-                    Message = "Failed Fetch Mail"
+                    Message = "Failed Fetch Redis User"
                 });
             }
 
             // ReceiverId에 맞게 가지고 오기
             Mailbox[] mails = await _mailboxAccessDB.GetAllMailFromUserId(redisUser.UserId);
+
             if(mails == null)
             {
                 return Json(new FailResponse
@@ -60,8 +62,7 @@ namespace RpgCollector.Controllers.MailControllers
                 });
             }
 
-            int len = mails.Length;
-            var totalPageNumber = Math.Ceiling((double)(mails.Length / 20));
+            int totalPageNumber = (int)Math.Ceiling((double)mails.Length / 20.0);
             Mailbox[] partialMail = new Mailbox[20];
 
             if (openMailboxRequest.IsFirstOpen == true)
@@ -80,9 +81,11 @@ namespace RpgCollector.Controllers.MailControllers
                 }
                 Array.Copy(mails, (openMailboxRequest.PageNumber - 1) * 20, partialMail, 0, 20);
             }
+
             return Json(new MailboxResponse
             {
-                TotlaPageNumber = 1,
+                Success = true,
+                TotlaPageNumber = totalPageNumber,
                 Mails = partialMail
             });
         }

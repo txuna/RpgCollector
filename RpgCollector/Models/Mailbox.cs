@@ -1,6 +1,6 @@
 ﻿namespace RpgCollector.Models
 {
-    public class Mail
+    public class Mailbox
     {
         public int MailId { get; set; }
         public int SenderId { get; set; }

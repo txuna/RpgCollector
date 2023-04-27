@@ -2,7 +2,7 @@
 
 namespace RpgCollector.Controllers.MailControllers
 {
-    public class ReadController : Controller
+    public class ReadMailController : Controller
     {
         public IActionResult Index()
         {

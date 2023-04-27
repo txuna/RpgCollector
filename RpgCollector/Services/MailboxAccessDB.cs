@@ -9,7 +9,7 @@ namespace RpgCollector.Services
     public interface IMailboxAccessDB
     {
         Task<Mailbox[]?> GetAllMailFromUserId(int userId);
-        Task<Mailbox> ReadMail(int mailId); 
+        //Task<Mailbox> ReadMail(int mailId); 
         //Task<Item> GetItemFromMail();
     }
 
@@ -31,12 +31,20 @@ namespace RpgCollector.Services
 
         public async Task<Mailbox[]?> GetAllMailFromUserId(int userId)
         {
-
+            try
+            {
+                var mails =  await queryFactory.Query("mailbox").Where("receiverId", userId).GetAsync<Mailbox>();
+                return mails.ToArray();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
-        public async Task<Mailbox> ReadMail(int mailId)
-        {
+        //public async Task<Mailbox> ReadMail(int mailId)
+        //{
 
-        }
+        //}
     }
 }
