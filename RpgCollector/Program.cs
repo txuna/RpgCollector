@@ -24,6 +24,8 @@ builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)))
 builder.Services.AddTransient<ICustomAuthenticationService, AuthenticationService>();
 builder.Services.AddTransient<INoticeService, NoticeService>();
 builder.Services.AddTransient<IPlayerService, PlayerService>();
+builder.Services.AddTransient<IPostService, PostService>();
+
 
 var app = builder.Build();
 

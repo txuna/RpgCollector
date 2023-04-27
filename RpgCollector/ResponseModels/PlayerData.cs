@@ -22,6 +22,6 @@
     {
         public int PlayerId { get; set; }
         public int ItemId { get; set; }
-        public int RankId { get; set;
+        public int RankId { get; set; }
     }
 }
