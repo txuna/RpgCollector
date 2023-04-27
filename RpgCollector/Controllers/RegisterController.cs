@@ -8,9 +8,9 @@ namespace RpgCollector.Controllers
     public class RegisterController : Controller
     {
         IAccountDB _accountDB;
-        IMemoryDB _memoryDB;
+        IAccountMemoryDB _memoryDB;
 
-        public RegisterController(IAccountDB accountDB, IMemoryDB memoryDB)
+        public RegisterController(IAccountDB accountDB, IAccountMemoryDB memoryDB)
         {
             _accountDB = accountDB;
             _memoryDB = memoryDB;
@@ -28,6 +28,7 @@ namespace RpgCollector.Controllers
                     Message = "Invalid Model"
                 });
             }
+
             if(!await _accountDB.RegisterUser(userRequest.UserName, userRequest.Password))
             {
                 return Json(new FailResponse
@@ -36,6 +37,7 @@ namespace RpgCollector.Controllers
                     Message = "Failed Register"
                 });
             }
+
             return Json(new SuccessResponse
             {
                 Success = true,

@@ -6,19 +6,20 @@ using System.Text.Json;
 
 namespace RpgCollector.Services
 {
-    public interface IMemoryDB
+    public interface IAccountMemoryDB
     {
         Task<bool> IsDuplicateLogin(string userName);
         Task<bool> StoreUser(User user, string authToken);
         Task<bool> RemoveUser(string userName);
+        
     }
 
-    public class MemoryDB : IMemoryDB
+    public class AccountMemoryDB : IAccountMemoryDB
     {
         private ConnectionMultiplexer? redisClient;
         private IDatabase redisDB; 
 
-        public MemoryDB(IOptions<DbConfig> dbConfig) 
+        public AccountMemoryDB(IOptions<DbConfig> dbConfig) 
         {
             redisClient = DatabaseConnector.OpenRedis(dbConfig.Value.RedisDb);
             if(redisClient != null)
@@ -91,6 +92,8 @@ namespace RpgCollector.Services
             }
             return true;
         }
+
+        
 
         void Dispose()
         {

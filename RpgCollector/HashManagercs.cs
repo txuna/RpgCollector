@@ -9,7 +9,9 @@ namespace RpgCollector
         public static void SetupSaltAndHash(this User user)
         {
             var salt = GenerateSalt();
+
             user.PasswordSalt = Convert.ToBase64String(salt);
+
             user.Password = GenerateHash(user.Password, user.PasswordSalt);
         }
 
@@ -18,6 +20,7 @@ namespace RpgCollector
             var rng = RandomNumberGenerator.Create();
             var salt = new Byte[24];
             rng.GetBytes(salt);
+
             return salt;
         }
 

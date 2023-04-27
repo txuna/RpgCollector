@@ -11,9 +11,9 @@ namespace RpgCollector.Controllers
     public class LoginController : Controller
     {
         IAccountDB _accountDB;
-        IMemoryDB _memoryDB;
+        IAccountMemoryDB _memoryDB;
 
-        public LoginController(IAccountDB accountDB, IMemoryDB memoryDB) 
+        public LoginController(IAccountDB accountDB, IAccountMemoryDB memoryDB) 
         {
             _accountDB = accountDB;
             _memoryDB = memoryDB;
@@ -36,7 +36,9 @@ namespace RpgCollector.Controllers
                     Message = "Invalid Model"
                 });
             }
+
             User? user = await _accountDB.GetUser(userRequest.UserName);
+
             if(user == null)
             {
                 return Json(new FailResponse
@@ -45,6 +47,7 @@ namespace RpgCollector.Controllers
                     Message = "None Exist User"
                 });
             }
+
             // 패스워드 확인
             if(!_accountDB.VerifyPassword(user, userRequest.Password))
             {
@@ -63,9 +66,8 @@ namespace RpgCollector.Controllers
                     Message = "Duplicated Login"
                 });
             }
-            // 로그인에 성공한 User에게 Token 발급
+            // 로그인에 성공한 User에게 Token 발급 && // 유니코드 변환 문제
             string authToken = HashManager.GenerateAuthToken();
-            // 유니코드 변환 문제
             authToken = authToken.Replace("+", "d");
 
             if(!await _memoryDB.StoreUser(user, authToken))
@@ -77,7 +79,7 @@ namespace RpgCollector.Controllers
                 });
             }
 
-            return Json(new UserLoginResponse
+            return Json(new LoginResponse
             {
                 Success = true,
                 UserName = user.UserName,

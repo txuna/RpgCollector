@@ -1,6 +1,6 @@
 ﻿namespace RpgCollector.ResponseModels
 {
-    public class UserLoginResponse
+    public class LoginResponse
     {
         public bool Success { get; set; }
         public string UserName { get; set; }

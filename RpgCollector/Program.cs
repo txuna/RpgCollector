@@ -23,7 +23,8 @@ IConfiguration configuration = builder.Configuration;
 
 builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)));
 builder.Services.AddTransient<IAccountDB, AccountDB>(); 
-builder.Services.AddTransient<IMemoryDB, MemoryDB>();   
+builder.Services.AddTransient<IAccountMemoryDB, AccountMemoryDB>();   
+builder.Services.AddTransient<INoticeMemoryDB, NoticeMemoryDB>();
 
 var app = builder.Build();
 
