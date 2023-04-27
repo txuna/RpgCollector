@@ -39,7 +39,7 @@ namespace RpgCollector.Controllers.MailControllers
             }
 
             var userName = HttpContext.Request.Headers["User-Name"];
-            RedisUser redisUser = await _accountMemoryDB.GetUserFromName(userName);
+            RedisUser? redisUser = await _accountMemoryDB.GetUserFromName(userName);
 
             if(redisUser == null)
             {
@@ -62,8 +62,24 @@ namespace RpgCollector.Controllers.MailControllers
                 });
             }
 
+            MailboxResponse? mailboxResponse = getPartialMails(mails, openMailboxRequest);
+
+            if(mailboxResponse == null)
+            {
+                return Json(new FailResponse
+                {
+                    Success = false,
+                    Message = "Invalid Page Number"
+                });
+            }
+
+            return Json(mailboxResponse);
+        }
+
+        public MailboxResponse? getPartialMails(Mailbox[] mails, OpenMailboxRequest openMailboxRequest)
+        {
             int totalPageNumber = (int)Math.Ceiling((double)mails.Length / 20.0);
-            Mailbox[] partialMail; 
+            Mailbox[] partialMail;
 
             if (openMailboxRequest.IsFirstOpen == true)
             {
@@ -72,25 +88,24 @@ namespace RpgCollector.Controllers.MailControllers
             }
             else
             {
-                if(openMailboxRequest.PageNumber > totalPageNumber)
+                if (openMailboxRequest.PageNumber > totalPageNumber)
                 {
-                    return Json(new FailResponse
-                    {
-                        Success = false,
-                        Message = "Invalid Page Number"
-                    });
+                    return null;
                 }
+
                 int start = (openMailboxRequest.PageNumber - 1) * 20;
                 int end = 20;
-                if(start + 20 > mails.Length)
+
+                if (start + 20 > mails.Length)
                 {
                     partialMail = new Mailbox[mails.Length - start];
                     end = mails.Length - start;
                 }
                 else
                 {
-                    partialMail = new Mailbox[20]; 
+                    partialMail = new Mailbox[20];
                 }
+
                 Array.Copy(mails, start, partialMail, 0, end);
             }
 
@@ -101,7 +116,7 @@ namespace RpgCollector.Controllers.MailControllers
                 Mails = partialMail
             };
 
-            return Json(mailboxResponse);
+            return mailboxResponse;
         }
     }
 }
