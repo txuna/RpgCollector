@@ -33,7 +33,7 @@ namespace RpgCollector.Services
         {
             try
             {
-                var mails =  await queryFactory.Query("mailbox").Where("receiverId", userId).GetAsync<Mailbox>();
+                IEnumerable<Mailbox> mails =  await queryFactory.Query("mailbox").Where("receiverId", userId).GetAsync<Mailbox>();
                 return mails.ToArray();
             }
             catch (Exception ex)

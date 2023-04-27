@@ -51,7 +51,7 @@ namespace RpgCollector.Controllers.MailControllers
             }
 
             // ReceiverId에 맞게 가지고 오기
-            Mailbox[] mails = await _mailboxAccessDB.GetAllMailFromUserId(redisUser.UserId);
+            Mailbox[]? mails = await _mailboxAccessDB.GetAllMailFromUserId(redisUser.UserId);
 
             if(mails == null)
             {
@@ -63,10 +63,11 @@ namespace RpgCollector.Controllers.MailControllers
             }
 
             int totalPageNumber = (int)Math.Ceiling((double)mails.Length / 20.0);
-            Mailbox[] partialMail = new Mailbox[20];
+            Mailbox[] partialMail; 
 
             if (openMailboxRequest.IsFirstOpen == true)
             {
+                partialMail = new Mailbox[20];
                 Array.Copy(mails, 0, partialMail, 0, 20);
             }
             else
@@ -79,15 +80,28 @@ namespace RpgCollector.Controllers.MailControllers
                         Message = "Invalid Page Number"
                     });
                 }
-                Array.Copy(mails, (openMailboxRequest.PageNumber - 1) * 20, partialMail, 0, 20);
+                int start = (openMailboxRequest.PageNumber - 1) * 20;
+                int end = 20;
+                if(start + 20 > mails.Length)
+                {
+                    partialMail = new Mailbox[mails.Length - start];
+                    end = mails.Length - start;
+                }
+                else
+                {
+                    partialMail = new Mailbox[20]; 
+                }
+                Array.Copy(mails, start, partialMail, 0, end);
             }
 
-            return Json(new MailboxResponse
+            MailboxResponse mailboxResponse = new MailboxResponse
             {
                 Success = true,
-                TotlaPageNumber = totalPageNumber,
+                TotalPageNumber = totalPageNumber,
                 Mails = partialMail
-            });
+            };
+
+            return Json(mailboxResponse);
         }
     }
 }
