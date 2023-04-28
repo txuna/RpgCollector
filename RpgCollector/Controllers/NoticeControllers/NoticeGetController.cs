@@ -8,7 +8,7 @@ using StackExchange.Redis;
 using System;
 using System.Text.Json;
 
-namespace RpgCollector.Controllers;
+namespace RpgCollector.Controllers.NoticeControllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -30,7 +30,7 @@ public class NoticeGetController : Controller
     {
         Notice[]? result = await _memoryDB.GetAllNotice();
 
-        if(result == null)
+        if (result == null)
         {
             return new NoticeGetResponse
             {

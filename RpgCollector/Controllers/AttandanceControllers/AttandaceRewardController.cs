@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Services;
 
-namespace RpgCollector.Controllers
+namespace RpgCollector.Controllers.AttandanceControllers
 {
     public class AttandaceRewardController : Controller
     {
-        IMailboxAccessDB _mailboxAccessDB; 
+        IMailboxAccessDB _mailboxAccessDB;
 
-        public AttandaceRewardController(IMailboxAccessDB mailboxAccessDB) 
+        public AttandaceRewardController(IMailboxAccessDB mailboxAccessDB)
         {
             _mailboxAccessDB = mailboxAccessDB;
         }
