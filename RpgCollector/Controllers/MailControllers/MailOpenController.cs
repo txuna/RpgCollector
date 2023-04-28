@@ -11,6 +11,7 @@ namespace RpgCollector.Controllers.MailControllers;
  * 처음열었는지에 대한 부분과 
  * 다음페이지를 보기 위한부분 Request에 추가
  */
+[ApiController]
 public class MailOpenController : Controller
 {
     IMailboxAccessDB _mailboxAccessDB;
@@ -30,14 +31,6 @@ public class MailOpenController : Controller
     [HttpPost]
     public async Task<MailOpenResponse> OpenMailbox(MailOpenRequest openMailboxRequest)
     {
-        if(!ModelState.IsValid)
-        {
-            return new MailOpenResponse
-            {
-                Error = ErrorState.InvalidModel
-            };
-        }
-
         var userName = HttpContext.Request.Headers["User-Name"];
         int userId = await _accountDB.GetUserId(userName);
         
@@ -73,7 +66,7 @@ public class MailOpenController : Controller
         return mailOpenResponse;
     }
 
-    public MailOpenResponse? getPartialMails(Mailbox[] mails, MailOpenRequest openMailboxRequest)
+    MailOpenResponse? getPartialMails(Mailbox[] mails, MailOpenRequest openMailboxRequest)
     {
         int totalPageNumber = (int)Math.Ceiling((double)mails.Length / 20.0);
         Mailbox[] partialMail;
@@ -90,7 +83,7 @@ public class MailOpenController : Controller
                 return null;
             }
 
-            int start = (openMailboxRequest.PageNumber - 1) * 20;
+            int start = ((int)openMailboxRequest.PageNumber - 1) * 20;
             int end = 20;
 
             if (start + 20 > mails.Length)

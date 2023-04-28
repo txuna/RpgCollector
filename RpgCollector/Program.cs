@@ -33,7 +33,11 @@ var app = builder.Build();
 app.UseRouting();
 // 인증 확인 미들웨어
 app.UseAuthenticationMiddleware(configuration.GetSection("DbConfig")["RedisDB"]);
-app.MapControllers();
+//app.MapControllers();
+#pragma warning disable ASP0014
+app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+#pragma warning restore ASP0014
+
 
 bool success = await LoadData();
 if (!success)

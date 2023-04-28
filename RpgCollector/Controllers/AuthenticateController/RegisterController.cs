@@ -7,6 +7,7 @@ using System.Diagnostics;
 
 namespace RpgCollector.Controllers.AuthenticateController;
 
+[ApiController]
 public class RegisterController : Controller
 {
     IAccountDB _accountDB;
@@ -20,16 +21,8 @@ public class RegisterController : Controller
 
     [Route("/Register")]
     [HttpPost]
-    public async Task<RegisterResponse> Register([FromBody]RegisterRequest registerRequest)
+    public async Task<RegisterResponse> Register(RegisterRequest registerRequest)
     {
-        if (!ModelState.IsValid)
-        {
-            return new RegisterResponse
-            {
-                Error = ErrorState.InvalidModel
-            };
-        }
-
         if (!await _accountDB.RegisterUser(registerRequest.UserName, registerRequest.Password))
         {
             return new RegisterResponse

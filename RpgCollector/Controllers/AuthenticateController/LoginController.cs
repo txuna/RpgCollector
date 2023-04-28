@@ -9,6 +9,7 @@ using System.Text.Json;
 
 namespace RpgCollector.Controllers.AuthenticateController;
 
+[ApiController]
 public class LoginController : Controller
 {
     IAccountDB _accountDB;
@@ -27,16 +28,8 @@ public class LoginController : Controller
      */
     [Route("/Login")]
     [HttpPost]
-    public async Task<LoginResponse> Login([FromBody]LoginRequest loginRequest)
+    public async Task<LoginResponse> Login(LoginRequest loginRequest)
     {
-        if (!ModelState.IsValid)
-        {
-            return new LoginResponse
-            {
-                Error = ErrorState.InvalidModel, 
-            };
-        }
-
         User? user = await _accountDB.GetUser(loginRequest.UserName);
 
         if (user == null)

@@ -5,6 +5,7 @@ using RpgCollector.Services;
 
 namespace RpgCollector.Controllers.AuthenticateController;
 
+[ApiController]
 public class LogoutController : Controller
 {
     IAccountMemoryDB _accountMemoryDB;

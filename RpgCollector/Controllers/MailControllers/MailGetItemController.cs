@@ -9,6 +9,8 @@ using SqlKata;
 
 namespace RpgCollector.Controllers.MailControllers;
 
+
+[ApiController]
 public class MailGetItemController : Controller
 {
     IMailboxAccessDB _mailboxAccessDB;
@@ -28,16 +30,8 @@ public class MailGetItemController : Controller
 */
     [Route("/Mail/Item")]
     [HttpPost]
-    public async Task<MailGetItemResponse> GetItem([FromBody] MailGetItemRequest readMailRequest)
+    public async Task<MailGetItemResponse> GetItem(MailGetItemRequest readMailRequest)
     {
-        if(!ModelState.IsValid)
-        {
-            return new MailGetItemResponse
-            {
-                Error = ErrorState.InvalidModel
-            };
-        }
-
         var userName = HttpContext.Request.Headers["User-Name"];
         int userId = await _accountDB.GetUserId(userName);
 

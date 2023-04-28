@@ -1,4 +1,5 @@
-﻿using RpgCollector.CustomConstraints;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using RpgCollector.CustomConstraints;
 using System.ComponentModel.DataAnnotations;
 
 namespace RpgCollector.RequestResponseModel.LoginModel
