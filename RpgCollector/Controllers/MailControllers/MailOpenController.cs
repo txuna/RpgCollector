@@ -12,12 +12,12 @@ namespace RpgCollector.Controllers.MailControllers
      * 처음열었는지에 대한 부분과 
      * 다음페이지를 보기 위한부분 Request에 추가
      */
-    public class OpenMailboxController : Controller
+    public class MailOpenController : Controller
     {
         IMailboxAccessDB _mailboxAccessDB;
         IAccountMemoryDB _accountMemoryDB;
 
-        public OpenMailboxController(IMailboxAccessDB mailboxAccessDB, IAccountMemoryDB accountMemoryDB)
+        public MailOpenController(IMailboxAccessDB mailboxAccessDB, IAccountMemoryDB accountMemoryDB)
         {
             _mailboxAccessDB = mailboxAccessDB;
             _accountMemoryDB = accountMemoryDB;
@@ -29,7 +29,7 @@ namespace RpgCollector.Controllers.MailControllers
 */
         [Route("/Mail/Open")]
         [HttpPost]
-        public async Task<JsonResult> OpenMailbox([FromBody] OpenMailboxRequest openMailboxRequest)
+        public async Task<JsonResult> OpenMailbox([FromBody] MailOpenRequest openMailboxRequest)
         {
             if(!ModelState.IsValid)
             {
@@ -78,7 +78,7 @@ namespace RpgCollector.Controllers.MailControllers
             return Json(mailboxResponse);
         }
 
-        public MailboxResponse? getPartialMails(Mailbox[] mails, OpenMailboxRequest openMailboxRequest)
+        public MailboxResponse? getPartialMails(Mailbox[] mails, MailOpenRequest openMailboxRequest)
         {
             int totalPageNumber = (int)Math.Ceiling((double)mails.Length / 20.0);
             Mailbox[] partialMail;

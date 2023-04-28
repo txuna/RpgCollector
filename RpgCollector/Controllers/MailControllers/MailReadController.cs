@@ -7,10 +7,10 @@ using RpgCollector.Services;
 
 namespace RpgCollector.Controllers.MailControllers
 {
-    public class ReadMailController : Controller
+    public class MailReadController : Controller
     {
         IMailboxAccessDB _mailboxAccessDB;
-        public ReadMailController(IMailboxAccessDB mailboxAccessDB)
+        public MailReadController(IMailboxAccessDB mailboxAccessDB)
         {
             _mailboxAccessDB = mailboxAccessDB;
         }
@@ -21,7 +21,7 @@ namespace RpgCollector.Controllers.MailControllers
  */
         [Route("/Mail/Read")]
         [HttpPost]
-        public async Task<JsonResult> ReadMail([FromBody] ReadMailRequest readMailRequest)
+        public async Task<JsonResult> ReadMail([FromBody] MailReadRequest readMailRequest)
         {
             Mailbox? mail = await _mailboxAccessDB.GetMail(readMailRequest.MailId);
             if(mail == null)
@@ -42,7 +42,7 @@ namespace RpgCollector.Controllers.MailControllers
                 });
             }
 
-            ReadMailResponse mailReadResponse = new ReadMailResponse
+            MailReadResponse mailReadResponse = new MailReadResponse
             {
                 Success = true,
                 Title = mail.Title,

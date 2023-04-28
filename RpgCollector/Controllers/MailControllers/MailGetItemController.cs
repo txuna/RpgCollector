@@ -7,13 +7,13 @@ using RpgCollector.Services;
 
 namespace RpgCollector.Controllers.MailControllers
 {
-    public class GetMailItemController : Controller
+    public class MailGetItemController : Controller
     {
         IMailboxAccessDB _mailboxAccessDB;
         IPlayerAccessDB _playerAccessDB;
         IAccountMemoryDB _accountMemoryDB;
 
-        public GetMailItemController(IMailboxAccessDB mailboxAccessDB, IPlayerAccessDB playerAccessDB, IAccountMemoryDB accountMemoryDB) 
+        public MailGetItemController(IMailboxAccessDB mailboxAccessDB, IPlayerAccessDB playerAccessDB, IAccountMemoryDB accountMemoryDB) 
         {
             _mailboxAccessDB = mailboxAccessDB; 
             _playerAccessDB = playerAccessDB;
@@ -25,7 +25,7 @@ namespace RpgCollector.Controllers.MailControllers
  */
         [Route("/Mail/Item")]
         [HttpPost]
-        public async Task<JsonResult> GetItem([FromBody] ReadMailRequest readMailRequest)
+        public async Task<JsonResult> GetItem([FromBody] MailReadRequest readMailRequest)
         {
             if(!await _mailboxAccessDB.HasMailItem(readMailRequest.MailId))
             {
@@ -59,7 +59,7 @@ namespace RpgCollector.Controllers.MailControllers
                 });
             }
 
-            if (!await _playerAccessDB.AddItem(redisUser.UserId, mailItem.itemId, mailItem.Quantity))
+            if (!await _playerAccessDB.AddItemToPlayer(redisUser.UserId, mailItem.itemId, mailItem.Quantity))
             {
                 if (!await _mailboxAccessDB.UndoMailItem(mailItem.itemId))
                 {

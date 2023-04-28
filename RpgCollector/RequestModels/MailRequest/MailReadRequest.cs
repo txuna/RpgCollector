@@ -1,6 +1,6 @@
 ﻿namespace RpgCollector.RequestModels.MailRequest
 {
-    public class ReadMailRequest
+    public class MailReadRequest
     {
         public int MailId { get; set; }
     }

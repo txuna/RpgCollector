@@ -2,7 +2,7 @@
 
 namespace RpgCollector.RequestModels.MailRequest
 {
-    public class OpenMailboxRequest
+    public class MailOpenRequest
     {
         [Required]
         public bool IsFirstOpen { get; set; }

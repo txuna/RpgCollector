@@ -1,6 +1,6 @@
 ﻿namespace RpgCollector.ResponseModels.MailResponse
 {
-    public class ReadMailResponse
+    public class MailReadResponse
     {
         public bool Success { get; set; }
         public string Title { get; set; }
