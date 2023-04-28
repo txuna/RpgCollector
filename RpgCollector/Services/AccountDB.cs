@@ -11,7 +11,6 @@ namespace RpgCollector.Services;
 
 public interface IAccountDB
 {
-    bool VerifyPassword(User user, string requestPassword);
     Task<User?> GetUser(string userName);
     Task<bool> RegisterUser(string userName, string password);
     Task<bool> UndoRegisterUser(string userName);
@@ -64,14 +63,7 @@ public class AccountDB : IAccountDB
         return user;
     }
 
-    public bool VerifyPassword(User user, string requestPassword)
-    {
-        if (user.Password != HashManager.GenerateHash(requestPassword, user.PasswordSalt))
-        {
-            return false; 
-        }
-        return true;
-    }
+    
 
     public async Task<bool> UndoRegisterUser(string userName)
     {

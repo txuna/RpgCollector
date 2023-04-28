@@ -41,7 +41,7 @@ public class LoginController : Controller
         }
 
         // 패스워드 확인
-        if (!_accountDB.VerifyPassword(user, loginRequest.Password))
+        if(!VerifyPassword(user, loginRequest.Password))
         {
             return new LoginResponse
             {
@@ -69,5 +69,13 @@ public class LoginController : Controller
         };
     }
 
+    bool VerifyPassword(User user, string requestPassword)
+    {
+        if (user.Password != HashManager.GenerateHash(requestPassword, user.PasswordSalt))
+        {
+            return false;
+        }
+        return true;
+    }
 
 }
