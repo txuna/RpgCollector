@@ -4,6 +4,7 @@ using RpgCollector.Models.MailData;
 using RpgCollector.RequestModels.MailRequest;
 using RpgCollector.ResponseModels;
 using RpgCollector.Services;
+using SqlKata;
 
 namespace RpgCollector.Controllers.MailControllers
 {
@@ -59,29 +60,34 @@ namespace RpgCollector.Controllers.MailControllers
                 });
             }
 
-            if (!await _playerAccessDB.AddItemToPlayer(redisUser.UserId, mailItem.itemId, mailItem.Quantity))
+            if(!await AddItemToPlayer(redisUser.UserId, mailItem))
             {
-                if (!await _mailboxAccessDB.UndoMailItem(mailItem.itemId))
-                {
-                    return Json(new FailResponse
-                    {
-                        Success = false,
-                        Message = "Failed Undo Mail Item. So Sorry...!. Please Contact to Administrator"
-                    });
-                }
-
                 return Json(new FailResponse
                 {
                     Success = false,
-                    Message = "Failed Add Item into the Player from Mail, Undo Rollback Mail Item"
+                    Message = "Failed to Add Mail Item To Player"
                 });
             }
-
+            
             return Json(new SuccessResponse
             {
                 Success = true,
                 Message = "Successfully Received Item From Mail"
             });
+        }
+
+        async Task<bool> AddItemToPlayer(int userId, MailItem mailItem)
+        {
+            if (!await _playerAccessDB.AddItemToPlayer(userId, mailItem.ItemId, mailItem.Quantity))
+            {
+                if (!await _mailboxAccessDB.UndoMailItem(mailItem.MailId))
+                {
+                    return false;
+                }
+
+                return false;
+            }
+            return true;
         }
     }
 }

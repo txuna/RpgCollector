@@ -51,6 +51,18 @@ namespace RpgCollector.Services
                     hasItem = 1
                 });
                 // 추가한 mail의 id를 가지고와야하는데...
+                Mailbox mailbox = await queryFactory.Query("mailbox").Where("senderId", senderId)
+                                                                     .Where("receiverId", receiverId)
+                                                                     .Where("hasItem", 1)
+                                                                     .FirstAsync<Mailbox>();
+
+                await queryFactory.Query("mail_item").InsertAsync(new
+                {
+                    mailId = mailbox.MailId,
+                    itemId = itemId,
+                    quantity = quantity,
+                    hasReceived = 0
+                });
             }
             catch (Exception ex)
             {
@@ -151,10 +163,12 @@ namespace RpgCollector.Services
             try
             {
                 MailItem? mailItem = await queryFactory.Query("mail_item").Where("mailId", mailId).FirstAsync<MailItem>();
-                int effectedRow = await queryFactory.Query("mail_Item").Where("mailId", mailId).Where("hasReceived", 0).UpdateAsync(new
-                {
-                    hasReceived = 1
-                }); 
+                int effectedRow = await queryFactory.Query("mail_Item")
+                                                    .Where("mailId", mailId)
+                                                    .Where("hasReceived", 0)
+                                                    .UpdateAsync(new {
+                    hasReceived = 1,
+                });
                 if(effectedRow < 1)
                 {
                     return null;
