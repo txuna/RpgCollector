@@ -205,11 +205,22 @@ namespace RpgCollector.Services
 
         // 사용자 아이템에 아이템 기반으로 추가 어트리뷰트 - 타입 기반으로 quantity overlapp 되는지 확인
         // 만약 오버래핑 가능한것이라면 playerId, ItemId 기반으로 찾아서 quantity 늘리기 
-        // 오러래핑 불가능한 경우 quantity 만큼 row 추가
+        // 오버래핑 불가능한 경우 quantity 만큼 row 추가
         public async Task<bool> AddItemToPlayer(int userId, int itemId, int quantity)
         {
-            // 돈 아이템이라면
-            if (itemId == 1)
+            MasterItem? masterItem = await GetMasterItemFromItemId(itemId);
+            if (masterItem == null)
+            {
+                return false;
+            }
+
+            MasterItemAttribute? masterItemAttribute = await GetMasterItemAttributeFromId(masterItem.AttributeId);
+            if (masterItemAttribute == null)
+            {
+                return false;
+            }
+
+            if(masterItemAttribute.TypeId == (int)TypeDefinition.MONEY)
             {
                 if (!await AddMoneyToPlayer(userId, quantity))
                 {
@@ -217,24 +228,9 @@ namespace RpgCollector.Services
                 }
                 return true;
             }
-            //itemId를 기반으로 master_item_info에서 해당 아이템의 프로토타입을 불러옴
-            MasterItem? masterItem = await GetMasterItemFromItemId(itemId);
-            if (masterItem == null)
-            {
-                return false;
-            }
 
-            //해당 아이템의 프로토타입에서 attributeId를 확인하고 master_item_attribute에서 typeId를 불러옴 
-            MasterItemAttribute? masterItemAttribute = await GetMasterItemAttributeFromId(masterItem.AttributeId);
-            if (masterItemAttribute == null)
+            else if (masterItemAttribute.TypeId == (int)TypeDefinition.CONSUMPTION)
             {
-                return false;
-            }
-
-            //typeId가 0이라면 오버래핑 허용(소비 아이템) -- 1이라면 새로운 아이템으로(장비 아이템)
-            if (masterItemAttribute.TypeId == 0)
-            {
-                // 기존에 있다면 Update 없다면 Insert
                 if (await HasItem(userId, itemId))
                 {
 
@@ -248,7 +244,7 @@ namespace RpgCollector.Services
                         return false;
                     }
                 }
-                else // 새로운 아이템
+                else
                 {
                     if (!await InsertPlayerConsumptionItem(userId, itemId, quantity))
                     {
@@ -256,7 +252,7 @@ namespace RpgCollector.Services
                     }
                 }
             }
-            else // 장비아이템
+            else if(masterItemAttribute.TypeId == (int)TypeDefinition.EQUIPMENT)
             {
                 if (!await InsertPlayerEquipmentItem(userId, itemId, quantity))
                 {
