@@ -12,11 +12,11 @@ namespace RpgCollector.Utility
             try
             {
                 dbConnection = new MySqlConnection(connectString);
-
                 dbConnection.Open();
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return null;
             }
             return dbConnection;
@@ -30,6 +30,7 @@ namespace RpgCollector.Utility
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -46,8 +47,9 @@ namespace RpgCollector.Utility
             {
                 redisClient = ConnectionMultiplexer.Connect(option);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return null;
             }
 
@@ -62,6 +64,7 @@ namespace RpgCollector.Utility
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
             }
         }
     }

@@ -11,7 +11,7 @@ namespace RpgCollector.Services
     public interface IMailboxAccessDB
     {
         Task<Mailbox[]?> GetAllMailFromUserId(int userId);
-        Task<Mailbox?> GetMail(int mailId);
+        Task<Mailbox?> GetMailFromUserId(int mailId, int userId);
         Task<bool> ReadMail(int mailId);
         Task<MailItem?> ReceiveMailItem(int mailId);
         Task<bool> HasMailItem(int mailId);
@@ -19,6 +19,7 @@ namespace RpgCollector.Services
         Task<bool> SendMail(int senderId, int receiverId, int title, int content, int itemId, int quantity); //아이템 동봉 메일
         // player의 아이템 받기가실패할시 mail undo 처리 
         Task<bool> UndoMailItem(int mailId);
+        Task<bool> IsMailOwner(int mailId, int userId);
     }
 
     public class MailboxAccessDB : IMailboxAccessDB
@@ -37,11 +38,29 @@ namespace RpgCollector.Services
             }
         }
 
+        public async Task<bool> IsMailOwner(int mailId, int userId)
+        {
+            try
+            {
+                int count = await queryFactory.Query("mailbox").Where("mailId", mailId).Where("receiverId", userId).CountAsync<int>();
+                if(count > 0)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
         public async Task<bool> SendMail(int senderId, int receiverId, int title, int content, int itemId, int quantity)
         {
             try
             {
-                await queryFactory.Query("mailbox").InsertAsync(new
+                int mailId = await queryFactory.Query("mailbox").InsertGetIdAsync<int>(new
                 {
                     senderId = senderId,
                     receiverId = receiverId,
@@ -50,15 +69,15 @@ namespace RpgCollector.Services
                     isRead = 0,
                     hasItem = 1
                 });
-                // 추가한 mail의 id를 가지고와야하는데...
-                Mailbox mailbox = await queryFactory.Query("mailbox").Where("senderId", senderId)
-                                                                     .Where("receiverId", receiverId)
-                                                                     .Where("hasItem", 1)
-                                                                     .FirstAsync<Mailbox>();
+
+                //Mailbox mailbox = await queryFactory.Query("mailbox").Where("senderId", senderId)
+                //                                                     .Where("receiverId", receiverId)
+                //                                                     .Where("hasItem", 1)
+                //                                                     .FirstAsync<Mailbox>();
 
                 await queryFactory.Query("mail_item").InsertAsync(new
                 {
-                    mailId = mailbox.MailId,
+                    mailId = mailId,
                     itemId = itemId,
                     quantity = quantity,
                     hasReceived = 0
@@ -66,6 +85,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
             return true;
@@ -86,6 +106,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
             return true;
@@ -100,19 +121,24 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return null;
             }
         }
 
-        public async Task<Mailbox?> GetMail(int mailId)
+        public async Task<Mailbox?> GetMailFromUserId(int mailId, int userId)
         {
             try
             {
-                Mailbox mail = await queryFactory.Query("mailbox").Where("mailId", mailId).FirstAsync<Mailbox>();
+                Mailbox mail = await queryFactory.Query("mailbox")
+                                                 .Where("mailId", mailId)
+                                                 .Where("receiverdId", userId)
+                                                 .FirstAsync<Mailbox>();
                 return mail;
             }
             catch( Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return null;
             }
         }
@@ -133,6 +159,7 @@ namespace RpgCollector.Services
             }
             catch(Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }
@@ -154,6 +181,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }
@@ -177,6 +205,7 @@ namespace RpgCollector.Services
             }
             catch ( Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return null;
             }
         }
@@ -190,6 +219,7 @@ namespace RpgCollector.Services
             }
             catch ( Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }

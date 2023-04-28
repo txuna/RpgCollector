@@ -91,8 +91,9 @@ async Task<bool> LoadData()
         await redisDB.StringSetAsync("ClientVersion", "1.0.0");
         await redisDB.StringSetAsync("MasterDataVersion", "1.0.0");
     }
-    catch (Exception e)
+    catch (Exception ex)
     {
+        Console.WriteLine(ex.Message);
         return false;
     }
     redisClient.CloseRedis();

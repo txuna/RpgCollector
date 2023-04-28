@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using RpgCollector.Models;
-using RpgCollector.ResponseModels;
+using RpgCollector.RequestResponseModel.NoticeGetModel;
+using RpgCollector.RequestResponseModel;
 using RpgCollector.Utility;
 using StackExchange.Redis;
 using System.Text.Json;
@@ -47,6 +48,7 @@ namespace RpgCollector.Services
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex.Message);
                     return null;
                 }
 
@@ -57,9 +59,9 @@ namespace RpgCollector.Services
                     noticesArray[i] = JsonSerializer.Deserialize<Notice>(noticesRedis[i]);
                 }
 
-                NoticeResponse noticeResponse = new NoticeResponse
+                NoticeGetResponse noticeResponse = new NoticeGetResponse
                 {
-                    Success = true,
+                    Error = ErrorState.None,
                     NoticeList = noticesArray
                 };
 

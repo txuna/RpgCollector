@@ -1,17 +1,14 @@
 ﻿using RpgCollector.CustomConstraints;
 using System.ComponentModel.DataAnnotations;
 
-namespace RpgCollector.RequestModels
+namespace RpgCollector.RequestResponseModel.LoginModel
 {
-    public class UserRequest
+    public class LoginRequest
     {
         [Required]
-        [CustomUserName]
         public string UserName { get; set; }
 
         [Required]
-        [CustomUserPassword]
         public string Password { get; set; }
     }
-
 }

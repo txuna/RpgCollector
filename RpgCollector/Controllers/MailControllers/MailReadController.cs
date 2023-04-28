@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models.MailData;
-using RpgCollector.RequestModels.MailRequest;
-using RpgCollector.ResponseModels;
-using RpgCollector.ResponseModels.MailResponse;
+using RpgCollector.RequestResponseModel.MailReadModel;
+using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
 
 namespace RpgCollector.Controllers.MailControllers
@@ -10,46 +9,65 @@ namespace RpgCollector.Controllers.MailControllers
     public class MailReadController : Controller
     {
         IMailboxAccessDB _mailboxAccessDB;
-        public MailReadController(IMailboxAccessDB mailboxAccessDB)
+        IAccountDB _accountDB;
+
+        public MailReadController(IMailboxAccessDB mailboxAccessDB, IAccountDB accountDB)
         {
             _mailboxAccessDB = mailboxAccessDB;
+            _accountDB = accountDB;
         }
 
-/*
- * MailId를 기반으로 해당 메일 전송 Title과 Content
- * 읽음 처리 진행 
- */
+        /*
+         * MailId를 기반으로 해당 메일 전송 Title과 Content
+         * 읽음 처리 진행 
+         */
         [Route("/Mail/Read")]
         [HttpPost]
-        public async Task<JsonResult> ReadMail([FromBody] MailReadRequest readMailRequest)
+        public async Task<MailReadResponse> ReadMail([FromBody] MailReadRequest readMailRequest)
         {
-            Mailbox? mail = await _mailboxAccessDB.GetMail(readMailRequest.MailId);
+            if (!ModelState.IsValid)
+            {
+                return new MailReadResponse
+                {
+                    Error = ErrorState.InvalidModel
+                };
+            }
+
+            string userName = HttpContext.Response.Headers["User-Name"]; 
+            int userId = await _accountDB.GetUserId(userName);
+
+            if(!await _mailboxAccessDB.IsMailOwner(readMailRequest.MailId, userId))
+            {
+                return new MailReadResponse
+                {
+                    Error = ErrorState.NoneOwnerThisMail
+                };
+            }
+
+            Mailbox? mail = await _mailboxAccessDB.GetMailFromUserId(readMailRequest.MailId, userId);
+
             if(mail == null)
             {
-                return Json(new FailResponse
+                return new MailReadResponse
                 {
-                    Success = false,
-                    Message = "None Exist Mail"
-                });
+                    Error = ErrorState.NoneExistMail
+                };
             }
 
             if(!await _mailboxAccessDB.ReadMail(readMailRequest.MailId))
             {
-                return Json(new FailResponse
-                {
-                    Success = false,
-                    Message = "Already Read Mail"
-                });
+                return new MailReadResponse 
+                { 
+                    Error = ErrorState.AlreadyReadMail 
+                };
             }
 
-            MailReadResponse mailReadResponse = new MailReadResponse
+            return new MailReadResponse
             {
-                Success = true,
+                Error = ErrorState.None,
                 Title = mail.Title,
                 Content = mail.Content
             };
-
-            return Json(mailReadResponse);
         }
     }
 }

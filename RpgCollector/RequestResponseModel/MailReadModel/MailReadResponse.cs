@@ -1,8 +1,8 @@
-﻿namespace RpgCollector.ResponseModels.MailResponse
+﻿namespace RpgCollector.RequestResponseModel.MailReadModel
 {
     public class MailReadResponse
     {
-        public bool Success { get; set; }
+        public ErrorState Error { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
     }

@@ -6,12 +6,15 @@ namespace RpgCollector.Utility
     public static class HashManager
     {
         private const string secretKey = "helloworld_im_iron_man";
-        public static void SetupSaltAndHash(this User user)
+
+        public static void SetSalt(this User user)
         {
             var salt = GenerateSalt();
-
             user.PasswordSalt = Convert.ToBase64String(salt);
+        }
 
+        public static void SetHash(this User user)
+        {
             user.Password = GenerateHash(user.Password, user.PasswordSalt);
         }
 

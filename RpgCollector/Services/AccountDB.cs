@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
 using RpgCollector.Models;
-using RpgCollector.ResponseModels;
 using RpgCollector.Utility;
 using SqlKata.Compilers;
 using SqlKata.Execution;
@@ -8,91 +7,123 @@ using StackExchange.Redis;
 using System.Data;
 using System.Text.Json;
 
-namespace RpgCollector.Services
+namespace RpgCollector.Services;
+
+public interface IAccountDB
 {
-    public interface IAccountDB
+    bool VerifyPassword(User user, string requestPassword);
+    Task<User?> GetUser(string userName);
+    Task<bool> RegisterUser(string userName, string password);
+    Task<bool> UndoRegisterUser(string userName);
+    Task<int> GetUserId(string userName);
+}
+
+public class AccountDB : IAccountDB
+{
+    IDbConnection dbConnection;
+    MySqlCompiler compiler;
+    QueryFactory queryFactory;
+
+
+    public AccountDB(IOptions<DbConfig> dbConfig)
     {
-        bool VerifyPassword(User user, string requestPassword);
-        Task<User?> GetUser(string userName);
-        Task<bool> RegisterUser(string userName, string password);
+        dbConnection = DatabaseConnector.OpenMysql(dbConfig.Value.MysqlAccountDb);
+        if(dbConnection != null) 
+        {
+            compiler = new MySqlCompiler(); 
+            queryFactory = new QueryFactory(dbConnection, compiler);
+        }
     }
 
-    public class AccountDB : IAccountDB
+    public async Task<int> GetUserId(string userName)
     {
-        IDbConnection dbConnection;
-        MySqlCompiler compiler;
-        QueryFactory queryFactory;
-
-
-        public AccountDB(IOptions<DbConfig> dbConfig)
+        try
         {
-            dbConnection = DatabaseConnector.OpenMysql(dbConfig.Value.MysqlAccountDb);
-            if(dbConnection != null) 
-            {
-                compiler = new MySqlCompiler(); 
-                queryFactory = new QueryFactory(dbConnection, compiler);
-            }
+            int userId = await queryFactory.Query("users").Select("userId").Where("userName", userName).FirstAsync<int>();
+            return userId;
         }
-
-        public async Task<User?> GetUser(string userName)
+        catch (Exception ex)
         {
-            User user;
-            try
-            {
-                user = await queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            return user;
+            Console.WriteLine(ex.Message);
+            return -1;
         }
+    } 
 
-        public bool VerifyPassword(User user, string requestPassword)
+    public async Task<User?> GetUser(string userName)
+    {
+        User user;
+        try
         {
-            if (user.Password != HashManager.GenerateHash(requestPassword, user.PasswordSalt))
-            {
-                return false; 
-            }
+            user = await queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+        return user;
+    }
+
+    public bool VerifyPassword(User user, string requestPassword)
+    {
+        if (user.Password != HashManager.GenerateHash(requestPassword, user.PasswordSalt))
+        {
+            return false; 
+        }
+        return true;
+    }
+
+    public async Task<bool> UndoRegisterUser(string userName)
+    {
+        try
+        {
+            await queryFactory.Query("users").Where("userName", userName).DeleteAsync();
             return true;
         }
-
-        public async Task<bool> RegisterUser(string userName, string password)
+        catch ( Exception ex )
         {
-            try
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> RegisterUser(string userName, string password)
+    {
+        try
+        {
+            User user = new User
             {
-                User user = new User
-                {
-                    UserName = userName,
-                    Password = password,
-                    PasswordSalt = "",
-                    Permission = 0
-                };
+                UserName = userName,
+                Password = password,
+                PasswordSalt = "",
+                Permission = 0
+            };
 
-                user.SetupSaltAndHash();
+            user.SetSalt();
+            user.SetHash();
 
-                await queryFactory.Query("users").InsertAsync(new
-                {
-                    userName = user.UserName,
-                    password = user.Password,
-                    passwordSalt = user.PasswordSalt,
-                    permission = user.Permission
-                });
-            }
-            catch (Exception ex)
+            await queryFactory.Query("users").InsertAsync(new
             {
-                return false;
-            }
-
-            return true;
+                userName = user.UserName,
+                password = user.Password,
+                passwordSalt = user.PasswordSalt,
+                permission = user.Permission
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
         }
 
-        void Dispose()
+        return true;
+    }
+
+    void Dispose()
+    {
+        if(dbConnection != null)
         {
-            if(dbConnection != null)
-            {
-                dbConnection.CloseMysql();
-            }
+            dbConnection.CloseMysql();
         }
     }
 }

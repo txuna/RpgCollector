@@ -5,7 +5,6 @@ using StackExchange.Redis;
 using System.Text.Json;
 using System.Text;
 using System.Threading.Tasks;
-using RpgCollector.RequestModels;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
 using RpgCollector.Utility;
@@ -140,39 +139,23 @@ namespace RpgCollector.Middlewares
             try
             {
                 // userId가 존재한다면 해당 userId를 불러와서 token 비교
-                if (!await redisDB.HashExistsAsync("Users", userName))
+                if(!await redisDB.KeyExistsAsync(userName))
                 {
                     return false;
                 }
 
-                RedisValue content = await redisDB.HashGetAsync("Users", userName);
-                RedisUser? redisUser = JsonSerializer.Deserialize<RedisUser>(content.ToString());
-
-                if (redisUser == null)
-                {
-                    return false;
-                }
+                string redisAuthToken = await redisDB.StringGetAsync(userName);
 
                 // 저장된 토큰이랑 불일치
-                if (redisUser.AuthToken != authToken)
+                if (redisAuthToken != authToken)
                 {
                     return false;
                 }
-
-                // 유효한 인증이라면 
-                long timeStamp = TimeManager.GetTimeStamp();
-                if (redisUser == null)
-                {
-                    return false;
-                }
-
-                // 최신 timestamp 넣고 재설정
-                redisUser.TimeStamp = timeStamp;
-                await redisDB.HashSetAsync("Users", userName, JsonSerializer.Serialize(redisUser));
                 return true;
 
             }catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }

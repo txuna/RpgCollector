@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using RpgCollector.Models;
-using RpgCollector.ResponseModels;
+using RpgCollector.RequestResponseModel.NoticeGetModel;
 using RpgCollector.Services;
+using RpgCollector.RequestResponseModel;
 using StackExchange.Redis;
 using System;
 using System.Text.Json;
 
 namespace RpgCollector.Controllers
 {
-    public class NoticeController : Controller
+    public class NoticeGetController : Controller
     {
         INoticeMemoryDB _memoryDB;
 
-        public NoticeController(INoticeMemoryDB memoryDB)
+        public NoticeGetController(INoticeMemoryDB memoryDB)
         {
             _memoryDB = memoryDB;
         }
@@ -23,24 +24,22 @@ namespace RpgCollector.Controllers
          */
         [Route("/Notice")]
         [HttpPost]
-        public async Task<JsonResult> Notice()
+        public async Task<NoticeGetResponse> Notice()
         {
             Notice[]? result = await _memoryDB.GetAllNotice();
 
             if(result == null)
             {
-                return Json(new FailResponse
+                return new NoticeGetResponse
                 {
-                    Success = false,
-                    Message = "Failed Fetch Notice"
-                });
+                    Error = ErrorState.FailedConnectRedis,
+                };
             }
-
-            return Json(new NoticeResponse
+            return new NoticeGetResponse
             {
-                Success = true,
+                Error = ErrorState.None,
                 NoticeList = result
-            });
+            };
         }
     }
 }

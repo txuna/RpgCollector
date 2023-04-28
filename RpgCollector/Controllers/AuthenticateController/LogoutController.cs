@@ -1,40 +1,36 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RpgCollector.ResponseModels;
+using RpgCollector.RequestResponseModel;
+using RpgCollector.RequestResponseModel.LogoutModel;
 using RpgCollector.Services;
 
-namespace RpgCollector.Controllers.AuthenticateController
+namespace RpgCollector.Controllers.AuthenticateController;
+
+public class LogoutController : Controller
 {
-    public class LogoutController : Controller
+    IAccountMemoryDB _accountMemoryDB;
+
+    public LogoutController(IAccountMemoryDB accountMemoryDB)
     {
-        IAccountDB _accountDB;
-        IAccountMemoryDB _memoryDB;
+        _accountMemoryDB = accountMemoryDB;
+    }
 
-        public LogoutController(IAccountDB accountDB, IAccountMemoryDB memoryDB)
+    [Route("/Logout")]
+    [HttpPost]
+    public async Task<LogoutResponse> Logout()
+    {
+        string userName = HttpContext.Request.Headers["User-Name"];
+
+        if (!await _accountMemoryDB.RemoveUser(userName))
         {
-            _accountDB = accountDB;
-            _memoryDB = memoryDB;
+            return new LogoutResponse
+            {
+                Error = ErrorState.FailedConnectRedis
+            };
         }
 
-        [Route("/Logout")]
-        [HttpPost]
-        public async Task<JsonResult> Logout()
+        return new LogoutResponse
         {
-            string userName = HttpContext.Request.Headers["User-Name"];
-
-            if (!await _memoryDB.RemoveUser(userName))
-            {
-                return Json(new FailResponse
-                {
-                    Success = false,
-                    Message = "Failed Logout"
-                });
-            }
-
-            return Json(new SuccessResponse
-            {
-                Success = true,
-                Message = "Successfully Logout"
-            });
-        }
+            Error = ErrorState.None
+        };
     }
 }

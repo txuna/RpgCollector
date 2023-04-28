@@ -1,68 +1,70 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models;
-using RpgCollector.RequestModels;
-using RpgCollector.ResponseModels;
+using RpgCollector.RequestResponseModel.RegisterModel;
+using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
+using System.Diagnostics;
 
-namespace RpgCollector.Controllers.AuthenticateController
+namespace RpgCollector.Controllers.AuthenticateController;
+
+public class RegisterController : Controller
 {
-    public class RegisterController : Controller
+    IAccountDB _accountDB;
+    IPlayerAccessDB _playerAccessDB;
+
+    public RegisterController(IAccountDB accountDB, IPlayerAccessDB playerAccessDB)
     {
-        IAccountDB _accountDB;
-        IPlayerAccessDB _playerAccessDB;
+        _accountDB = accountDB;
+        _playerAccessDB = playerAccessDB;
+    }
 
-        public RegisterController(IAccountDB accountDB, IPlayerAccessDB playerAccessDB)
+    [Route("/Register")]
+    [HttpPost]
+    public async Task<RegisterResponse> Register([FromBody]RegisterRequest registerRequest)
+    {
+        if (!ModelState.IsValid)
         {
-            _accountDB = accountDB;
-            _playerAccessDB = playerAccessDB;
+            return new RegisterResponse
+            {
+                Error = ErrorState.InvalidModel
+            };
         }
 
-        [Route("/Register")]
-        [HttpPost]
-        public async Task<JsonResult> Register([FromBody] UserRequest userRequest)
+        if (!await _accountDB.RegisterUser(registerRequest.UserName, registerRequest.Password))
         {
-            if (!ModelState.IsValid)
+            return new RegisterResponse
             {
-                return Json(new FailResponse
-                {
-                    Success = false,
-                    Message = "Invalid Model"
-                });
-            }
-
-            if (!await _accountDB.RegisterUser(userRequest.UserName, userRequest.Password))
-            {
-                return Json(new FailResponse
-                {
-                    Success = false,
-                    Message = "Failed Register"
-                });
-            }
-
-            User? user = await _accountDB.GetUser(userRequest.UserName);
-            if (user == null)
-            {
-                return Json(new FailResponse
-                {
-                    Success = false,
-                    Message = "Failed Created Player"
-                });
-            }
-
-            if (!await _playerAccessDB.CreatePlayer(user.UserId))
-            {
-                return Json(new FailResponse
-                {
-                    Success = false,
-                    Message = "Failed Created Player"
-                });
-            }
-
-            return Json(new SuccessResponse
-            {
-                Success = true,
-                Message = "Successfully Register"
-            });
+                Error = ErrorState.FailedRegister
+            };
         }
+
+        User? user = await _accountDB.GetUser(registerRequest.UserName);
+        if (user == null)
+        {
+            return new RegisterResponse
+            {
+                Error = ErrorState.NoneExistName
+            };
+        }
+
+        if (!await _playerAccessDB.CreatePlayer(user.UserId))
+        {
+            if(!await _accountDB.UndoRegisterUser(user.UserName))
+            {
+                return new RegisterResponse 
+                { 
+                    Error = ErrorState.FailedUndoRegisterUser 
+                };
+            }
+            return new RegisterResponse
+            {
+                Error = ErrorState.FailedCreatePlayer
+            };
+        }
+
+        return new RegisterResponse
+        {
+            Error = ErrorState.None
+        };
     }
 }

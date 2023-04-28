@@ -56,6 +56,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
             return true;
@@ -70,6 +71,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return null; 
             }
             return playerData;
@@ -86,6 +88,7 @@ namespace RpgCollector.Services
             }
             catch ( Exception ex )
             {
+                Console.WriteLine(ex.Message);
                 return null;
             }
         }
@@ -99,8 +102,9 @@ namespace RpgCollector.Services
                                                         .FirstAsync<MasterItemAttribute>();
                 return masterItemAttribute; 
             }
-            catch ( Exception e)
+            catch ( Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return null;
             }
         }
@@ -121,6 +125,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }
@@ -138,6 +143,7 @@ namespace RpgCollector.Services
             }
             catch ( Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return null;
             }
         }
@@ -157,6 +163,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }
@@ -175,8 +182,9 @@ namespace RpgCollector.Services
 
                 return true;
             }
-            catch ( Exception e )
+            catch ( Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }
@@ -197,8 +205,9 @@ namespace RpgCollector.Services
                 }
                 return true;
             }
-            catch ( Exception e)
+            catch ( Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }
@@ -285,6 +294,7 @@ namespace RpgCollector.Services
             } 
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
             return true;
