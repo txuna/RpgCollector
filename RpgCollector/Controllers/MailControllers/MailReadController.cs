@@ -26,7 +26,7 @@ public class MailReadController : Controller
     [HttpPost]
     public async Task<MailReadResponse> ReadMail(MailReadRequest readMailRequest)
     {
-        string userName = HttpContext.Response.Headers["User-Name"]; 
+        string userName = HttpContext.Request.Headers["User-Name"];
         int userId = await _accountDB.GetUserId(userName);
 
         if(!await _mailboxAccessDB.IsMailOwner(readMailRequest.MailId, userId))

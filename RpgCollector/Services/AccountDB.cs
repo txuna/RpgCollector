@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using MySqlConnector;
 using RpgCollector.Models;
 using RpgCollector.Utility;
 using SqlKata.Compilers;
@@ -22,24 +23,21 @@ public class AccountDB : IAccountDB
     IDbConnection dbConnection;
     MySqlCompiler compiler;
     QueryFactory queryFactory;
-
+    IOptions<DbConfig> _dbConfig;
 
     public AccountDB(IOptions<DbConfig> dbConfig)
     {
-        dbConnection = DatabaseConnector.OpenMysql(dbConfig.Value.MysqlAccountDb);
-        if(dbConnection != null) 
-        {
-            compiler = new MySqlCompiler(); 
-            queryFactory = new QueryFactory(dbConnection, compiler);
-        }
+        _dbConfig = dbConfig;
+        Open();
     }
 
     public async Task<int> GetUserId(string userName)
     {
         try
         {
-            int userId = await queryFactory.Query("users").Select("userId").Where("userName", userName).FirstAsync<int>();
-            return userId;
+            Console.WriteLine(userName);
+            User user = await queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
+            return user.UserId;
         }
         catch (Exception ex)
         {
@@ -113,9 +111,28 @@ public class AccountDB : IAccountDB
 
     void Dispose()
     {
-        if(dbConnection != null)
+        try
         {
-            dbConnection.CloseMysql();
+            dbConnection.Close();
+        }
+        catch( Exception ex )
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    void Open()
+    {
+        try
+        {
+            dbConnection = new MySqlConnection(_dbConfig.Value.MysqlAccountDb);
+            dbConnection.Open();
+            compiler = new MySqlCompiler();
+            queryFactory = new QueryFactory(dbConnection, compiler);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
         }
     }
 }

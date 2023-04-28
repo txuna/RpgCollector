@@ -17,7 +17,8 @@ namespace RpgCollector.Middlewares
         private readonly RequestDelegate _next;
         private readonly string[] exclusivePaths = new[] { "/Login", "/Register" };
         ConnectionMultiplexer? redisClient;
-        private string _redisAddress; 
+        private string _redisAddress;
+        IDatabase redisDB;
 
         public AuthenticationMiddleware(RequestDelegate next, string redisAddress)
         {
@@ -27,15 +28,7 @@ namespace RpgCollector.Middlewares
 
         public async Task Invoke(HttpContext httpContext)
         {
-            OpenRedis();
-
-            if (redisClient == null)
-            {
-                httpContext.Response.StatusCode = 401;
-                await httpContext.Response.WriteAsync("Redis Server Down");
-                return;
-            }
-
+            Open();
             // 인증을 거쳐야하는 PATH라면
             if (!CheckExclusivePath(httpContext))
             {
@@ -63,7 +56,7 @@ namespace RpgCollector.Middlewares
                 }
             }
 
-            redisClient.CloseRedis();
+            redisClient.Dispose();
             await _next(httpContext);
         }
 
@@ -192,9 +185,21 @@ namespace RpgCollector.Middlewares
             return true;
         }
 
-        public void OpenRedis()
+        void Open()
         {
-            redisClient = DatabaseConnector.OpenRedis(_redisAddress);
+            ConfigurationOptions option = new ConfigurationOptions
+            {
+                EndPoints = { _redisAddress }
+            };
+            try
+            {
+                redisClient = ConnectionMultiplexer.Connect(option);
+                redisDB = redisClient.GetDatabase();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 

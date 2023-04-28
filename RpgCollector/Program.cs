@@ -66,11 +66,7 @@ async Task<bool> LoadData()
 
     try
     {
-        redisClient = DatabaseConnector.OpenRedis(redisDBAddress);
-        if (redisClient == null)
-        {
-            throw new Exception("DB Connection Failed");
-        }
+        redisClient = ConnectionMultiplexer.Connect(option);
         redisDB = redisClient.GetDatabase();
 
         // Redis에 공지사항을 저장한다. + 이미 Notices 키가 있다면 날림
@@ -100,7 +96,7 @@ async Task<bool> LoadData()
         Console.WriteLine(ex.Message);
         return false;
     }
-    redisClient.CloseRedis();
+    redisClient.Dispose();
 
     return true;
 }

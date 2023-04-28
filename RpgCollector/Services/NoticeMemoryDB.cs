@@ -18,15 +18,12 @@ namespace RpgCollector.Services
 
         private ConnectionMultiplexer? redisClient;
         private IDatabase redisDB;
+        IOptions<DbConfig> _dbConfig;
 
         public NoticeMemoryDB(IOptions<DbConfig> dbConfig) 
         {
-            redisClient = DatabaseConnector.OpenRedis(dbConfig.Value.RedisDb);
-
-            if (redisClient != null)
-            {
-                redisDB = redisClient.GetDatabase();
-            }
+            _dbConfig = dbConfig;
+            Open();
         }
 
         public async Task<Notice[]?> GetAllNotice()
@@ -72,9 +69,30 @@ namespace RpgCollector.Services
 
         void Dispose()
         {
-            if (redisClient != null)
+            try
             {
-                redisClient.CloseAsync();
+                redisClient.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        void Open()
+        {
+            ConfigurationOptions option = new ConfigurationOptions
+            {
+                EndPoints = { _dbConfig.Value.RedisDb }
+            };
+            try
+            {
+                redisClient = ConnectionMultiplexer.Connect(option);
+                redisDB = redisClient.GetDatabase();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
     }

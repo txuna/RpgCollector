@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using MySqlConnector;
 using RpgCollector.Models;
 using RpgCollector.Models.MailData;
 using RpgCollector.Utility;
@@ -27,15 +28,12 @@ namespace RpgCollector.Services
         IDbConnection dbConnection;
         MySqlCompiler compiler;
         QueryFactory queryFactory;
+        IOptions<DbConfig> _dbConfig;
 
         public MailboxAccessDB(IOptions<DbConfig> dbConfig) 
         {
-            dbConnection = DatabaseConnector.OpenMysql(dbConfig.Value.MysqlGameDb);
-            if (dbConnection != null)
-            {
-                compiler = new MySqlCompiler();
-                queryFactory = new QueryFactory(dbConnection, compiler);
-            }
+            _dbConfig = dbConfig;
+            Open();
         }
 
         public async Task<bool> IsMailOwner(int mailId, int userId)
@@ -132,7 +130,7 @@ namespace RpgCollector.Services
             {
                 Mailbox mail = await queryFactory.Query("mailbox")
                                                  .Where("mailId", mailId)
-                                                 .Where("receiverdId", userId)
+                                                 .Where("receiverId", userId)
                                                  .FirstAsync<Mailbox>();
                 return mail;
             }
@@ -221,6 +219,33 @@ namespace RpgCollector.Services
             {
                 Console.WriteLine(ex.Message);
                 return false;
+            }
+        }
+
+        void Dispose()
+        {
+            try
+            {
+                dbConnection.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        void Open()
+        {
+            try
+            {
+                dbConnection = new MySqlConnection(_dbConfig.Value.MysqlGameDb);
+                dbConnection.Open();
+                compiler = new MySqlCompiler();
+                queryFactory = new QueryFactory(dbConnection, compiler);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
     }
