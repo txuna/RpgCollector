@@ -23,7 +23,8 @@ public class RegisterController : Controller
     [HttpPost]
     public async Task<RegisterResponse> Register(RegisterRequest registerRequest)
     {
-        if (!await _accountDB.RegisterUser(registerRequest.UserName, registerRequest.Password))
+        int userId = await _accountDB.RegisterUser(registerRequest.UserName, registerRequest.Password);
+        if (userId == -1)
         {
             return new RegisterResponse
             {
@@ -31,18 +32,9 @@ public class RegisterController : Controller
             };
         }
 
-        User? user = await _accountDB.GetUser(registerRequest.UserName);
-        if (user == null)
+        if (!await _playerAccessDB.CreatePlayer(userId))
         {
-            return new RegisterResponse
-            {
-                Error = ErrorState.NoneExistName
-            };
-        }
-
-        if (!await _playerAccessDB.CreatePlayer(user.UserId))
-        {
-            if(!await _accountDB.UndoRegisterUser(user.UserName))
+            if(!await _accountDB.UndoRegisterUser(registerRequest.UserName))
             {
                 return new RegisterResponse 
                 { 

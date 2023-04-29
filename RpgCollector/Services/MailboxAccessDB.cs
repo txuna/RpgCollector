@@ -68,11 +68,6 @@ namespace RpgCollector.Services
                     hasItem = 1
                 });
 
-                //Mailbox mailbox = await queryFactory.Query("mailbox").Where("senderId", senderId)
-                //                                                     .Where("receiverId", receiverId)
-                //                                                     .Where("hasItem", 1)
-                //                                                     .FirstAsync<Mailbox>();
-
                 await queryFactory.Query("mail_item").InsertAsync(new
                 {
                     mailId = mailId,

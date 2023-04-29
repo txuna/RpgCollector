@@ -2,6 +2,7 @@
 using MySqlConnector;
 using RpgCollector.Models;
 using RpgCollector.Utility;
+using SqlKata;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using StackExchange.Redis;
@@ -13,7 +14,7 @@ namespace RpgCollector.Services;
 public interface IAccountDB
 {
     Task<User?> GetUser(string userName);
-    Task<bool> RegisterUser(string userName, string password);
+    Task<int> RegisterUser(string userName, string password);
     Task<bool> UndoRegisterUser(string userName);
     Task<int> GetUserId(string userName);
 }
@@ -77,7 +78,7 @@ public class AccountDB : IAccountDB
         }
     }
 
-    public async Task<bool> RegisterUser(string userName, string password)
+    public async Task<int> RegisterUser(string userName, string password)
     {
         try
         {
@@ -92,7 +93,7 @@ public class AccountDB : IAccountDB
             user.SetSalt();
             user.SetHash();
 
-            await queryFactory.Query("users").InsertAsync(new
+            return await queryFactory.Query("users").InsertGetIdAsync<int>(new
             {
                 userName = user.UserName,
                 password = user.Password,
@@ -103,10 +104,8 @@ public class AccountDB : IAccountDB
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return false;
+            return -1;
         }
-
-        return true;
     }
 
     void Dispose()

@@ -3,6 +3,7 @@ using RpgCollector.Services;
 
 namespace RpgCollector.Controllers.AttandanceControllers
 {
+    [ApiController]
     public class AttandaceRewardController : Controller
     {
         IMailboxAccessDB _mailboxAccessDB;

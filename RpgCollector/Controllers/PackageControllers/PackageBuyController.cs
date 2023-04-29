@@ -2,6 +2,7 @@
 
 namespace RpgCollector.Controllers.PackageControllers
 {
+    [ApiController]
     public class PackageBuyController : Controller
     {
 
