@@ -40,7 +40,6 @@ public class LoginController : Controller
             };
         }
 
-        // 패스워드 확인
         if(!VerifyPassword(user, loginRequest.Password))
         {
             return new LoginResponse
@@ -75,6 +74,7 @@ public class LoginController : Controller
         {
             return false;
         }
+
         return true;
     }
 

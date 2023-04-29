@@ -24,6 +24,7 @@ public class RegisterController : Controller
     public async Task<RegisterResponse> Register(RegisterRequest registerRequest)
     {
         int userId = await _accountDB.RegisterUser(registerRequest.UserName, registerRequest.Password);
+
         if (userId == -1)
         {
             return new RegisterResponse
@@ -55,22 +56,15 @@ public class RegisterController : Controller
 
     async Task<bool> CreatePlayer(int userId)
     {
-        try
+        if (!await _playerAccessDB.SetInitPlayerState(userId))
         {
-            if (!await _playerAccessDB.SetInitPlayerState(userId))
-            {
-                return false;
-            }
-            if (!await _playerAccessDB.SetInitPlayerItems(userId))
-            {
-                return false;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
             return false;
         }
+        if (!await _playerAccessDB.SetInitPlayerItems(userId))
+        {
+            return false;
+        }
+
         return true;
     }
 }

@@ -52,6 +52,7 @@ public class MailOpenController : Controller
                 Error = ErrorState.FailedFetchMail
             };
         }
+
         MailOpenResponse? mailOpenResponse = getPartialMails(mails, openMailboxRequest);
 
         if(mailOpenResponse == null)

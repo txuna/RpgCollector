@@ -47,6 +47,7 @@ public class MailGetItemController : Controller
         }
 
         Error = await VerifyMail(mailGetItemRequest, userId);
+
         if(Error != ErrorState.None)
         {
             return new MailGetItemResponse
@@ -81,6 +82,7 @@ public class MailGetItemController : Controller
     async Task<ErrorState> AddItemToPlayer(int userId, int mailId)
     {
         MailItem? mailItem = await _mailboxAccessDB.ReceiveMailItem(mailId);
+
         if (mailItem == null)
         {
             return ErrorState.NoneExistMail;
@@ -95,6 +97,7 @@ public class MailGetItemController : Controller
 
             return ErrorState.FailedAddItemToPlayer;
         }
+
         return ErrorState.None;
     }
 }
