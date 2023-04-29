@@ -25,5 +25,7 @@
         NoneExistPackgeId = 20,
         FailedSendMail = 21,
         InvalidPackage = 22,
+        FailedAddItemToPlayer = 23,
+        FailedUndoMailItem = 24,
     }
 }

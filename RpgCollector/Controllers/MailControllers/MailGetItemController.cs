@@ -6,6 +6,7 @@ using RpgCollector.RequestResponseModel.MailGetItemModel;
 using RpgCollector.RequestResponseModel.MailReadModel;
 using RpgCollector.Services;
 using SqlKata;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RpgCollector.Controllers.MailControllers;
 
@@ -30,9 +31,11 @@ public class MailGetItemController : Controller
 */
     [Route("/Mail/Item")]
     [HttpPost]
-    public async Task<MailGetItemResponse> GetItem(MailGetItemRequest readMailRequest)
+    public async Task<MailGetItemResponse> GetItem(MailGetItemRequest mailGetItemRequest)
     {
         var userName = HttpContext.Request.Headers["User-Name"];
+        ErrorState Error; 
+
         int userId = await _accountDB.GetUserId(userName);
 
         if (userId == -1)
@@ -43,57 +46,55 @@ public class MailGetItemController : Controller
             };
         }
 
-        if (!await _mailboxAccessDB.HasMailItem(readMailRequest.MailId))
+        Error = await VerifyMail(mailGetItemRequest, userId);
+        if(Error != ErrorState.None)
         {
             return new MailGetItemResponse
             {
-                Error = ErrorState.NoneHaveItemInMail
+                Error = Error
             };
         }
 
-        if(!await _mailboxAccessDB.IsMailOwner(readMailRequest.MailId, userId))
-        {
-            return new MailGetItemResponse
-            {
-                Error = ErrorState.NoneOwnerThisMail
-            };
-        }
-
-        MailItem? mailItem = await _mailboxAccessDB.ReceiveMailItem(readMailRequest.MailId);
-
-        if(mailItem == null)
-        {
-            return new MailGetItemResponse
-            {
-                Error = ErrorState.AlreadyReceivedItemFromMail
-            };
-        }
-
-        if(!await AddItemToPlayer(userId, mailItem))
-        {
-            return new MailGetItemResponse
-            {
-                Error = ErrorState.FailedAddMailItemToPlayer
-            };
-        }
+        Error = await AddItemToPlayer(userId, mailGetItemRequest.MailId);
 
         return new MailGetItemResponse
         {
-            Error = ErrorState.None
+            Error = Error
         };
     }
 
-    async Task<bool> AddItemToPlayer(int userId, MailItem mailItem)
+    async Task<ErrorState> VerifyMail(MailGetItemRequest mailGetItemRequest, int userId)
     {
+        if (!await _mailboxAccessDB.HasMailItem(mailGetItemRequest.MailId))
+        {
+            return ErrorState.NoneHaveItemInMail;
+        }
+
+        if (!await _mailboxAccessDB.IsMailOwner(mailGetItemRequest.MailId, userId))
+        {
+            return ErrorState.NoneOwnerThisMail;
+        }
+
+        return ErrorState.None;
+    }
+
+    async Task<ErrorState> AddItemToPlayer(int userId, int mailId)
+    {
+        MailItem? mailItem = await _mailboxAccessDB.ReceiveMailItem(mailId);
+        if (mailItem == null)
+        {
+            return ErrorState.NoneExistMail;
+        }
+
         if (!await _playerAccessDB.AddItemToPlayer(userId, mailItem.ItemId, mailItem.Quantity))
         {
             if (!await _mailboxAccessDB.UndoMailItem(mailItem.MailId))
             {
-                return false;
+                return ErrorState.FailedUndoMailItem;
             }
 
-            return false;
+            return ErrorState.FailedAddItemToPlayer;
         }
-        return true;
+        return ErrorState.None;
     }
 }
