@@ -3,6 +3,7 @@ using RpgCollector.RequestResponseModel.PaymentModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
 using RpgCollector.Models.PackgeItemData;
+using RpgCollector.Models;
 
 namespace RpgCollector.Controllers.PackageControllers;
 
@@ -20,74 +21,96 @@ public class PackageBuyController : Controller
     }
     /*
      * 클라이언트가 어떤 패키지를 샀는지 확인 및 보낸 영수증 ID 중복 검증 
+     * 패키지가 존재하는지 확인 
+     * 구매가 정상적으로 이뤄진다면 메일로 발송
      */
     [Route("/Package/Buy")]
     [HttpPost]
     public async Task<PackageBuyResponse> BuyPackage(PackageBuyRequest packageBuyRequest)
     {
-        if(!await _packagePaymentDB.VerifyReceipt(packageBuyRequest.ReceiptId))
+        int userId;
+        ErrorState Error = await Verify(packageBuyRequest); 
+
+        if(Error != ErrorState.None)
         {
             return new PackageBuyResponse
             {
-                Error = ErrorState.InvalidReceipt
+                Error = Error
             };
         }
 
-        if(!await _packagePaymentDB.VertifyPackageId(packageBuyRequest.PackageId))
+        (Error, userId) = await Buy(packageBuyRequest);
+        if(Error != ErrorState.None)
         {
             return new PackageBuyResponse
             {
-                Error = ErrorState.InvalidPackage
+                Error = Error
             };
         }
 
+        Error = await SendPackageToMail(packageBuyRequest, userId);
+
+        return new PackageBuyResponse
+        {
+            Error = Error
+        };
+    }
+
+    async Task<(ErrorState, int)> Buy(PackageBuyRequest packageBuyRequest)
+    {
         string userName = HttpContext.Request.Headers["User-Name"];
         int userId = await _accountDB.GetUserId(userName);
+
         if(userId == -1)
         {
-            return new PackageBuyResponse
-            {
-                Error = ErrorState.NoneExistName
-            };
+            return (ErrorState.NoneExistName, -1);
         }
 
         if(!await _packagePaymentDB.BuyPackage(packageBuyRequest.ReceiptId, packageBuyRequest.PackageId, userId))
         {
-            return new PackageBuyResponse
-            {
-                Error = ErrorState.FailedConnectMysql
-            };
+            return (ErrorState.FailedConnectDatabase, -1);
         }
 
+        return (ErrorState.None, userId);
+    }
+
+    async Task<ErrorState> Verify(PackageBuyRequest packageBuyRequest)
+    {
+        if (!await _packagePaymentDB.VerifyReceipt(packageBuyRequest.ReceiptId))
+        {
+            return ErrorState.InvalidReceipt;
+        }
+
+        if (!await _packagePaymentDB.VertifyPackageId(packageBuyRequest.PackageId))
+        {
+            return ErrorState.InvalidPackage;
+        }
+
+        return ErrorState.None;
+    }
+
+    async Task<ErrorState> SendPackageToMail(PackageBuyRequest packageBuyRequest, int userId)
+    {
         PackageItem[]? packageItems = await _packagePaymentDB.GetPackageItems(packageBuyRequest.PackageId);
-        if(packageItems == null)
+
+        if (packageItems == null)
         {
-            return new PackageBuyResponse
-            {
-                Error = ErrorState.NoneExistPackgeId
-            };
+            return ErrorState.NoneExistPackgeId;
         }
 
-        foreach(PackageItem item in packageItems)
+        foreach (PackageItem item in packageItems)
         {
-            if(!await _mailboxAccessDB.SendMail(1, 
-                                                userId, 
-                                                "Packge Item!", 
+            if (!await _mailboxAccessDB.SendMail(1,
+                                                userId,
+                                                "Packge Item!",
                                                 "A package item has arrived. Thanks for your purchase",
-                                                item.ItemId, 
+                                                item.ItemId,
                                                 item.Quantity))
             {
-                return new PackageBuyResponse
-                {
-                    Error = ErrorState.FailedSendMail
-                };
+                return ErrorState.FailedSendMail;
             }
         }
 
-        return new PackageBuyResponse
-        {
-            Error = ErrorState.None
-        };
+        return ErrorState.None;
     }
-
 }
