@@ -21,5 +21,9 @@
         AlreadyReceivedItemFromMail = 16,
         FailedAddMailItemToPlayer = 17,
         NoneOwnerThisMail = 18,
+        InvalidReceipt = 19,
+        NoneExistPackgeId = 20,
+        FailedSendMail = 21,
+        InvalidPackage = 22,
     }
 }

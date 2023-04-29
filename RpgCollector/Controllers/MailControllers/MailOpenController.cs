@@ -52,7 +52,6 @@ public class MailOpenController : Controller
                 Error = ErrorState.FailedFetchMail
             };
         }
-
         MailOpenResponse? mailOpenResponse = getPartialMails(mails, openMailboxRequest);
 
         if(mailOpenResponse == null)
@@ -68,13 +67,30 @@ public class MailOpenController : Controller
 
     MailOpenResponse? getPartialMails(Mailbox[] mails, MailOpenRequest openMailboxRequest)
     {
+        if(mails.Length == 0)
+        {
+            return new MailOpenResponse
+            {
+                Error = ErrorState.None,
+                Mails = mails
+            };
+        }
+
         int totalPageNumber = (int)Math.Ceiling((double)mails.Length / 20.0);
         Mailbox[] partialMail;
 
         if (openMailboxRequest.IsFirstOpen == true)
         {
-            partialMail = new Mailbox[20];
-            Array.Copy(mails, 0, partialMail, 0, 20);
+            if(mails.Length < 20)
+            {
+                partialMail = new Mailbox[mails.Length];
+                Array.Copy(mails, 0, partialMail, 0, mails.Length);
+            }
+            else
+            {
+                partialMail = new Mailbox[20];
+                Array.Copy(mails, 0, partialMail, 0, 20);
+            }
         }
         else
         {

@@ -16,8 +16,8 @@ namespace RpgCollector.Services
         Task<bool> ReadMail(int mailId);
         Task<MailItem?> ReceiveMailItem(int mailId);
         Task<bool> HasMailItem(int mailId);
-        Task<bool> SendMail(int senderId, int receiverId, int title, int content); //일반 메일
-        Task<bool> SendMail(int senderId, int receiverId, int title, int content, int itemId, int quantity); //아이템 동봉 메일
+        Task<bool> SendMail(int senderId, int receiverId, string title, string content); //일반 메일
+        Task<bool> SendMail(int senderId, int receiverId, string title, string content, int itemId, int quantity); //아이템 동봉 메일
         // player의 아이템 받기가실패할시 mail undo 처리 
         Task<bool> UndoMailItem(int mailId);
         Task<bool> IsMailOwner(int mailId, int userId);
@@ -54,7 +54,7 @@ namespace RpgCollector.Services
             }
         }
 
-        public async Task<bool> SendMail(int senderId, int receiverId, int title, int content, int itemId, int quantity)
+        public async Task<bool> SendMail(int senderId, int receiverId, string title, string content, int itemId, int quantity)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace RpgCollector.Services
             return true;
         }
 
-        public async Task<bool> SendMail(int senderId, int receiverId, int title, int content)
+        public async Task<bool> SendMail(int senderId, int receiverId, string title, string content)
         {
             try {
                 await queryFactory.Query("mailbox").InsertAsync(new
