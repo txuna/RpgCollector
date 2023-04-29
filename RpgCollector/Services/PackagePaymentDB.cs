@@ -7,124 +7,123 @@ using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;
 
-namespace RpgCollector.Services
+namespace RpgCollector.Services;
+
+public interface IPackagePaymentDB
 {
-    public interface IPackagePaymentDB
+    Task<bool> VerifyReceipt(int receiptId);
+    Task<PackageItem[]?> GetPackageItems(int packageId);
+    Task<bool> BuyPackage(int receiptId, int packageId, int userId);
+    Task<bool> VertifyPackageId(int packageId);
+}
+
+public class PackagePaymentDB : IPackagePaymentDB
+{
+    IOptions<DbConfig> _dbConfig;
+    IDbConnection dbConnection;
+    MySqlCompiler compiler;
+    QueryFactory queryFactory;
+
+    public PackagePaymentDB(IOptions<DbConfig> dbConfig) 
     {
-        Task<bool> VerifyReceipt(int receiptId);
-        Task<PackageItem[]?> GetPackageItems(int packageId);
-        Task<bool> BuyPackage(int receiptId, int packageId, int userId);
-        Task<bool> VertifyPackageId(int packageId);
+        _dbConfig = dbConfig;
+        Open();
     }
 
-    public class PackagePaymentDB : IPackagePaymentDB
+    public async Task<bool> BuyPackage(int receiptId, int packageId, int userId)
     {
-        IOptions<DbConfig> _dbConfig;
-        IDbConnection dbConnection;
-        MySqlCompiler compiler;
-        QueryFactory queryFactory;
-
-        public PackagePaymentDB(IOptions<DbConfig> dbConfig) 
+        try
         {
-            _dbConfig = dbConfig;
-            Open();
+            await queryFactory.Query("player_payment_info").InsertAsync(new
+            {
+                receiptId = receiptId,
+                userId = userId,
+                packageId = packageId, 
+            });
+            return true;
         }
-
-        public async Task<bool> BuyPackage(int receiptId, int packageId, int userId)
+        catch (Exception ex)
         {
-            try
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> VertifyPackageId(int packageId)
+    {
+        try
+        {
+            int count = await queryFactory.Query("master_package_info").Where("packageId", packageId).CountAsync<int>();
+            if(count < 1)
             {
-                await queryFactory.Query("player_payment_info").InsertAsync(new
-                {
-                    receiptId = receiptId,
-                    userId = userId,
-                    packageId = packageId, 
-                });
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
                 return false;
             }
+            return true;
         }
-
-        public async Task<bool> VertifyPackageId(int packageId)
+        catch (Exception ex)
         {
-            try
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> VerifyReceipt(int receiptId)
+    {
+        try
+        {
+            int count = await queryFactory.Query("player_payment_info").Where("receiptId", receiptId).CountAsync<int>();
+            if (count > 0)
             {
-                int count = await queryFactory.Query("master_package_info").Where("packageId", packageId).CountAsync<int>();
-                if(count < 1)
-                {
-                    return false;
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
                 return false;
             }
+            return true;
         }
-
-        public async Task<bool> VerifyReceipt(int receiptId)
+        catch (Exception ex)
         {
-            try
-            {
-                int count = await queryFactory.Query("player_payment_info").Where("receiptId", receiptId).CountAsync<int>();
-                if (count > 0)
-                {
-                    return false;
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
+            Console.WriteLine(ex.Message);
+            return false;
         }
+    }
 
-        public async Task<PackageItem[]?> GetPackageItems(int packageId)
+    public async Task<PackageItem[]?> GetPackageItems(int packageId)
+    {
+        try
         {
-            try
-            {
-                IEnumerable<PackageItem> items = await queryFactory.Query("master_package_info").Where("packageId", packageId).GetAsync<PackageItem>();
-                PackageItem[] packageItem = items.ToArray();
-                return packageItem;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            IEnumerable<PackageItem> items = await queryFactory.Query("master_package_info").Where("packageId", packageId).GetAsync<PackageItem>();
+            PackageItem[] packageItem = items.ToArray();
+            return packageItem;
         }
-
-        void Dispose()
+        catch (Exception ex)
         {
-            try
-            {
-                dbConnection.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            Console.WriteLine(ex.Message);
+            return null;
         }
+    }
 
-        void Open()
+    void Dispose()
+    {
+        try
         {
-            try
-            {
-                dbConnection = new MySqlConnection(_dbConfig.Value.MysqlGameDb);
-                dbConnection.Open();
-                compiler = new MySqlCompiler();
-                queryFactory = new QueryFactory(dbConnection, compiler);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            dbConnection.Close();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    void Open()
+    {
+        try
+        {
+            dbConnection = new MySqlConnection(_dbConfig.Value.MysqlGameDb);
+            dbConnection.Open();
+            compiler = new MySqlCompiler();
+            queryFactory = new QueryFactory(dbConnection, compiler);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
         }
     }
 }

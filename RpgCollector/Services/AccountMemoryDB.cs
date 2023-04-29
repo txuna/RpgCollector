@@ -4,83 +4,82 @@ using RpgCollector.Utility;
 using StackExchange.Redis;
 using System.Text.Json;
 
-namespace RpgCollector.Services
+namespace RpgCollector.Services;
+
+public interface IAccountMemoryDB
 {
-    public interface IAccountMemoryDB
+    Task<bool> StoreUser(User user, string authToken);
+    Task<bool> RemoveUser(string userName);
+}
+
+public class AccountMemoryDB : IAccountMemoryDB
+{
+    private ConnectionMultiplexer? redisClient;
+    private IDatabase redisDB;
+    IOptions<DbConfig> _dbConfig;
+    ConnectionMultiplexer _redisClient;
+
+    public AccountMemoryDB(IOptions<DbConfig> dbConfig) 
     {
-        Task<bool> StoreUser(User user, string authToken);
-        Task<bool> RemoveUser(string userName);
+        _dbConfig = dbConfig;
+        Open();
     }
 
-    public class AccountMemoryDB : IAccountMemoryDB
+    public async Task<bool> StoreUser(User user, string authToken)
     {
-        private ConnectionMultiplexer? redisClient;
-        private IDatabase redisDB;
-        IOptions<DbConfig> _dbConfig;
-        ConnectionMultiplexer _redisClient;
-
-        public AccountMemoryDB(IOptions<DbConfig> dbConfig) 
+        try
         {
-            _dbConfig = dbConfig;
-            Open();
+            TimeSpan expiration = TimeSpan.FromMinutes(60);
+            await redisDB.StringSetAsync(user.UserName, authToken, expiration);
         }
-
-        public async Task<bool> StoreUser(User user, string authToken)
+        catch (Exception ex)
         {
-            try
-            {
-                TimeSpan expiration = TimeSpan.FromMinutes(60);
-                await redisDB.StringSetAsync(user.UserName, authToken, expiration);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
-            return true;
+            Console.WriteLine(ex.Message);
+            return false;
         }
+        return true;
+    }
 
-        public async Task<bool> RemoveUser(string userName)
+    public async Task<bool> RemoveUser(string userName)
+    {
+        try
         {
-            try
-            {
-                await redisDB.KeyDeleteAsync(userName);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
-            return true;
+            await redisDB.KeyDeleteAsync(userName);
         }
-
-        void Dispose()
+        catch (Exception ex)
         {
-            try
-            {
-                redisClient.Dispose();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            Console.WriteLine(ex.Message);
+            return false;
         }
+        return true;
+    }
 
-        void Open()
+    void Dispose()
+    {
+        try
         {
-            ConfigurationOptions option = new ConfigurationOptions
-            {
-                EndPoints = { _dbConfig.Value.RedisDb }
-            };
-            try
-            {
-                redisClient = ConnectionMultiplexer.Connect(option);
-                redisDB = redisClient.GetDatabase();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            redisClient.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    void Open()
+    {
+        ConfigurationOptions option = new ConfigurationOptions
+        {
+            EndPoints = { _dbConfig.Value.RedisDb }
+        };
+        try
+        {
+            redisClient = ConnectionMultiplexer.Connect(option);
+            redisDB = redisClient.GetDatabase();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
         }
     }
 }

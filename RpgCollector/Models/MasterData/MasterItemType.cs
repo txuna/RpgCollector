@@ -2,6 +2,7 @@
 {
     public enum TypeDefinition
     {
+        UNKNOWN = -1,
         CONSUMPTION = 0, 
         EQUIPMENT = 1, 
         MONEY = 2,

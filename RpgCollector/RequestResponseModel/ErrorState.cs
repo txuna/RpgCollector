@@ -2,30 +2,48 @@
 {
     public enum ErrorState
     {
+        /* Common 0 ~ 100 */
         None = 0,
         InvalidModel = 1,
-        InvalidPassword = 2,
-        InvalidUserName = 3,
-        NoneExistName = 4,
-        FailedConnectRedis = 5,
-        FailedConnectMysql = 6,
-        FailedConnectDatabase = 7,
-        FailedRegister = 8,
-        FailedCreatePlayer = 9,
-        FailedUndoRegisterUser = 10,
-        InvalidPageNumber = 11,
-        FailedFetchMail = 12,
-        NoneExistMail = 13,
-        AlreadyReadMail = 14,
-        NoneHaveItemInMail = 15,
-        AlreadyReceivedItemFromMail = 16,
-        FailedAddMailItemToPlayer = 17,
-        NoneOwnerThisMail = 18,
-        InvalidReceipt = 19,
-        NoneExistPackgeId = 20,
-        FailedSendMail = 21,
-        InvalidPackage = 22,
-        FailedAddItemToPlayer = 23,
-        FailedUndoMailItem = 24,
+        NoneExistName = 3,
+        FailedConnectRedis = 4,
+        FailedConnectMysql = 5,
+        FailedConnectDatabase = 6,
+        NoneExistItem = 7,
+
+        /* Account 101 ~ 200 */
+        InvalidPassword = 101,
+        InvalidUserName = 102,
+        FailedRegister = 103,
+        FailedCreatePlayer = 104,
+        FailedUndoRegisterUser = 105,
+
+
+        /* Mail 201 ~ 300 */
+        InvalidPageNumber = 201,
+        FailedFetchMail = 202,
+        NoneExistMail = 203,
+        AlreadyReadMail = 204,
+        NoneHaveItemInMail = 205,
+        AlreadyReceivedItemFromMail = 206,
+        FailedAddMailItemToPlayer = 207,
+        NoneOwnerThisMail = 208,
+        FailedSendMail = 209,
+
+        /* NOtice 301 ~ 400 */
+
+
+        /* Payment 401 ~ 500*/
+        InvalidReceipt = 401,
+        NoneExistPackgeId = 402,
+        InvalidPackage = 403,
+        FailedAddItemToPlayer = 404,
+        FailedUndoMailItem = 405,
+
+        /* Enchant 501~600 */
+        IsNotOwnerThisItem = 501,
+        CantNotEnchantThisType = 502,
+        AlreadyMaxiumEnchantCount = 503,
+       
     }
 }
