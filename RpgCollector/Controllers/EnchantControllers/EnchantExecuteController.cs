@@ -88,7 +88,7 @@ public class EnchantExecuteController : Controller
 
         return new EnchantExecuteResponse
         {
-            Error = ErrorState.None
+            Error = await ExecuteEnchant(playerItem, masterItem)
         };
     }
 
@@ -131,8 +131,8 @@ public class EnchantExecuteController : Controller
         return ErrorState.None;
     }
 
-    async Task<ErrorState> ExecuteEnchant()
+    async Task<ErrorState> ExecuteEnchant(PlayerItem playerItem, MasterItem masterItem)
     {
-
+        return ErrorState.None;
     }
 }
