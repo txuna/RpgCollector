@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using RpgCollector.Models;
+using RpgCollector.Models.InitPlayerData;
 using RpgCollector.Models.MasterData;
 using RpgCollector.Utility;
 using SqlKata.Compilers;
@@ -23,6 +24,8 @@ namespace RpgCollector.Services
         Task<bool> HasItem(int userId, int itemId);
         Task<MasterItemAttribute?> GetMasterItemAttributeFromId(int attributeId);
         Task<MasterItem?> GetMasterItemFromItemId(int itemId);
+        Task<bool> SetInitPlayerState(int userId);
+        Task<bool> SetInitPlayerItems(int userId);
     }
 
     public class PlayerAccessDB : IPlayerAccessDB
@@ -269,26 +272,61 @@ namespace RpgCollector.Services
             return true;
         }
 
-        public async Task<bool> CreatePlayer(int userId)
+        public async Task<bool> SetInitPlayerState(int userId)
         {
-            PlayerData playerData = new PlayerData
-            {
-                UserId = userId,
-                Hp = 0, 
-                Exp = 0, 
-                Level = 0, 
-                Money = 0
-            };
             try
             {
+                InitPlayerState? masterPlayerState = await queryFactory.Query("init_player_state").FirstAsync<InitPlayerState>();
                 await queryFactory.Query("players").InsertAsync(new
                 {
-                    userId = playerData.UserId,
-                    hp = playerData.Hp,
-                    exp = playerData.Exp,
-                    level = playerData.Level,
-                    money = playerData.Money
+                    userId = userId,
+                    hp = masterPlayerState.Hp,
+                    exp = masterPlayerState.Exp,
+                    level = masterPlayerState.Level,
+                    money = masterPlayerState.Money
                 });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        public async Task<bool> SetInitPlayerItems(int userId)
+        {
+            try
+            {
+                IEnumerable<InitPlayerItem> initPlayerItems = await queryFactory.Query("init_player_items").GetAsync<InitPlayerItem>();
+                foreach(var item in initPlayerItems)
+                {
+                    if(!await AddItemToPlayer(userId, item.ItemId, item.Quantity))
+                    {
+                        return false; 
+                    }
+                }
+                return true;
+            }
+            catch ( Exception ex )
+            {
+                Console.WriteLine(ex.Message);  
+                return false;
+            }
+        }
+
+        public async Task<bool> CreatePlayer(int userId)
+        {
+            try
+            {
+                if(!await SetInitPlayerState(userId))
+                {
+                    return false;
+                }
+                if(!await SetInitPlayerItems(userId))
+                {
+                    return false;
+                }
             } 
             catch (Exception ex)
             {

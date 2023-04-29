@@ -32,7 +32,7 @@ public class RegisterController : Controller
             };
         }
 
-        if (!await _playerAccessDB.CreatePlayer(userId))
+        if (!await CreatePlayer(userId))
         {
             if(!await _accountDB.UndoRegisterUser(registerRequest.UserName))
             {
@@ -51,5 +51,26 @@ public class RegisterController : Controller
         {
             Error = ErrorState.None
         };
+    }
+
+    async Task<bool> CreatePlayer(int userId)
+    {
+        try
+        {
+            if (!await _playerAccessDB.SetInitPlayerState(userId))
+            {
+                return false;
+            }
+            if (!await _playerAccessDB.SetInitPlayerItems(userId))
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+        return true;
     }
 }
