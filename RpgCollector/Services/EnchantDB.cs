@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MySqlConnector;
 using RpgCollector.Models;
+using RpgCollector.Models.EnchantModel;
 using RpgCollector.Models.MasterData;
 using SqlKata.Compilers;
 using SqlKata.Execution;
@@ -11,10 +12,9 @@ namespace RpgCollector.Services;
 public interface IEnchantDB
 {
     Task<bool> IsUserHasItem(int playerItemId, int userId);
-    Task<MasterItem?> GetMasterItem(int itemId);
-    Task<PlayerItem?> GetPlayerItem(int playerItemId);
-    Task<TypeDefinition> GetItemType(int attributeId);
-    Task<bool> DoEnchant(int playerItemId);
+    Task<bool> DoEnchant(PlayerItem playerItem);
+    Task<MasterEnchantInfo?> GetEnchantInfo(int currentEnchantCount);
+    Task<bool> EnchantLog(int playerItemId, int userId, int currentEnchantCount, int result);
 }
 
 public class EnchantDB : IEnchantDB
@@ -30,9 +30,55 @@ public class EnchantDB : IEnchantDB
         Open();
     }
 
-    public async Task<bool> DoEnchant(int playerItemId)
+    public async Task<bool> EnchantLog(int playerItemId, int userId, int currentEnchantCount, int result)
     {
-        return true;
+        try
+        {
+            await queryFactory.Query("player_enchant_log").InsertAsync(new
+            {
+                playerItemId = playerItemId,
+                userId = userId,
+                enchantCount = currentEnchantCount,
+                result = result
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<MasterEnchantInfo?> GetEnchantInfo(int currentEnchantCount)
+    {
+        try
+        {
+            MasterEnchantInfo? masterEnchantInfo  = await queryFactory.Query("master_enchant_info").Where("enchantCount", currentEnchantCount + 1).FirstAsync<MasterEnchantInfo>();
+            return masterEnchantInfo;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<bool> DoEnchant(PlayerItem playerItem)
+    {
+        try
+        {
+            await queryFactory.Query("player_items").Where("playerItemId", playerItem.PlayerItemId).UpdateAsync(new
+            {
+                enchantCount = playerItem.EnchantCount + 1
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
     }
 
     public async Task<bool> IsUserHasItem(int playerItemId, int userId)
@@ -52,59 +98,6 @@ public class EnchantDB : IEnchantDB
         {
             Console.WriteLine(ex.Message);
             return false;
-        }
-    }
-
-    public async Task<MasterItem?> GetMasterItem(int itemId)
-    {
-        try
-        {
-            MasterItem? masterItem = await queryFactory.Query("master_item_info").Where("itemId", itemId).FirstAsync<MasterItem>();
-            if (masterItem == null)
-            {
-                return null;
-            }
-            return masterItem;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            return null;
-        }
-    }
-
-    public async Task<PlayerItem?> GetPlayerItem(int playerItemId)
-    {
-        try
-        {
-            PlayerItem? playerItem = await queryFactory.Query("player_items").Where("playerItemId", playerItemId).FirstAsync<PlayerItem>();
-            return playerItem;
-        }
-        catch( Exception ex )
-        {
-            Console.WriteLine(ex.Message);
-            return null;
-        }
-    }
-
-    public async Task<TypeDefinition> GetItemType(int attributeId)
-    {
-        try
-        {
-            MasterItemAttribute? masterItemAttribute = await queryFactory.Query("master_item_attribute")
-                                                                        .Where("attributeId", attributeId)
-                                                                        .FirstAsync<MasterItemAttribute>();
-            if (masterItemAttribute == null)
-            {
-                return TypeDefinition.UNKNOWN;
-            }
-            return (TypeDefinition)masterItemAttribute.TypeId;
-
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            return TypeDefinition.UNKNOWN; ;
         }
     }
 

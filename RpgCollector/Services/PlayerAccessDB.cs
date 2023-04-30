@@ -13,7 +13,7 @@ namespace RpgCollector.Services;
 
 public interface IPlayerAccessDB
 {
-    //Task<bool> CreatePlayer(int userId);
+    Task<TypeDefinition> GetItemType(int attributeId);
     Task<PlayerData?> GetPlayerFromUserId(int userId);
     Task<bool> AddItemToPlayer(int userId, int itemId, int quantity);
     Task<bool> AddMoneyToPlayer(int userId, int money);
@@ -24,8 +24,10 @@ public interface IPlayerAccessDB
     Task<bool> HasItem(int userId, int itemId);
     Task<MasterItemAttribute?> GetMasterItemAttributeFromId(int attributeId);
     Task<MasterItem?> GetMasterItemFromItemId(int itemId);
+    Task<PlayerItem?> GetPlayerItem(int playerItemId);
     Task<bool> SetInitPlayerState(int userId);
     Task<bool> SetInitPlayerItems(int userId);
+    Task<bool> RemovePlayerItem(int playerItemId);
 }
 
 public class PlayerAccessDB : IPlayerAccessDB
@@ -39,6 +41,41 @@ public class PlayerAccessDB : IPlayerAccessDB
     {
         _dbConfig = dbConfig;
         Open();
+    }
+
+    public async Task<bool> RemovePlayerItem(int playerItemId)
+    {
+        try
+        {
+            await queryFactory.Query("player_items").Where("playerItemId", playerItemId).DeleteAsync();
+            return true;
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<TypeDefinition> GetItemType(int attributeId)
+    {
+        try
+        {
+            MasterItemAttribute? masterItemAttribute = await queryFactory.Query("master_item_attribute")
+                                                                        .Where("attributeId", attributeId)
+                                                                        .FirstAsync<MasterItemAttribute>();
+            if (masterItemAttribute == null)
+            {
+                return TypeDefinition.UNKNOWN;
+            }
+            return (TypeDefinition)masterItemAttribute.TypeId;
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return TypeDefinition.UNKNOWN;
+        }
     }
 
     public async Task<bool> AddMoneyToPlayer(int userId, int money)
@@ -76,6 +113,20 @@ public class PlayerAccessDB : IPlayerAccessDB
             return null; 
         }
         return playerData;
+    }
+
+    public async Task<PlayerItem?> GetPlayerItem(int playerItemId)
+    {
+        try
+        {
+            PlayerItem? playerItem = await queryFactory.Query("player_items").Where("playerItemId", playerItemId).FirstAsync<PlayerItem>();
+            return playerItem; ;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
     }
 
     public async Task<MasterItem?> GetMasterItemFromItemId(int itemId)

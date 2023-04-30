@@ -44,6 +44,7 @@
         IsNotOwnerThisItem = 501,
         CantNotEnchantThisType = 502,
         AlreadyMaxiumEnchantCount = 503,
-       
+        NoneExistEnchantCount = 504,
+        FailedLogEnchant = 505,
     }
 }

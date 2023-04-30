@@ -4,6 +4,7 @@ using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
 using RpgCollector.Models.MasterData;
 using RpgCollector.Models;
+using RpgCollector.Models.EnchantModel;
 
 namespace RpgCollector.Controllers.EnchantControllers;
 
@@ -12,11 +13,13 @@ public class EnchantExecuteController : Controller
 {
     IEnchantDB _enchantDB; 
     IAccountDB _accountDB;
+    IPlayerAccessDB _playerAccessDB;
 
-    public EnchantExecuteController(IEnchantDB enchantDB, IAccountDB accountDB)
+    public EnchantExecuteController(IEnchantDB enchantDB, IAccountDB accountDB, IPlayerAccessDB playerAccessDB)
     {
         _enchantDB = enchantDB;
         _accountDB = accountDB;
+        _playerAccessDB = playerAccessDB;
     }
 
     /*
@@ -24,7 +27,7 @@ public class EnchantExecuteController : Controller
     2. EchantCount와 MaxEnchatCount 비교 
     3.다음번에 갈 강화테이블 참조 
     3.1 강화 참조 테이블 
-    EnchantCountId - Percent - 
+    EnchantCountId - Percent - increasementValue
     4. 실패시 해당 아이템 삭제 
     5. 강화 이력 테이블 갱신 
     logId - userId - playerItemid - isSuccess - date 
@@ -37,7 +40,10 @@ public class EnchantExecuteController : Controller
         int playerItemId = enchantExecuteRequest.PlayerItemId;
         ErrorState Error;
 
-        Error = await VerifyItemPermission(playerItemId); 
+        string userName = HttpContext.Request.Headers["User-Name"];
+        int userId = await _accountDB.GetUserId(userName);
+
+        Error = await VerifyItemPermission(playerItemId, userId); 
         if(Error != ErrorState.None)
         {
             return new EnchantExecuteResponse
@@ -46,7 +52,7 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        PlayerItem? playerItem = await _enchantDB.GetPlayerItem(playerItemId);
+        PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemId);
 
         if(playerItem == null)
         {
@@ -56,7 +62,7 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        MasterItem? masterItem = await _enchantDB.GetMasterItem(playerItem.ItemId);
+        MasterItem? masterItem = await _playerAccessDB.GetMasterItemFromItemId(playerItem.ItemId);
 
         if(masterItem == null)
         {
@@ -86,22 +92,24 @@ public class EnchantExecuteController : Controller
             };
         }
 
+        Error = await ExecuteEnchant(playerItem, masterItem, userId);
+
+        if(Error != ErrorState.None)
+        {
+            return new EnchantExecuteResponse
+            {
+                Error = Error
+            };
+        }
+
         return new EnchantExecuteResponse
         {
-            Error = await ExecuteEnchant(playerItem, masterItem)
+            Error = ErrorState.None
         };
     }
 
-    async Task<ErrorState> VerifyItemPermission(int playerItemId)
+    async Task<ErrorState> VerifyItemPermission(int playerItemId, int userId)
     {
-        string userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountDB.GetUserId(userName);
-
-        if(userId == -1)
-        {
-            return ErrorState.NoneExistName;
-        }
-
         if(!await _enchantDB.IsUserHasItem(playerItemId, userId))
         {
             return ErrorState.IsNotOwnerThisItem;
@@ -112,7 +120,7 @@ public class EnchantExecuteController : Controller
 
     async Task<ErrorState> VerifyItemType(int attributeId)
     {
-        TypeDefinition itemType = await _enchantDB.GetItemType(attributeId);
+        TypeDefinition itemType = await _playerAccessDB.GetItemType(attributeId);
 
         if(itemType != TypeDefinition.EQUIPMENT)
         {
@@ -131,8 +139,46 @@ public class EnchantExecuteController : Controller
         return ErrorState.None;
     }
 
-    async Task<ErrorState> ExecuteEnchant(PlayerItem playerItem, MasterItem masterItem)
+    /*
+     확률을 참고하며 실패시 아이템 삭제
+     */
+    async Task<ErrorState> ExecuteEnchant(PlayerItem playerItem, MasterItem masterItem, int userId)
     {
-        return ErrorState.None;
+        // 현재 강화 진행 상태에 따른 강화확률에 따라강화 진행 
+        MasterEnchantInfo? masterEnchantInfo = await _enchantDB.GetEnchantInfo(playerItem.EnchantCount);
+        if(masterEnchantInfo == null)
+        {
+            return ErrorState.NoneExistEnchantCount;
+        }
+
+        Random random = new Random();
+        int randomValue = random.Next(101);
+        int result = randomValue < masterEnchantInfo.Percent ? 1 : 0;
+        // 강화 실패
+        if (result == 0)
+        {
+            if(!await _playerAccessDB.RemovePlayerItem(playerItem.PlayerItemId))
+            {
+                return ErrorState.NoneExistItem;
+            }
+        }
+        else
+        {
+            if (!await _enchantDB.DoEnchant(playerItem))
+            {
+                return ErrorState.NoneExistItem;
+            }   
+        }
+
+        return await LogEnchant(playerItem, userId, result);
+    }
+
+    async Task<ErrorState> LogEnchant(PlayerItem playerItem, int userId, int result)
+    {
+        if(!await _enchantDB.EnchantLog(playerItem.PlayerItemId, userId, playerItem.EnchantCount, result))
+        {
+            return ErrorState.FailedLogEnchant;
+        }
+        return ErrorState.None; 
     }
 }
