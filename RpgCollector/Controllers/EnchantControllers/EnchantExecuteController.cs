@@ -39,6 +39,7 @@ public class EnchantExecuteController : Controller
     {
         int playerItemId = enchantExecuteRequest.PlayerItemId;
         ErrorState Error;
+        int result;
 
         string userName = HttpContext.Request.Headers["User-Name"];
         int userId = await _accountDB.GetUserId(userName);
@@ -92,7 +93,7 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        Error = await ExecuteEnchant(playerItem, masterItem, userId);
+        (Error, result) = await ExecuteEnchant(playerItem, masterItem, userId);
 
         if(Error != ErrorState.None)
         {
@@ -104,7 +105,8 @@ public class EnchantExecuteController : Controller
 
         return new EnchantExecuteResponse
         {
-            Error = ErrorState.None
+            Error = ErrorState.None,
+            Result = result
         };
     }
 
@@ -142,13 +144,13 @@ public class EnchantExecuteController : Controller
     /*
      확률을 참고하며 실패시 아이템 삭제
      */
-    async Task<ErrorState> ExecuteEnchant(PlayerItem playerItem, MasterItem masterItem, int userId)
+    async Task<(ErrorState, int)> ExecuteEnchant(PlayerItem playerItem, MasterItem masterItem, int userId)
     {
         // 현재 강화 진행 상태에 따른 강화확률에 따라강화 진행 
         MasterEnchantInfo? masterEnchantInfo = await _enchantDB.GetEnchantInfo(playerItem.EnchantCount);
         if(masterEnchantInfo == null)
         {
-            return ErrorState.NoneExistEnchantCount;
+            return (ErrorState.NoneExistEnchantCount, -1);
         }
 
         Random random = new Random();
@@ -159,26 +161,26 @@ public class EnchantExecuteController : Controller
         {
             if(!await _playerAccessDB.RemovePlayerItem(playerItem.PlayerItemId))
             {
-                return ErrorState.NoneExistItem;
+                return (ErrorState.NoneExistItem, -1);
             }
         }
         else
         {
             if (!await _enchantDB.DoEnchant(playerItem))
             {
-                return ErrorState.NoneExistItem;
+                return (ErrorState.NoneExistItem, -1);
             }   
         }
 
         return await LogEnchant(playerItem, userId, result);
     }
 
-    async Task<ErrorState> LogEnchant(PlayerItem playerItem, int userId, int result)
+    async Task<(ErrorState, int)> LogEnchant(PlayerItem playerItem, int userId, int result)
     {
         if(!await _enchantDB.EnchantLog(playerItem.PlayerItemId, userId, playerItem.EnchantCount, result))
         {
-            return ErrorState.FailedLogEnchant;
+            return (ErrorState.FailedLogEnchant, -1);
         }
-        return ErrorState.None; 
+        return (ErrorState.None, result); 
     }
 }
