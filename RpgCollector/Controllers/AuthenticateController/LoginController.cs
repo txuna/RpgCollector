@@ -48,9 +48,9 @@ public class LoginController : Controller
             };
         }
        
-        // 로그인에 성공한 User에게 Token 발급 && // 유니코드 변환 문제 \u002B 
+        // 로그인에 성공한 User에게 Token 발급 
         string authToken = HashManager.GenerateAuthToken();
-        authToken = authToken.Replace("+", "d");
+        //authToken = authToken.Replace("+", "d");
 
         if (!await _memoryDB.StoreUser(user, authToken))
         {

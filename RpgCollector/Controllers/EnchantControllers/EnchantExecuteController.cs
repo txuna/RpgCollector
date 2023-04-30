@@ -122,7 +122,7 @@ public class EnchantExecuteController : Controller
         return ErrorState.None;
     }
 
-    async Task<ErrorState> VerifyEnchatMaxCount(PlayerItem playerItem, MasterItem masterItem)
+    ErrorState VerifyEnchatMaxCount(PlayerItem playerItem, MasterItem masterItem)
     {
         if(playerItem.EnchantCount >= masterItem.MaxEnchantCount)
         {

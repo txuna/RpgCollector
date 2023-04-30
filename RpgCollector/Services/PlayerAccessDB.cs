@@ -13,7 +13,7 @@ namespace RpgCollector.Services;
 
 public interface IPlayerAccessDB
 {
-    Task<bool> CreatePlayer(int userId);
+    //Task<bool> CreatePlayer(int userId);
     Task<PlayerData?> GetPlayerFromUserId(int userId);
     Task<bool> AddItemToPlayer(int userId, int itemId, int quantity);
     Task<bool> AddMoneyToPlayer(int userId, int money);
@@ -276,14 +276,14 @@ public class PlayerAccessDB : IPlayerAccessDB
     {
         try
         {
-            InitPlayerState? masterPlayerState = await queryFactory.Query("init_player_state").FirstAsync<InitPlayerState>();
+            InitPlayerState? initPlayerState = await queryFactory.Query("init_player_state").FirstAsync<InitPlayerState>();
             await queryFactory.Query("players").InsertAsync(new
             {
                 userId = userId,
-                hp = masterPlayerState.Hp,
-                exp = masterPlayerState.Exp,
-                level = masterPlayerState.Level,
-                money = masterPlayerState.Money
+                hp = initPlayerState.Hp,
+                exp = initPlayerState.Exp,
+                level = initPlayerState.Level,
+                money = initPlayerState.Money
             });
             return true;
         }
@@ -315,26 +315,26 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
     }
 
-    public async Task<bool> CreatePlayer(int userId)
-    {
-        try
-        {
-            if(!await SetInitPlayerState(userId))
-            {
-                return false;
-            }
-            if(!await SetInitPlayerItems(userId))
-            {
-                return false;
-            }
-        } 
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            return false;
-        }
-        return true;
-    }
+    //public async Task<bool> CreatePlayer(int userId)
+    //{
+    //    try
+    //    {
+    //        if(!await SetInitPlayerState(userId))
+    //        {
+    //            return false;
+    //        }
+    //        if(!await SetInitPlayerItems(userId))
+    //        {
+    //            return false;
+    //        }
+    //    } 
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine(ex.Message);
+    //        return false;
+    //    }
+    //    return true;
+    //}
 
     void Dispose()
     {
