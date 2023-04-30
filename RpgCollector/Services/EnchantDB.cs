@@ -32,7 +32,7 @@ public class EnchantDB : IEnchantDB
 
     public async Task<bool> DoEnchant(int playerItemId)
     {
-
+        return true;
     }
 
     public async Task<bool> IsUserHasItem(int playerItemId, int userId)

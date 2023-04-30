@@ -1,6 +1,5 @@
-﻿namespace RpgCollector.Document.DatabaseMD
-{
-    public class enchant
-    {
-    }
-}
+﻿### player_enchant_log 
+
+
+
+### player_enchant_item 

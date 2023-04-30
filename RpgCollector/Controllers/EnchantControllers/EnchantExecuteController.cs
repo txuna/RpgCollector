@@ -76,7 +76,7 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        Error = await VerifyEnchatMaxCount(playerItem, masterItem);
+        Error = VerifyEnchatMaxCount(playerItem, masterItem);
 
         if(Error != ErrorState.None)
         {

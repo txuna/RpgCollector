@@ -40,6 +40,7 @@ public class PackageBuyController : Controller
         }
 
         (Error, userId) = await Buy(packageBuyRequest);
+
         if(Error != ErrorState.None)
         {
             return new PackageBuyResponse
