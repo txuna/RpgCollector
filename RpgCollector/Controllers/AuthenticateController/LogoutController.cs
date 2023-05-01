@@ -27,23 +27,25 @@ public class LogoutController : Controller
     public async Task<LogoutResponse> Logout()
     {
         string userName = HttpContext.Request.Headers["User-Name"];
-
         int userId = await _accountDB.GetUserId(userName);
-        if(userId == -1)
+
+        _logger.ZLogInformation($"[{userId} {userName}] Request 'Logout'");
+
+        if (userId == -1)
         {
-            _logger.ZLogError($"Cannot Found UserName : {userName}");
+            _logger.ZLogError($"[{userName}] Cannot Found in Redis");
         }
 
         if (!await _accountMemoryDB.RemoveUser(userName))
         {
-            _logger.ZLogError($"Failed Remove User in Redis UserId : {userId} UserName : {userName}");
+            _logger.ZLogError($"[{userId} {userName}] Failed Remove User in Redis");
             return new LogoutResponse
             {
                 Error = ErrorState.FailedConnectRedis
             };
         }
 
-        _logger.ZLogInformation($"Success Logout User in Redis UserId : {userId} UserName : {userName}");
+        _logger.ZLogInformation($"[{userId} {userName}] Success Logout User in Redis UserId");
 
         return new LogoutResponse
         {

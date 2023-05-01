@@ -47,11 +47,13 @@ public class EnchantExecuteController : Controller
         string userName = HttpContext.Request.Headers["User-Name"];
         int userId = await _accountDB.GetUserId(userName);
 
+        _logger.ZLogInformation($"[{userId} {userName}] Request 'Enchant'");
+
         Error = await VerifyItemPermission(playerItemId, userId); 
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"None Enchant Permission UserId : {userId}, UserName : {userName}, PlayerItemId : {playerItemId}");
+            _logger.ZLogInformation($"[{userId}:{userName}] None Have Permission about  ItemId : {playerItemId}");
             return new EnchantExecuteResponse
             {
                 Error = Error
@@ -62,6 +64,7 @@ public class EnchantExecuteController : Controller
 
         if(playerItem == null)
         {
+            _logger.ZLogInformation($"[{userId}:{userName}] None Exist Player ItemId : {playerItemId}");
             return new EnchantExecuteResponse
             {
                 Error = ErrorState.NoneExistItem
@@ -72,6 +75,7 @@ public class EnchantExecuteController : Controller
 
         if(masterItem == null)
         {
+            _logger.ZLogInformation($"[{userId}:{userName}] None Exist Master Item : {playerItem.ItemId}");
             return new EnchantExecuteResponse
             {
                 Error = ErrorState.NoneExistItem
@@ -82,6 +86,7 @@ public class EnchantExecuteController : Controller
 
         if(Error != ErrorState.None)
         {
+            _logger.ZLogInformation($"[{userId}:{userName}] Can not Enchant this Item ItemId : {playerItem.ItemId}");
             return new EnchantExecuteResponse
             {
                 Error = Error
@@ -92,6 +97,7 @@ public class EnchantExecuteController : Controller
 
         if(Error != ErrorState.None)
         {
+            _logger.ZLogInformation($"[{userId}:{userName}] This Item is Already Max Enchant Count ItemId : {playerItem.ItemId}");
             return new EnchantExecuteResponse
             {
                 Error = Error
@@ -102,10 +108,20 @@ public class EnchantExecuteController : Controller
 
         if(Error != ErrorState.None)
         {
+            _logger.ZLogInformation($"[{userId}:{userName}] None Exist Player Item : {playerItem.ItemId}");
             return new EnchantExecuteResponse
             {
                 Error = Error
             };
+        }
+
+        if (result == 1)
+        {
+            _logger.ZLogInformation($"[{userId}:{userName}] Failed Enchant and Remove Item : {playerItem.ItemId}");
+        }
+        else
+        {
+            _logger.ZLogInformation($"[{userId}:{userName}] Success Enchant Item : {playerItem.ItemId}");
         }
 
         return new EnchantExecuteResponse

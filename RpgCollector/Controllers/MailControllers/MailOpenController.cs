@@ -4,6 +4,7 @@ using RpgCollector.Models.MailData;
 using RpgCollector.RequestResponseModel.MailOpenModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
+using ZLogger;
 
 namespace RpgCollector.Controllers.MailControllers;
 
@@ -16,11 +17,13 @@ public class MailOpenController : Controller
 {
     IMailboxAccessDB _mailboxAccessDB;
     IAccountDB _accountDB;
+    ILogger<MailOpenController> _logger;
 
-    public MailOpenController(IMailboxAccessDB mailboxAccessDB, IAccountDB accountDB)
+    public MailOpenController(IMailboxAccessDB mailboxAccessDB, IAccountDB accountDB, ILogger<MailOpenController> logger)
     {
         _mailboxAccessDB = mailboxAccessDB;
         _accountDB = accountDB;
+        _logger = logger;
     }
 
     /*
@@ -33,9 +36,12 @@ public class MailOpenController : Controller
     {
         var userName = HttpContext.Request.Headers["User-Name"];
         int userId = await _accountDB.GetUserId(userName);
-        
+
+        _logger.ZLogInformation($"[{userId} {userName}] Request 'Open Mail'");
+
         if (userId == -1)
         {
+            _logger.ZLogError($"[{userName}] Failed Connected Redis");
             return new MailOpenResponse
             {
                 Error = ErrorState.FailedConnectRedis
@@ -47,6 +53,7 @@ public class MailOpenController : Controller
 
         if(mails == null)
         {
+            _logger.ZLogError($"[{userId} {userName}] Failed Fetch Mail from Mysql");
             return new MailOpenResponse
             {
                 Error = ErrorState.FailedFetchMail
@@ -57,6 +64,7 @@ public class MailOpenController : Controller
 
         if(mailOpenResponse == null)
         {
+            _logger.ZLogInformation($"[{userId} {userName}] Invalid PageNumber : {openMailboxRequest.PageNumber}");
             return new MailOpenResponse
             {
                 Error = ErrorState.InvalidPageNumber

@@ -7,6 +7,7 @@ using RpgCollector.RequestResponseModel;
 using StackExchange.Redis;
 using System;
 using System.Text.Json;
+using ZLogger;
 
 namespace RpgCollector.Controllers.NoticeControllers;
 
@@ -15,10 +16,12 @@ namespace RpgCollector.Controllers.NoticeControllers;
 public class NoticeGetController : Controller
 {
     INoticeMemoryDB _memoryDB;
+    ILogger<NoticeGetController> _logger;
 
-    public NoticeGetController(INoticeMemoryDB memoryDB)
+    public NoticeGetController(INoticeMemoryDB memoryDB, ILogger<NoticeGetController> logger)
     {
         _memoryDB = memoryDB;
+        _logger = logger;
     }
 
     /*
@@ -29,14 +32,22 @@ public class NoticeGetController : Controller
     public async Task<NoticeGetResponse> Notice()
     {
         Notice[]? result = await _memoryDB.GetAllNotice();
+        string userName = HttpContext.Request.Headers["User-Name"];
+
+        _logger.ZLogInformation($"[{userName}] Request 'Get Notice'");
 
         if (result == null)
         {
+            _logger.ZLogError("Failed Fetch Notice In Redis");
+
             return new NoticeGetResponse
             {
                 Error = ErrorState.FailedConnectRedis,
             };
         }
+
+        _logger.ZLogInformation("Success Fetch Notice In Redis");
+
         return new NoticeGetResponse
         {
             Error = ErrorState.None,

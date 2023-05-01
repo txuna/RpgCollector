@@ -13,9 +13,9 @@ public class RegisterController : Controller
 {
     IAccountDB _accountDB;
     IPlayerAccessDB _playerAccessDB;
-    ILogger _logger;
+    ILogger<RegisterController> _logger;
 
-    public RegisterController(IAccountDB accountDB, IPlayerAccessDB playerAccessDB, ILogger logger)
+    public RegisterController(IAccountDB accountDB, IPlayerAccessDB playerAccessDB, ILogger<RegisterController> logger)
     {
         _accountDB = accountDB;
         _playerAccessDB = playerAccessDB;
@@ -28,9 +28,12 @@ public class RegisterController : Controller
     {
         int userId = await _accountDB.RegisterUser(registerRequest.UserName, registerRequest.Password);
 
+        _logger.ZLogInformation($"[{userId} {registerRequest.UserName}] Request 'Regist'");
+
         if (userId == -1)
         {
-            _logger.ZLogInformation($"Already Exist UserName : {registerRequest.UserName}");
+            _logger.ZLogInformation($"[{registerRequest.UserName}] Already Exist UserName");
+
             return new RegisterResponse
             {
                 Error = ErrorState.FailedRegister
@@ -39,24 +42,25 @@ public class RegisterController : Controller
 
         if (!await CreatePlayer(userId))
         {
-            _logger.ZLogError($"Can not Create Player UserId : {userId} UserName : {registerRequest.UserName}");
-            _logger.ZLogInformation($"Trying... Undo Register Account UserId : {userId} UserName : {registerRequest.UserName}");
+            _logger.ZLogError($"[{userId} {registerRequest.UserName}]Can not Create Player");
+            _logger.ZLogInformation($"[{userId} {registerRequest.UserName}] Trying... Undo Register Account");
+
             if (!await _accountDB.UndoRegisterUser(registerRequest.UserName))
             {
-                _logger.ZLogError($"Can not undo register account UserId : {userId} UserName : {registerRequest.UserName}");
+                _logger.ZLogError($"[{userId} {registerRequest.UserName}] Can not undo register account");
                 return new RegisterResponse 
                 { 
                     Error = ErrorState.FailedUndoRegisterUser 
                 };
             }
-            _logger.ZLogError($"Success Undo(remove) Player in Account DB UserId : {userId} UserName : {registerRequest.UserName}");
+            _logger.ZLogError($"[{userId} {registerRequest.UserName}] Success Undo(remove) Player in Account DB");
             return new RegisterResponse
             {
                 Error = ErrorState.FailedCreatePlayer
             };
         }
 
-        _logger.ZLogInformation($"Success Register and Create Player in Database UserId : {userId} UserName : {registerRequest.UserName}");
+        _logger.ZLogInformation($"[{userId} {registerRequest.UserName}] Success Register and Create Player in Database");
 
         return new RegisterResponse
         {

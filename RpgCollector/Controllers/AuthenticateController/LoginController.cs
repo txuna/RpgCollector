@@ -35,9 +35,11 @@ public class LoginController : Controller
     {
         User? user = await _accountDB.GetUser(loginRequest.UserName);
 
+        _logger.ZLogInformation($"[{loginRequest.UserName}] Request 'Login'");
+
         if (user == null)
         {
-            _logger.ZLogInformation($"None Exist UserName : {loginRequest.UserName}");
+            _logger.ZLogInformation($"[{loginRequest.UserName}] None Exist UserName");
             return new LoginResponse
             {
                 Error = ErrorState.NoneExistName,
@@ -46,7 +48,7 @@ public class LoginController : Controller
 
         if(!VerifyPassword(user, loginRequest.Password))
         {
-            _logger.ZLogError($"None Exist UserName : {loginRequest.UserName}");
+            _logger.ZLogError($"[{user.UserId} {loginRequest.UserName}] None Exist UserName");
             return new LoginResponse
             {
                 Error = ErrorState.InvalidPassword,
@@ -59,14 +61,14 @@ public class LoginController : Controller
 
         if (!await _memoryDB.StoreUser(user, authToken))
         {
-            _logger.ZLogError($"None Exist UserName : {loginRequest.UserName}");
+            _logger.ZLogError($"[{loginRequest.UserName}] None Exist UserName");
             return new LoginResponse
             {
                 Error = ErrorState.FailedConnectRedis,
             };
         }
 
-        _logger.ZLogInformation($"Complement Login : UserId : {user.UserId} Username : {loginRequest.UserName}");
+        _logger.ZLogInformation($"[{user.UserId} {loginRequest.UserName}] Complement Login");
 
         return new LoginResponse
         {

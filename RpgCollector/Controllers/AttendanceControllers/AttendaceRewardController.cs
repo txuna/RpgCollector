@@ -39,12 +39,14 @@ public class AttendaceRewardController : Controller
         string yesterDay = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
         ErrorState Error;
 
+        _logger.ZLogInformation($"[{userId} {userName}] Request 'Attendance'");
+
         /* 오늘자 출석 유무 확인 */
         Error = await IsTodayAttendance(userId, toDay);
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"Today Already Attandace UserID : {userId} UserName : {userName}");
+            _logger.ZLogInformation($"[{userName} : {userId}] Today Already Attandace UserID");
             return new AttendanceResponse
             {
                 Error = Error
@@ -59,21 +61,21 @@ public class AttendaceRewardController : Controller
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogError($"Failed Attandace UserID : {userId} UserName : {userName}");
+            _logger.ZLogError($"[{userName} : {userId}] Failed Attandace");
             return new AttendanceResponse
             {
                 Error = Error
             };
         }
 
-        _logger.ZLogInformation($"Complement Attandace UserID : {userId} UserName : {userName}");
+        _logger.ZLogInformation($"[{userName} : {userId}] Complement Attandace");
 
         /* 연속 날짜 만큼 출석 보상 메일로 전송 */
         Error = await SendAttendanceReward(userId, sequenceDayCount);
 
         if(Error  != ErrorState.None)
         {
-            _logger.ZLogError($"Failed Send Attandace Reward UserID : {userId} UserName : {userName}");
+            _logger.ZLogError($"[{userName} : {userId}] Failed Send Attandace Reward");
             Error = await UndoAttendance(userId, toDay);
 
             return new AttendanceResponse
@@ -82,7 +84,7 @@ public class AttendaceRewardController : Controller
             };
         }
 
-        _logger.ZLogInformation($"Complement Send Attandace Reward UserID : {userId} UserName : {userName}");
+        _logger.ZLogInformation($"[{userName} : {userId}] Complement Send Attandace Reward");
 
         return new AttendanceResponse
         {
