@@ -6,6 +6,7 @@ using RpgCollector.Utility;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;
+using ZLogger;
 
 namespace RpgCollector.Services;
 
@@ -29,10 +30,12 @@ public class MailboxAccessDB : IMailboxAccessDB
     MySqlCompiler compiler;
     QueryFactory queryFactory;
     IOptions<DbConfig> _dbConfig;
+    ILogger<MailboxAccessDB> _logger;
 
-    public MailboxAccessDB(IOptions<DbConfig> dbConfig) 
+    public MailboxAccessDB(IOptions<DbConfig> dbConfig, ILogger<MailboxAccessDB> logger) 
     {
         _dbConfig = dbConfig;
+        _logger = logger;
         Open();
     }
 
@@ -49,7 +52,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -78,7 +81,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
         return true;
@@ -99,7 +102,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
         return true;
@@ -114,7 +117,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null;
         }
     }
@@ -131,7 +134,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch( Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null;
         }
     }
@@ -152,7 +155,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch(Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -174,7 +177,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -198,7 +201,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch ( Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null;
         }
     }
@@ -212,7 +215,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch ( Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -225,7 +228,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 
@@ -240,7 +243,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 }

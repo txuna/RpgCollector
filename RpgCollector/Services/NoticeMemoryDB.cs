@@ -5,6 +5,7 @@ using RpgCollector.RequestResponseModel;
 using RpgCollector.Utility;
 using StackExchange.Redis;
 using System.Text.Json;
+using ZLogger;
 
 namespace RpgCollector.Services;
 
@@ -19,10 +20,12 @@ public class NoticeMemoryDB : INoticeMemoryDB
     private ConnectionMultiplexer? redisClient;
     private IDatabase redisDB;
     IOptions<DbConfig> _dbConfig;
+    ILogger<NoticeMemoryDB> _logger;
 
-    public NoticeMemoryDB(IOptions<DbConfig> dbConfig) 
+    public NoticeMemoryDB(IOptions<DbConfig> dbConfig, ILogger<NoticeMemoryDB> logger) 
     {
         _dbConfig = dbConfig;
+        _logger = logger;
         Open();
     }
 
@@ -45,7 +48,7 @@ public class NoticeMemoryDB : INoticeMemoryDB
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.ZLogError(ex.Message);
                 return null;
             }
 
@@ -75,7 +78,7 @@ public class NoticeMemoryDB : INoticeMemoryDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 
@@ -92,7 +95,7 @@ public class NoticeMemoryDB : INoticeMemoryDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 }

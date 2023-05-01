@@ -8,6 +8,7 @@ using RpgCollector.Utility;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;
+using ZLogger;
 
 namespace RpgCollector.Services;
 
@@ -38,10 +39,12 @@ public class PlayerAccessDB : IPlayerAccessDB
     MySqlCompiler compiler;
     QueryFactory queryFactory;
     IOptions<DbConfig> _dbConfig;
+    ILogger<PlayerAccessDB> _logger;
 
-    public PlayerAccessDB(IOptions<DbConfig> dbConfig) 
+    public PlayerAccessDB(IOptions<DbConfig> dbConfig, ILogger<PlayerAccessDB> logger) 
     {
         _dbConfig = dbConfig;
+        _logger = logger;
         Open();
     }
 
@@ -54,7 +57,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch(Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -75,7 +78,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return TypeDefinition.UNKNOWN;
         }
     }
@@ -96,7 +99,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
         return true;
@@ -111,7 +114,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null; 
         }
         return playerData;
@@ -126,7 +129,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null;
         }
     }
@@ -142,7 +145,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch ( Exception ex )
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null;
         }
     }
@@ -158,7 +161,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch ( Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null;
         }
     }
@@ -179,7 +182,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -197,7 +200,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch ( Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null;
         }
     }
@@ -217,7 +220,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -238,7 +241,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch ( Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -261,7 +264,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch ( Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -342,7 +345,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -363,31 +366,10 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch ( Exception ex )
         {
-            Console.WriteLine(ex.Message);  
+            _logger.ZLogError(ex.Message);  
             return false;
         }
     }
-
-    //public async Task<bool> CreatePlayer(int userId)
-    //{
-    //    try
-    //    {
-    //        if(!await SetInitPlayerState(userId))
-    //        {
-    //            return false;
-    //        }
-    //        if(!await SetInitPlayerItems(userId))
-    //        {
-    //            return false;
-    //        }
-    //    } 
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine(ex.Message);
-    //        return false;
-    //    }
-    //    return true;
-    //}
 
     void Dispose()
     {
@@ -397,7 +379,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 
@@ -412,7 +394,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            _logger.ZLogError(ex.Message);
         }
     }
 }

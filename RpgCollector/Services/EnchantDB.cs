@@ -6,6 +6,7 @@ using RpgCollector.Models.MasterData;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;
+using ZLogger;
 
 namespace RpgCollector.Services;
 
@@ -23,10 +24,12 @@ public class EnchantDB : IEnchantDB
     MySqlCompiler compiler;
     QueryFactory queryFactory;
     IOptions<DbConfig> _dbConfig;
+    ILogger<EnchantDB> _logger;
 
-    public EnchantDB(IOptions<DbConfig> dbConfig) 
+    public EnchantDB(IOptions<DbConfig> dbConfig, ILogger<EnchantDB> logger) 
     {
         _dbConfig = dbConfig;
+        _logger = logger;
         Open();
     }
 
@@ -45,7 +48,7 @@ public class EnchantDB : IEnchantDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -59,7 +62,7 @@ public class EnchantDB : IEnchantDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null;
         }
     }
@@ -76,7 +79,7 @@ public class EnchantDB : IEnchantDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -96,7 +99,7 @@ public class EnchantDB : IEnchantDB
         }
         catch(Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -109,7 +112,7 @@ public class EnchantDB : IEnchantDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 
@@ -124,7 +127,7 @@ public class EnchantDB : IEnchantDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 }

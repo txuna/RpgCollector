@@ -8,6 +8,7 @@ using SqlKata.Execution;
 using StackExchange.Redis;
 using System.Data;
 using System.Text.Json;
+using ZLogger;
 
 namespace RpgCollector.Services;
 
@@ -25,10 +26,12 @@ public class AccountDB : IAccountDB
     MySqlCompiler compiler;
     QueryFactory queryFactory;
     IOptions<DbConfig> _dbConfig;
+    ILogger<AccountDB> _logger;  
 
-    public AccountDB(IOptions<DbConfig> dbConfig)
+    public AccountDB(IOptions<DbConfig> dbConfig, ILogger<AccountDB> logger)
     {
         _dbConfig = dbConfig;
+        _logger = logger;
         Open();
     }
 
@@ -36,13 +39,12 @@ public class AccountDB : IAccountDB
     {
         try
         {
-            Console.WriteLine(userName);
             User user = await queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
             return user.UserId;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return -1;
         }
     } 
@@ -56,7 +58,7 @@ public class AccountDB : IAccountDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null;
         }
         return user;
@@ -73,7 +75,7 @@ public class AccountDB : IAccountDB
         }
         catch ( Exception ex )
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -103,7 +105,7 @@ public class AccountDB : IAccountDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return -1;
         }
     }
@@ -116,7 +118,7 @@ public class AccountDB : IAccountDB
         }
         catch( Exception ex )
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 
@@ -131,7 +133,7 @@ public class AccountDB : IAccountDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            _logger.ZLogError(ex.Message);
         }
     }
 }

@@ -3,6 +3,7 @@ using RpgCollector.Models;
 using RpgCollector.Utility;
 using StackExchange.Redis;
 using System.Text.Json;
+using ZLogger;
 
 namespace RpgCollector.Services;
 
@@ -18,10 +19,12 @@ public class AccountMemoryDB : IAccountMemoryDB
     private IDatabase redisDB;
     IOptions<DbConfig> _dbConfig;
     ConnectionMultiplexer _redisClient;
+    ILogger<AccountMemoryDB> _logger;
 
-    public AccountMemoryDB(IOptions<DbConfig> dbConfig) 
+    public AccountMemoryDB(IOptions<DbConfig> dbConfig, ILogger<AccountMemoryDB> logger) 
     {
         _dbConfig = dbConfig;
+        _logger = logger;
         Open();
     }
 
@@ -34,7 +37,7 @@ public class AccountMemoryDB : IAccountMemoryDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
         return true;
@@ -48,7 +51,7 @@ public class AccountMemoryDB : IAccountMemoryDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
         return true;
@@ -62,7 +65,7 @@ public class AccountMemoryDB : IAccountMemoryDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 
@@ -79,7 +82,7 @@ public class AccountMemoryDB : IAccountMemoryDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 }

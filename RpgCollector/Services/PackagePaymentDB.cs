@@ -6,6 +6,7 @@ using RpgCollector.Models.PackgeItemData;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;
+using ZLogger;
 
 namespace RpgCollector.Services;
 
@@ -23,10 +24,12 @@ public class PackagePaymentDB : IPackagePaymentDB
     IDbConnection dbConnection;
     MySqlCompiler compiler;
     QueryFactory queryFactory;
+    ILogger<PackagePaymentDB> _logger;
 
-    public PackagePaymentDB(IOptions<DbConfig> dbConfig) 
+    public PackagePaymentDB(IOptions<DbConfig> dbConfig, ILogger<PackagePaymentDB> logger) 
     {
         _dbConfig = dbConfig;
+        _logger = logger;
         Open();
     }
 
@@ -44,7 +47,7 @@ public class PackagePaymentDB : IPackagePaymentDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -62,7 +65,7 @@ public class PackagePaymentDB : IPackagePaymentDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -80,7 +83,7 @@ public class PackagePaymentDB : IPackagePaymentDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return false;
         }
     }
@@ -95,7 +98,7 @@ public class PackagePaymentDB : IPackagePaymentDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
             return null;
         }
     }
@@ -108,7 +111,7 @@ public class PackagePaymentDB : IPackagePaymentDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 
@@ -123,7 +126,7 @@ public class PackagePaymentDB : IPackagePaymentDB
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.ZLogError(ex.Message);
         }
     }
 }

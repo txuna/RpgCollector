@@ -6,6 +6,7 @@ using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;
 using System.Data.Common;
+using ZLogger;
 
 namespace RpgCollector.Services
 {
@@ -24,10 +25,12 @@ namespace RpgCollector.Services
         MySqlCompiler compiler;
         QueryFactory queryFactory;
         IOptions<DbConfig> _dbConfig;
+        ILogger<AttendanceDB> _logger;
 
-        public AttendanceDB(IOptions<DbConfig> dbConfig)
+        public AttendanceDB(IOptions<DbConfig> dbConfig, ILogger<AttendanceDB> logger)
         {
             _dbConfig = dbConfig;
+            _logger = logger;
             Open();
         }
 
@@ -40,7 +43,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.ZLogError(ex.Message);
                 return false;
             }
         }
@@ -54,7 +57,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.ZLogError(ex.Message);
                 return null;
             }
         }
@@ -73,7 +76,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.ZLogError(ex.Message);
                 return null;
             }
         }
@@ -91,7 +94,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.ZLogError(ex.Message);
                 return false;
             }
         }
@@ -101,7 +104,6 @@ namespace RpgCollector.Services
             try
             {
                 int count = await queryFactory.Query("player_attendance_log").Where("date", day).Where("userId", userId).CountAsync<int>();
-                Console.WriteLine(count);
                 if(count > 0)
                 {
                     return true;
@@ -110,7 +112,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.ZLogError(ex.Message);
                 return false;
             }
         }
@@ -123,7 +125,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.ZLogError(ex.Message);
             }
         }
 
@@ -138,7 +140,7 @@ namespace RpgCollector.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.ZLogError(ex.Message);
             }
         }
     }
