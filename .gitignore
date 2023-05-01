@@ -6,6 +6,7 @@
 #custom
 *.json 
 bin/
+*.log
 
 # User-specific files
 *.rsuser

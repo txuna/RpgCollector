@@ -6,6 +6,7 @@ using RpgCollector.RequestResponseModel.LoginModel;
 using RpgCollector.Services;
 using RpgCollector.Utility;
 using System.Text.Json;
+using ZLogger;
 
 namespace RpgCollector.Controllers.AuthenticateController;
 
@@ -14,11 +15,13 @@ public class LoginController : Controller
 {
     IAccountDB _accountDB;
     IAccountMemoryDB _memoryDB;
+    ILogger<LoginController> _logger;
 
-    public LoginController(IAccountDB accountDB, IAccountMemoryDB memoryDB)
+    public LoginController(IAccountDB accountDB, IAccountMemoryDB memoryDB, ILogger<LoginController> logger)
     {
         _accountDB = accountDB;
         _memoryDB = memoryDB;
+        _logger = logger;
     }
     /*
      * 로그인 요청 컨트롤러
@@ -34,6 +37,7 @@ public class LoginController : Controller
 
         if (user == null)
         {
+            _logger.ZLogInformation($"None Exist UserName : {loginRequest.UserName}");
             return new LoginResponse
             {
                 Error = ErrorState.NoneExistName,
@@ -42,6 +46,7 @@ public class LoginController : Controller
 
         if(!VerifyPassword(user, loginRequest.Password))
         {
+            _logger.ZLogError($"None Exist UserName : {loginRequest.UserName}");
             return new LoginResponse
             {
                 Error = ErrorState.InvalidPassword,
@@ -54,11 +59,14 @@ public class LoginController : Controller
 
         if (!await _memoryDB.StoreUser(user, authToken))
         {
+            _logger.ZLogError($"None Exist UserName : {loginRequest.UserName}");
             return new LoginResponse
             {
                 Error = ErrorState.FailedConnectRedis,
             };
         }
+
+        _logger.ZLogInformation($"Complement Login : UserId : {user.UserId} Username : {loginRequest.UserName}");
 
         return new LoginResponse
         {

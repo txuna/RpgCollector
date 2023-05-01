@@ -11,6 +11,7 @@ using System.Data;
 using System.Data.Common;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using ZLogger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +32,12 @@ builder.Services.AddTransient<IPackagePaymentDB, PackagePaymentDB>();
 builder.Services.AddTransient<IEnchantDB, EnchantDB>();
 builder.Services.AddTransient<IAttendanceDB, AttendanceDB>();
 
+SettingLogger();
+
 var app = builder.Build();
+
+var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+LogManager.SetLoggerFactory(loggerFactory, "Global");
 
 app.UseRouting();
 // 인증 확인 미들웨어
@@ -42,14 +48,52 @@ app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 #pragma warning restore ASP0014
 
 
-bool success = await LoadData();
-if (!success)
+
+if (!await LoadData())
 {
     return;
 }
 
 app.Run();
 
+void SettingLogger()
+{
+    var logging = builder.Logging;
+    logging.ClearProviders();
+
+    // Add File Logging.
+    //logging.AddZLoggerFile("./logs/access.log");
+
+    // Add Rolling File Logging.
+    logging.AddZLoggerRollingFile(
+        (dt, x) => $"./logs/access_{dt.ToLocalTime():yyyy-MM-dd}_{x:000}.log",
+        x => x.ToLocalTime().Date, 1024,
+        options =>
+        {
+            options.EnableStructuredLogging = true;
+            var time = JsonEncodedText.Encode("Timestamp");
+            var timeValue = JsonEncodedText.Encode(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+
+            options.StructuredLoggingFormatter = (writer, info) =>
+            {
+                writer.WriteString(time, timeValue);
+                info.WriteToJsonWriter(writer);
+            };
+        });
+
+    logging.AddZLoggerConsole(options =>
+    {
+        options.EnableStructuredLogging = true;
+        var time = JsonEncodedText.Encode("EventTime");
+        var timeValue = JsonEncodedText.Encode(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+
+        options.StructuredLoggingFormatter = (writer, info) =>
+        {
+            writer.WriteString(time, timeValue);
+            info.WriteToJsonWriter(writer);
+        };
+    });
+}
 
 /*
  * 데이터베이스에 있는 공지사항을 Redis서버로 옮기는 작업

@@ -3,6 +3,8 @@ using RpgCollector.RequestResponseModel.AttandenceModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
 using RpgCollector.Models.AttendanceData;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace RpgCollector.Controllers.AttandanceControllers;
 
@@ -12,12 +14,14 @@ public class AttendaceRewardController : Controller
     IMailboxAccessDB _mailboxAccessDB;
     IAccountDB _accountDB;
     IAttendanceDB _attendanceDB;
+    readonly ILogger<AttendaceRewardController> _logger;
 
-    public AttendaceRewardController(IMailboxAccessDB mailboxAccessDB, IAccountDB accountDB, IAttendanceDB attendanceDB)
+    public AttendaceRewardController(IMailboxAccessDB mailboxAccessDB, IAccountDB accountDB, IAttendanceDB attendanceDB, ILogger<AttendaceRewardController> logger)
     {
         _mailboxAccessDB = mailboxAccessDB;
         _accountDB = accountDB;
         _attendanceDB = attendanceDB;
+        _logger = logger;
     }
 
     /*
@@ -40,6 +44,7 @@ public class AttendaceRewardController : Controller
 
         if(Error != ErrorState.None)
         {
+            _logger.ZLogInformation($"Today Already Attandace UserID : {userId} UserName : {userName}");
             return new AttendanceResponse
             {
                 Error = Error
@@ -54,17 +59,21 @@ public class AttendaceRewardController : Controller
 
         if(Error != ErrorState.None)
         {
+            _logger.ZLogError($"Failed Attandace UserID : {userId} UserName : {userName}");
             return new AttendanceResponse
             {
                 Error = Error
             };
         }
 
+        _logger.ZLogInformation($"Complement Attandace UserID : {userId} UserName : {userName}");
+
         /* 연속 날짜 만큼 출석 보상 메일로 전송 */
         Error = await SendAttendanceReward(userId, sequenceDayCount);
 
         if(Error  != ErrorState.None)
         {
+            _logger.ZLogError($"Failed Send Attandace Reward UserID : {userId} UserName : {userName}");
             Error = await UndoAttendance(userId, toDay);
 
             return new AttendanceResponse
@@ -72,6 +81,8 @@ public class AttendaceRewardController : Controller
                 Error = Error
             };
         }
+
+        _logger.ZLogInformation($"Complement Send Attandace Reward UserID : {userId} UserName : {userName}");
 
         return new AttendanceResponse
         {

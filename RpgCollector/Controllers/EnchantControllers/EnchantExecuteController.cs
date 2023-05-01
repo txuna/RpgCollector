@@ -5,6 +5,7 @@ using RpgCollector.Services;
 using RpgCollector.Models.MasterData;
 using RpgCollector.Models;
 using RpgCollector.Models.EnchantModel;
+using ZLogger;
 
 namespace RpgCollector.Controllers.EnchantControllers;
 
@@ -13,13 +14,15 @@ public class EnchantExecuteController : Controller
 {
     IEnchantDB _enchantDB; 
     IAccountDB _accountDB;
+    ILogger<EnchantExecuteController> _logger;
     IPlayerAccessDB _playerAccessDB;
 
-    public EnchantExecuteController(IEnchantDB enchantDB, IAccountDB accountDB, IPlayerAccessDB playerAccessDB)
+    public EnchantExecuteController(IEnchantDB enchantDB, IAccountDB accountDB, IPlayerAccessDB playerAccessDB, ILogger<EnchantExecuteController> logger)
     {
         _enchantDB = enchantDB;
         _accountDB = accountDB;
         _playerAccessDB = playerAccessDB;
+        _logger = logger;
     }
 
     /*
@@ -45,8 +48,10 @@ public class EnchantExecuteController : Controller
         int userId = await _accountDB.GetUserId(userName);
 
         Error = await VerifyItemPermission(playerItemId, userId); 
+
         if(Error != ErrorState.None)
         {
+            _logger.ZLogInformation($"None Enchant Permission UserId : {userId}, UserName : {userName}, PlayerItemId : {playerItemId}");
             return new EnchantExecuteResponse
             {
                 Error = Error
