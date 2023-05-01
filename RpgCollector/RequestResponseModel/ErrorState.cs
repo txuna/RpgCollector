@@ -46,5 +46,12 @@
         AlreadyMaxiumEnchantCount = 503,
         NoneExistEnchantCount = 504,
         FailedLogEnchant = 505,
+
+
+        /* Attendance 601 ~ 700 */
+        AlreadyAttendance = 601,
+        FailedAttendance = 602,
+        FailedSendAttendanceReward = 603,
+        FailedUndoAttendance = 604,
     }
 }

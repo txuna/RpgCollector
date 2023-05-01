@@ -29,6 +29,7 @@ builder.Services.AddTransient<IPlayerAccessDB, PlayerAccessDB>();
 builder.Services.AddTransient<IMailboxAccessDB, MailboxAccessDB>();
 builder.Services.AddTransient<IPackagePaymentDB, PackagePaymentDB>();
 builder.Services.AddTransient<IEnchantDB, EnchantDB>();
+builder.Services.AddTransient<IAttendanceDB, AttendanceDB>();
 
 var app = builder.Build();
 

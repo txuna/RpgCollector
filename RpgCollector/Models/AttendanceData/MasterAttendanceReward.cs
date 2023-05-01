@@ -1,6 +1,6 @@
-﻿namespace RpgCollector.Models.AttandanceData
+﻿namespace RpgCollector.Models.AttendanceData
 {
-    public class MasterAttandanceReward
+    public class MasterAttendanceReward
     {
         public int DayId { get; set; }
         public int ItemId { get; set; }

@@ -28,6 +28,8 @@ public interface IPlayerAccessDB
     Task<bool> SetInitPlayerState(int userId);
     Task<bool> SetInitPlayerItems(int userId);
     Task<bool> RemovePlayerItem(int playerItemId);
+    // 착용한 아이템일 기반으로 플레이어의 공격력, 방어력, 마법력을 가지고옴 - 강화 수치 고려
+    //void GetPlayerState();
 }
 
 public class PlayerAccessDB : IPlayerAccessDB
