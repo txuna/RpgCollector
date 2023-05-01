@@ -79,6 +79,7 @@ public class AttendaceRewardController : Controller
         };
     }
 
+
     async Task<ErrorState> IsTodayAttendance(int userId, string toDay)
     {
         if(await _attendanceDB.IsAttendance(userId, toDay))
@@ -88,13 +89,16 @@ public class AttendaceRewardController : Controller
         return ErrorState.None;
     }
 
+    // 해당 유저의 가장 최근의 출석로그를 기반으로 판단 
     async Task<int> GetLastSequenceDayCount(int userId, string yesterDay)
     {
+        // 어제자 출석로그가 없다면
         if(!await IsYesterdayAttendance(userId, yesterDay))
         {
             return 1;
         }
 
+        // 어제가 출석로그가 있다면 가장 최근의 로그를 가지고온다. (어제의 로그)
         PlayerAttendanceLog? lastLog = await _attendanceDB.GetLastAttendanceLog(userId);
 
         if(lastLog == null)
