@@ -136,7 +136,7 @@ namespace RpgCollector.Middlewares
                 {
                     return false;
                 }
-
+                
                 string redisAuthToken = await redisDB.StringGetAsync(userName);
 
                 // 저장된 토큰이랑 불일치
