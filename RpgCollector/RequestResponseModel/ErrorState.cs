@@ -17,6 +17,7 @@
         FailedRegister = 103,
         FailedCreatePlayer = 104,
         FailedUndoRegisterUser = 105,
+        AlreadyExistUser = 106,
 
 
         /* Mail 201 ~ 300 */

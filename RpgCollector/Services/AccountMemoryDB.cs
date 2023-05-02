@@ -13,6 +13,7 @@ public interface IAccountMemoryDB
     Task<bool> StoreUser(User user, string authToken);
     Task<bool> RemoveUser(string userName);
     Task<bool> StoreRedisUser(User user, string authToken);
+    Task<int> GetUserId(string userName);
 }
 
 public class AccountMemoryDB : IAccountMemoryDB
@@ -47,6 +48,21 @@ public class AccountMemoryDB : IAccountMemoryDB
         {
             _logger.ZLogError(ex.Message);
             return false;
+        }
+    }
+
+    public async Task<int> GetUserId(string userName)
+    {
+        try
+        {
+            string stringUser = await redisDB.StringGetAsync(userName);
+            RedisUser redisUser = JsonSerializer.Deserialize<RedisUser>(stringUser);
+            return redisUser.UserId;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return -1;
         }
     }
 

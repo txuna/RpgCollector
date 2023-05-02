@@ -17,13 +17,15 @@ namespace RpgCollector.Controllers.MailControllers;
 public class MailOpenController : Controller
 {
     IMailboxAccessDB _mailboxAccessDB;
-    IAccountDB _accountDB;
+    IAccountMemoryDB _accountMemoryDB;
     ILogger<MailOpenController> _logger;
 
-    public MailOpenController(IMailboxAccessDB mailboxAccessDB, IAccountDB accountDB, ILogger<MailOpenController> logger)
+    public MailOpenController(IMailboxAccessDB mailboxAccessDB, 
+                              IAccountMemoryDB accountMemoryDB,
+                              ILogger<MailOpenController> logger)
     {
         _mailboxAccessDB = mailboxAccessDB;
-        _accountDB = accountDB;
+        _accountMemoryDB = accountMemoryDB;
         _logger = logger;
     }
 
@@ -37,7 +39,7 @@ public class MailOpenController : Controller
     {
         var userName = HttpContext.Request.Headers["User-Name"];
         /* userName을 기반으로 userId를 불러옴 */
-        int userId = await _accountDB.GetUserId(userName);
+        int userId = await _accountMemoryDB.GetUserId(userName);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Open Mail'");
 

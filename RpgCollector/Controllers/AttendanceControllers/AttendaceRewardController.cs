@@ -5,6 +5,7 @@ using RpgCollector.Services;
 using RpgCollector.Models.AttendanceData;
 using Microsoft.Extensions.Logging;
 using ZLogger;
+using RpgCollector.Models.AccountModel;
 
 namespace RpgCollector.Controllers.AttandanceControllers;
 
@@ -12,21 +13,21 @@ namespace RpgCollector.Controllers.AttandanceControllers;
 public class AttendaceRewardController : Controller
 {
     IMailboxAccessDB _mailboxAccessDB;
-    IAccountDB _accountDB;
+    IAccountMemoryDB _accountMemoryDB;
     IAttendanceDB _attendanceDB;
     IMasterDataDB _masterDataDB;
     readonly ILogger<AttendaceRewardController> _logger;
 
     public AttendaceRewardController(IMailboxAccessDB mailboxAccessDB, 
-                                     IAccountDB accountDB, 
                                      IAttendanceDB attendanceDB, 
                                      IMasterDataDB masterDataDB,
+                                     IAccountMemoryDB accountMemoryDB,
                                      ILogger<AttendaceRewardController> logger)
     {
         _mailboxAccessDB = mailboxAccessDB;
-        _accountDB = accountDB;
         _attendanceDB = attendanceDB;
         _masterDataDB = masterDataDB;
+        _accountMemoryDB = accountMemoryDB;
         _logger = logger;
     }
 
@@ -40,9 +41,11 @@ public class AttendaceRewardController : Controller
     public async Task<AttendanceResponse> Attendance()
     {
         string userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountDB.GetUserId(userName);
+        int userId = await _accountMemoryDB.GetUserId(userName);
+
         string toDay = DateTime.Now.ToString("yyyy-MM-dd");
         string yesterDay = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+
         ErrorState Error;
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Attendance'");

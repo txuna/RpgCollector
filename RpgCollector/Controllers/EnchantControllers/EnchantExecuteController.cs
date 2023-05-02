@@ -13,20 +13,20 @@ namespace RpgCollector.Controllers.EnchantControllers;
 [ApiController]
 public class EnchantExecuteController : Controller
 {
-    IEnchantDB _enchantDB; 
-    IAccountDB _accountDB;
+    IEnchantDB _enchantDB;  
+    IAccountMemoryDB _accountMemoryDB;
     ILogger<EnchantExecuteController> _logger;
     IPlayerAccessDB _playerAccessDB;
     IMasterDataDB _masterDataDB;
 
     public EnchantExecuteController(IEnchantDB enchantDB, 
-                                    IAccountDB accountDB,
+                                    IAccountMemoryDB accountMemoryDB,
                                     IPlayerAccessDB playerAccessDB, 
                                     ILogger<EnchantExecuteController> logger,
                                     IMasterDataDB masterDataDB)
     {
         _enchantDB = enchantDB;
-        _accountDB = accountDB;
+        _accountMemoryDB = accountMemoryDB;
         _playerAccessDB = playerAccessDB;
         _masterDataDB = masterDataDB;
         _logger = logger;
@@ -52,7 +52,7 @@ public class EnchantExecuteController : Controller
         int result;
 
         string userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountDB.GetUserId(userName);
+        int userId = await _accountMemoryDB.GetUserId(userName);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Enchant'");
 

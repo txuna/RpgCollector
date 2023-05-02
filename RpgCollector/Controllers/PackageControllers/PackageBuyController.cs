@@ -12,19 +12,19 @@ namespace RpgCollector.Controllers.PackageControllers;
 public class PackageBuyController : Controller
 {
     IPackagePaymentDB _packagePaymentDB; 
-    IAccountDB _accountDB;
+    IAccountMemoryDB _accountMemoryDB;
     IMailboxAccessDB _mailboxAccessDB;
     ILogger<PackageBuyController> _logger;
     IMasterDataDB _masterDataDB;
 
     public PackageBuyController(IPackagePaymentDB packagePaymentDB, 
-                                IAccountDB accountDB, 
+                                IAccountMemoryDB accountMemoryDB,
                                 IMailboxAccessDB mailboxAccessDB, 
                                 ILogger<PackageBuyController> logger,
                                 IMasterDataDB masterDataDB) 
     {
         _packagePaymentDB = packagePaymentDB;
-        _accountDB = accountDB;
+        _accountMemoryDB = accountMemoryDB;
         _mailboxAccessDB = mailboxAccessDB;
         _logger = logger;
         _masterDataDB = masterDataDB;
@@ -39,7 +39,7 @@ public class PackageBuyController : Controller
     public async Task<PackageBuyResponse> BuyPackage(PackageBuyRequest packageBuyRequest)
     {
         string userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountDB.GetUserId(userName);
+        int userId = await _accountMemoryDB.GetUserId(userName);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Buy Package'");
 

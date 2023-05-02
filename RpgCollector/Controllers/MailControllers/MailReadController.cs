@@ -11,14 +11,16 @@ namespace RpgCollector.Controllers.MailControllers;
 public class MailReadController : Controller
 {
     IMailboxAccessDB _mailboxAccessDB;
-    IAccountDB _accountDB;
+    IAccountMemoryDB _accountMemoryDB;
     ILogger<MailReadController> _logger;
 
-    public MailReadController(IMailboxAccessDB mailboxAccessDB, IAccountDB accountDB, ILogger<MailReadController> logger)
+    public MailReadController(IMailboxAccessDB mailboxAccessDB, 
+                              IAccountMemoryDB accountMemoryDB,
+                              ILogger<MailReadController> logger)
     {
         _mailboxAccessDB = mailboxAccessDB;
-        _accountDB = accountDB;
         _logger = logger;
+        _accountMemoryDB = accountMemoryDB;
     }
 
     /*
@@ -30,7 +32,7 @@ public class MailReadController : Controller
     public async Task<MailReadResponse> ReadMail(MailReadRequest readMailRequest)
     {
         string userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountDB.GetUserId(userName);
+        int userId = await _accountMemoryDB.GetUserId(userName);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Read Mail'");
 

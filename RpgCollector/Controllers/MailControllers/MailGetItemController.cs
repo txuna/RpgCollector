@@ -16,15 +16,18 @@ public class MailGetItemController : Controller
 {
     IMailboxAccessDB _mailboxAccessDB;
     IPlayerAccessDB _playerAccessDB;
-    IAccountDB _accountDB;
     ILogger<MailGetItemController> _logger;
+    IAccountMemoryDB _accountMemoryDB;
 
-    public MailGetItemController(IMailboxAccessDB mailboxAccessDB, IPlayerAccessDB playerAccessDB, IAccountDB accountDB, ILogger<MailGetItemController> logger) 
+    public MailGetItemController(IMailboxAccessDB mailboxAccessDB, 
+                                 IPlayerAccessDB playerAccessDB, 
+                                 ILogger<MailGetItemController> logger, 
+                                 IAccountMemoryDB accountMemoryDB) 
     {
         _mailboxAccessDB = mailboxAccessDB; 
         _playerAccessDB = playerAccessDB;
-        _accountDB = accountDB;
         _logger = logger;
+        _accountMemoryDB = accountMemoryDB;
     }
 /*
 * 사용자가 전송한 mailId를 기반으로 아이템을 동봉하고 있는지 확인 + 이미 수령했는지 확인 및 아이템 제공
@@ -39,7 +42,7 @@ public class MailGetItemController : Controller
         ErrorState Error; 
 
         /* userName을 기반으로 사용자의 userId 반환 */
-        int userId = await _accountDB.GetUserId(userName);
+        int userId = await _accountMemoryDB.GetUserId(userName);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Get Mail Item'");
 
