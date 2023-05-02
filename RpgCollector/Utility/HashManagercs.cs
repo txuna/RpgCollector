@@ -1,4 +1,4 @@
-﻿using RpgCollector.Models;
+﻿using RpgCollector.Models.AccountModel;
 using System.Security.Cryptography;
 
 namespace RpgCollector.Utility;

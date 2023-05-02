@@ -1,4 +1,4 @@
-﻿using RpgCollector.Models.MailData;
+﻿using RpgCollector.Models.MailModel;
 
 namespace RpgCollector.RequestResponseModel.MailOpenModel
 {

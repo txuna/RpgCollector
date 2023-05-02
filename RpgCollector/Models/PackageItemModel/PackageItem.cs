@@ -1,4 +1,4 @@
-﻿namespace RpgCollector.Models.PackgeItemData
+﻿namespace RpgCollector.Models.PackgeItemModel
 {
     public class PackageItem
     {

@@ -1,4 +1,4 @@
-﻿using RpgCollector.Models;
+﻿using RpgCollector.Models.NoticeModel;
 
 namespace RpgCollector.RequestResponseModel.NoticeGetModel
 {

@@ -1,4 +1,4 @@
-﻿namespace RpgCollector.Models
+﻿namespace RpgCollector.Models.AccountModel
 {
     public class User
     {

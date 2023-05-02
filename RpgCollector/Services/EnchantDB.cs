@@ -2,7 +2,8 @@
 using MySqlConnector;
 using RpgCollector.Models;
 using RpgCollector.Models.EnchantModel;
-using RpgCollector.Models.MasterData;
+using RpgCollector.Models.MasterModel;
+using RpgCollector.Models.PlayerModel;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;

@@ -2,7 +2,7 @@
 using RpgCollector.RequestResponseModel.PaymentModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
-using RpgCollector.Models.PackgeItemData;
+using RpgCollector.Models.PackgeItemModel;
 using RpgCollector.Models;
 using ZLogger;
 

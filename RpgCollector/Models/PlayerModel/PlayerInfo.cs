@@ -1,6 +1,6 @@
-﻿namespace RpgCollector.Models
+﻿namespace RpgCollector.Models.PlayerModel
 {
-    public class PlayerData
+    public class PlayerInfo
     {
         public int UserId { get; set; }
         public int Hp { get; set; }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using RpgCollector.Models;
+using RpgCollector.Models.AccountModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.RequestResponseModel.LoginModel;
 using RpgCollector.Services;

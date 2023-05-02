@@ -11,6 +11,7 @@ using System.Data;
 using System.Data.Common;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RpgCollector.Models.NoticeModel;
 using ZLogger;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -140,6 +141,7 @@ async Task<bool> LoadData()
     }
     catch (Exception ex)
     {
+        Console.WriteLine("EE");
         Console.WriteLine(ex.Message);
         return false;
     }

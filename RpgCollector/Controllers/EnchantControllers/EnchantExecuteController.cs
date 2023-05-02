@@ -2,10 +2,11 @@
 using RpgCollector.RequestResponseModel.EnchantModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
-using RpgCollector.Models.MasterData;
-using RpgCollector.Models;
+using RpgCollector.Models.MasterModel;
 using RpgCollector.Models.EnchantModel;
 using ZLogger;
+using RpgCollector.Models.PlayerModel;
+using RpgCollector.Models;
 
 namespace RpgCollector.Controllers.EnchantControllers;
 

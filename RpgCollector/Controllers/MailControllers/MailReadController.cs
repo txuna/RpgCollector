@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RpgCollector.Models.MailData;
+using RpgCollector.Models.MailModel;
 using RpgCollector.RequestResponseModel.MailReadModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;

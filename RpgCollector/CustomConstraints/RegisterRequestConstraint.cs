@@ -1,5 +1,6 @@
 ﻿using Humanizer.Localisation;
 using RpgCollector.RequestResponseModel.LoginModel;
+using RpgCollector.RequestResponseModel.RegisterModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
@@ -9,7 +10,7 @@ using System.Text.RegularExpressions;
  */
 namespace RpgCollector.CustomConstraints
 {
-    public class CustomUserNameAttribute : ValidationAttribute
+    public class RegisterUserNameAttribute : ValidationAttribute
     {
         public string GetErrorMessage()
         {
@@ -20,7 +21,7 @@ namespace RpgCollector.CustomConstraints
         object? value, ValidationContext validationContext)
         { 
             Regex regex = new Regex("^(?=^\\w{3,20}$)[a-z0-9]+_?[a-z0-9]+$");
-            LoginRequest userRequest = (LoginRequest)validationContext.ObjectInstance;
+            RegisterRequest userRequest = (RegisterRequest)validationContext.ObjectInstance;
             if (!regex.IsMatch(userRequest.UserName))
             {
                 return new ValidationResult(GetErrorMessage());
@@ -29,7 +30,7 @@ namespace RpgCollector.CustomConstraints
         }
     }
 
-    public class CustomUserPasswordAttribute : ValidationAttribute
+    public class RegisterUserPasswordAttribute : ValidationAttribute
     {
         public string GetErrorMessage()
         {
@@ -40,7 +41,7 @@ namespace RpgCollector.CustomConstraints
         object? value, ValidationContext validationContext)
         {
             Regex regex = new Regex("^(?=^\\w{3,20}$)[a-z0-9]+_?[a-z0-9]+$");
-            LoginRequest userRequest = (LoginRequest)validationContext.ObjectInstance;
+            RegisterRequest userRequest = (RegisterRequest)validationContext.ObjectInstance;
             if (!regex.IsMatch(userRequest.Password))
             {
                 return new ValidationResult(GetErrorMessage());

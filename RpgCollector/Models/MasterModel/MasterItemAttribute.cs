@@ -1,4 +1,4 @@
-﻿namespace RpgCollector.Models.MasterData
+﻿namespace RpgCollector.Models.MasterModel
 {
     public class MasterItemAttribute
     {

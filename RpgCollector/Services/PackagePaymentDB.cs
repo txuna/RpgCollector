@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using RpgCollector.Models;
-using RpgCollector.Models.PackgeItemData;
+using RpgCollector.Models.PackgeItemModel;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;

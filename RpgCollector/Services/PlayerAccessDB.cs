@@ -2,8 +2,9 @@
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using RpgCollector.Models;
-using RpgCollector.Models.InitPlayerData;
-using RpgCollector.Models.MasterData;
+using RpgCollector.Models.InitPlayerModel;
+using RpgCollector.Models.MasterModel;
+using RpgCollector.Models.PlayerModel;
 using RpgCollector.Utility;
 using SqlKata.Compilers;
 using SqlKata.Execution;
@@ -15,7 +16,7 @@ namespace RpgCollector.Services;
 public interface IPlayerAccessDB
 {
     Task<TypeDefinition> GetItemType(int attributeId);
-    Task<PlayerData?> GetPlayerFromUserId(int userId);
+    Task<PlayerInfo?> GetPlayerFromUserId(int userId);
     Task<bool> AddItemToPlayer(int userId, int itemId, int quantity);
     Task<bool> AddMoneyToPlayer(int userId, int money);
     Task<bool> InsertPlayerEquipmentItem(int userId, int itemId, int quantity);
@@ -87,14 +88,14 @@ public class PlayerAccessDB : IPlayerAccessDB
     {
         try
         {
-            PlayerData? playerData = await GetPlayerFromUserId(userId);
-            if (playerData == null)
+            PlayerInfo? playerInfo = await GetPlayerFromUserId(userId);
+            if (playerInfo == null)
             {
                 return false;
             }
             await queryFactory.Query("players").Where("userId", userId).UpdateAsync(new
             {
-                money = playerData.Money + money
+                money = playerInfo.Money + money
             });
         }
         catch (Exception ex)
@@ -105,19 +106,19 @@ public class PlayerAccessDB : IPlayerAccessDB
         return true;
     }
 
-    public async Task<PlayerData?> GetPlayerFromUserId(int userId)
+    public async Task<PlayerInfo?> GetPlayerFromUserId(int userId)
     {
-        PlayerData playerData; 
+        PlayerInfo playerInfo; 
         try
         {
-            playerData = await queryFactory.Query("players").Where("userId", userId).FirstAsync<PlayerData>();
+            playerInfo = await queryFactory.Query("players").Where("userId", userId).FirstAsync<PlayerInfo>();
         }
         catch (Exception ex)
         {
             _logger.ZLogError(ex.Message);
             return null; 
         }
-        return playerData;
+        return playerInfo;
     }
 
     public async Task<PlayerItem?> GetPlayerItem(int playerItemId)

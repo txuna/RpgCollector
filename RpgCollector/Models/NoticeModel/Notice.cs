@@ -1,4 +1,4 @@
-﻿namespace RpgCollector.Models
+﻿namespace RpgCollector.Models.NoticeModel
 {
     public class Notice
     {

@@ -1,4 +1,4 @@
-﻿namespace RpgCollector.Models.InitPlayerData
+﻿namespace RpgCollector.Models.InitPlayerModel
 {
     public class InitPlayerState
     {

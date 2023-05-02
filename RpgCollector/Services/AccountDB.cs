@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MySqlConnector;
 using RpgCollector.Models;
+using RpgCollector.Models.AccountModel;
 using RpgCollector.Utility;
 using SqlKata;
 using SqlKata.Compilers;

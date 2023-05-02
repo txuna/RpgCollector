@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MySqlConnector;
 using RpgCollector.Models;
-using RpgCollector.Models.MailData;
+using RpgCollector.Models.MailModel;
 using RpgCollector.Utility;
 using SqlKata.Compilers;
 using SqlKata.Execution;
@@ -22,6 +22,7 @@ public interface IMailboxAccessDB
     // player의 아이템 받기가실패할시 mail undo 처리 
     Task<bool> UndoMailItem(int mailId);
     Task<bool> IsMailOwner(int mailId, int userId);
+    Task<Mailbox[]?> GetPartialMails(int userId, bool isFirst, int pageNumber);
 }
 
 public class MailboxAccessDB : IMailboxAccessDB
@@ -37,6 +38,38 @@ public class MailboxAccessDB : IMailboxAccessDB
         _dbConfig = dbConfig;
         _logger = logger;
         Open();
+    }
+
+    public async Task<Mailbox[]?> GetPartialMails(int receiverId, bool isFirst, int pageNumber)
+    {
+        try
+        {
+            if(isFirst)
+            {
+                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox").Where("receiverId", receiverId).Take(20).GetAsync<Mailbox>();
+                return mails.ToArray();
+            }
+            else
+            {
+                int mailCount = await queryFactory.Query("mailbox").Where("receiverId", receiverId).CountAsync<int>();
+                if ((pageNumber - 1) * 20 > mailCount)
+                {
+                    Console.WriteLine(mailCount);
+                    return null;
+                }
+                int start = (pageNumber - 1) * 20;
+                int end = start + 20;
+                Console.WriteLine(start);
+
+                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox").Where("receiverId", receiverId).Skip(20).Take(40).GetAsync<Mailbox>();
+                return mails.ToArray();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return null;
+        }
     }
 
     public async Task<bool> IsMailOwner(int mailId, int userId)

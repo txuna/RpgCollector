@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using RpgCollector.Models;
+using RpgCollector.Models.AccountModel;
 using RpgCollector.Utility;
 using StackExchange.Redis;
 using System.Text.Json;

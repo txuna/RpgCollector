@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using RpgCollector.Models;
 using RpgCollector.RequestResponseModel.NoticeGetModel;
 using RpgCollector.Services;
 using RpgCollector.RequestResponseModel;
@@ -8,6 +7,7 @@ using StackExchange.Redis;
 using System;
 using System.Text.Json;
 using ZLogger;
+using RpgCollector.Models.NoticeModel;
 
 namespace RpgCollector.Controllers.NoticeControllers;
 

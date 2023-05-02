@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models;
-using RpgCollector.Models.MailData;
+using RpgCollector.Models.MailModel;
 using RpgCollector.RequestResponseModel.MailOpenModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
 using ZLogger;
+using RpgCollector.RequestResponseModel.MailReadModel;
 
 namespace RpgCollector.Controllers.MailControllers;
 
@@ -35,6 +36,7 @@ public class MailOpenController : Controller
     public async Task<MailOpenResponse> OpenMailbox(MailOpenRequest openMailboxRequest)
     {
         var userName = HttpContext.Request.Headers["User-Name"];
+        /* userName을 기반으로 userId를 불러옴 */
         int userId = await _accountDB.GetUserId(userName);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Open Mail'");
@@ -48,40 +50,47 @@ public class MailOpenController : Controller
             };
         }
 
-        // ReceiverId에 맞게 가지고 오기
-        Mailbox[]? mails = await _mailboxAccessDB.GetAllMailFromUserId(userId);
+        /* userId가 receiverdId인 모든 메일 가지고옴 */
+        //Mailbox[]? mails = await _mailboxAccessDB.GetAllMailFromUserId(userId);
 
-        if(mails == null)
+        Mailbox[]? mails = await _mailboxAccessDB.GetPartialMails(userId, (bool)openMailboxRequest.IsFirstOpen, (int)openMailboxRequest.PageNumber);
+
+        if (mails == null)
         {
-            _logger.ZLogError($"[{userId} {userName}] Failed Fetch Mail from Mysql");
-            return new MailOpenResponse
-            {
-                Error = ErrorState.FailedFetchMail
-            };
-        }
-
-        MailOpenResponse? mailOpenResponse = getPartialMails(mails, openMailboxRequest);
-
-        if(mailOpenResponse == null)
-        {
-            _logger.ZLogInformation($"[{userId} {userName}] Invalid PageNumber : {openMailboxRequest.PageNumber}");
+            _logger.ZLogError($"[{userId} {userName}] Invalid PageNumber");
             return new MailOpenResponse
             {
                 Error = ErrorState.InvalidPageNumber
             };
         }
 
-        return mailOpenResponse;
+        /* 전체적으로 불러온  */
+        //MailOpenResponse? mailOpenResponse = getPartialMails(mails, openMailboxRequest);
+
+        //if(mailOpenResponse == null)
+        //{
+        //    _logger.ZLogInformation($"[{userId} {userName}] Invalid PageNumber : {openMailboxRequest.PageNumber}");
+        //    return new MailOpenResponse
+        //    {
+        //        Error = ErrorState.InvalidPageNumber
+        //    };
+        //}
+
+        return new MailOpenResponse
+        {
+            Error = ErrorState.None,
+            Mails = mails
+        };
     }
 
     MailOpenResponse? getPartialMails(Mailbox[] mails, MailOpenRequest openMailboxRequest)
     {
-        if(mails.Length == 0)
+        if(mails.Length == 0 || openMailboxRequest.PageNumber <= 0)
         {
             return new MailOpenResponse
             {
                 Error = ErrorState.None,
-                Mails = mails
+                Mails = null
             };
         }
 

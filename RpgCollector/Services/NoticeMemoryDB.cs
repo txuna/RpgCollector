@@ -6,6 +6,7 @@ using RpgCollector.Utility;
 using StackExchange.Redis;
 using System.Text.Json;
 using ZLogger;
+using RpgCollector.Models.NoticeModel;
 
 namespace RpgCollector.Services;
 

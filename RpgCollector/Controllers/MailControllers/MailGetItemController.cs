@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models;
-using RpgCollector.Models.MailData;
+using RpgCollector.Models.MailModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.RequestResponseModel.MailGetItemModel;
 using RpgCollector.RequestResponseModel.MailReadModel;
 using RpgCollector.Services;
 using SqlKata;
 using ZLogger;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RpgCollector.Controllers.MailControllers;
 
@@ -39,6 +38,7 @@ public class MailGetItemController : Controller
         var userName = HttpContext.Request.Headers["User-Name"];
         ErrorState Error; 
 
+        /* userName을 기반으로 사용자의 userId 반환 */
         int userId = await _accountDB.GetUserId(userName);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Get Mail Item'");
@@ -53,6 +53,7 @@ public class MailGetItemController : Controller
             };
         }
 
+        /* userId가 요청된 mailId에 대해서 접근권한이 있는지 확인 */
         Error = await VerifyMail(mailGetItemRequest, userId);
 
         if(Error != ErrorState.None)
@@ -65,6 +66,7 @@ public class MailGetItemController : Controller
             };
         }
 
+        /* 해당 메일에 존재하는 아이템 플레이어에게 제공 */
         Error = await AddItemToPlayer(userId, mailGetItemRequest.MailId);
 
         if(Error != ErrorState.None)
