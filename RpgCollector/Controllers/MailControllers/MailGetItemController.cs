@@ -89,6 +89,10 @@ public class MailGetItemController : Controller
 
     async Task<ErrorState> VerifyMail(MailGetItemRequest mailGetItemRequest, int userId)
     {
+        if(await _mailboxAccessDB.IsDeletedMail(mailGetItemRequest.MailId))
+        {
+            return ErrorState.DeletedMail;
+        }
         if (!await _mailboxAccessDB.HasMailItem(mailGetItemRequest.MailId))
         {
             return ErrorState.NoneHaveItemInMail;
@@ -98,7 +102,6 @@ public class MailGetItemController : Controller
         {
             return ErrorState.NoneOwnerThisMail;
         }
-
         return ErrorState.None;
     }
 
@@ -108,7 +111,7 @@ public class MailGetItemController : Controller
 
         if (mailItem == null)
         {
-            return ErrorState.NoneExistMail;
+            return ErrorState.AlreadyReceivedItemFromMail;
         }
 
         if (!await _playerAccessDB.AddItemToPlayer(userId, mailItem.ItemId, mailItem.Quantity))

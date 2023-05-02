@@ -36,7 +36,7 @@ public class RegisterController : Controller
 
             return new RegisterResponse
             {
-                Error = ErrorState.FailedRegister
+                Error = ErrorState.AlreadyExistUser
             };
         }
 

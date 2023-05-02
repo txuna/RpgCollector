@@ -30,6 +30,8 @@
         FailedAddMailItemToPlayer = 207,
         NoneOwnerThisMail = 208,
         FailedSendMail = 209,
+        DeletedMail = 210,
+        FailedDeleteMail = 211,
 
         /* NOtice 301 ~ 400 */
 

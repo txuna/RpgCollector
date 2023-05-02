@@ -10,5 +10,6 @@
         public string SendDate { get; set; }
         public int IsRead { get; set; }
         public int HasItem { get; set; }
+        public int IsDeleted { get; set; }
     }
 }

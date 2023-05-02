@@ -23,6 +23,8 @@ public interface IMailboxAccessDB
     Task<bool> UndoMailItem(int mailId);
     Task<bool> IsMailOwner(int mailId, int userId);
     Task<Mailbox[]?> GetPartialMails(int userId, bool isFirst, int pageNumber);
+    Task<bool> IsDeletedMail(int mailId);
+    Task<bool> DeleteMail(int mailId);
 }
 
 public class MailboxAccessDB : IMailboxAccessDB
@@ -46,12 +48,17 @@ public class MailboxAccessDB : IMailboxAccessDB
         {
             if(isFirst)
             {
-                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox").Where("receiverId", receiverId).Take(20).GetAsync<Mailbox>();
+                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox").Where("receiverId", receiverId).WhereNot("isRead", 1).WhereNot("isDeleted", 1).Take(20).GetAsync<Mailbox>();
                 return mails.ToArray();
             }
             else
             {
-                int mailCount = await queryFactory.Query("mailbox").Where("receiverId", receiverId).CountAsync<int>();
+                if(pageNumber <= 0)
+                {
+                    return null;
+                }
+                int mailCount = await queryFactory.Query("mailbox").Where("receiverId", receiverId).WhereNot("isRead", 1).WhereNot("isDeleted", 1).CountAsync<int>();
+                Console.WriteLine(mailCount);
                 if ((pageNumber - 1) * 20 > mailCount)
                 {
                     Console.WriteLine(mailCount);
@@ -59,9 +66,8 @@ public class MailboxAccessDB : IMailboxAccessDB
                 }
                 int start = (pageNumber - 1) * 20;
                 int end = start + 20;
-                Console.WriteLine(start);
 
-                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox").Where("receiverId", receiverId).Skip(20).Take(40).GetAsync<Mailbox>();
+                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox").Where("receiverId", receiverId).WhereNot("isRead", 1).WhereNot("isDeleted", 1).Skip(start).Take(end).GetAsync<Mailbox>();
                 return mails.ToArray();
             }
         }
@@ -71,12 +77,46 @@ public class MailboxAccessDB : IMailboxAccessDB
             return null;
         }
     }
+    public async Task<bool> DeleteMail(int mailId)
+    {
+        try
+        {
+            await queryFactory.Query("mailbox").Where("mailId", mailId).UpdateAsync(new
+            {
+                isDeleted = 1
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> IsDeletedMail(int mailId)
+    {
+        try
+        {
+            int count = await queryFactory.Query("mailbox").Where("mailId", mailId).Where("isDeleted", 1).CountAsync<int>();
+            if(count > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false; 
+        }
+    }
 
     public async Task<bool> IsMailOwner(int mailId, int userId)
     {
         try
         {
-            int count = await queryFactory.Query("mailbox").Where("mailId", mailId).Where("receiverId", userId).CountAsync<int>();
+            int count = await queryFactory.Query("mailbox").Where("mailId", mailId).Where("receiverId", userId).WhereNot("isDeleted", 1).CountAsync<int>();
             if(count > 0)
             {
                 return true;
@@ -101,7 +141,8 @@ public class MailboxAccessDB : IMailboxAccessDB
                 title = title,
                 content = content,
                 isRead = 0,
-                hasItem = 1
+                hasItem = 1,
+                isDeleted = 0,
             });
 
             await queryFactory.Query("mail_item").InsertAsync(new
@@ -130,7 +171,8 @@ public class MailboxAccessDB : IMailboxAccessDB
                 title = title,
                 content = content,
                 isRead = 0,
-                hasItem = 0
+                hasItem = 0,
+                isDeleted = 0,
             });
         }
         catch (Exception ex)
@@ -145,7 +187,7 @@ public class MailboxAccessDB : IMailboxAccessDB
     {
         try
         {
-            IEnumerable<Mailbox> mails =  await queryFactory.Query("mailbox").Where("receiverId", userId).GetAsync<Mailbox>();
+            IEnumerable<Mailbox> mails =  await queryFactory.Query("mailbox").Where("receiverId", userId).WhereNot("isDeleted", 1).GetAsync<Mailbox>();
             return mails.ToArray();
         }
         catch (Exception ex)
@@ -162,6 +204,7 @@ public class MailboxAccessDB : IMailboxAccessDB
             Mailbox mail = await queryFactory.Query("mailbox")
                                              .Where("mailId", mailId)
                                              .Where("receiverId", userId)
+                                             .WhereNot("isDeleted", 1)
                                              .FirstAsync<Mailbox>();
             return mail;
         }

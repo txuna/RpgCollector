@@ -150,7 +150,8 @@ public class EnchantExecuteController : Controller
 
     ErrorState VerifyItemType(int attributeId)
     {
-        MasterItemType? itemType = _masterDataDB.GetMasterItemType(attributeId);
+        MasterItemAttribute? itemAttribute = _masterDataDB.GetMasterItemAttribute(attributeId);
+        MasterItemType? itemType = _masterDataDB.GetMasterItemType(itemAttribute.TypeId);
 
         if(itemType == null)
         {

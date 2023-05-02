@@ -33,16 +33,24 @@ public class MailReadController : Controller
     {
         string userName = HttpContext.Request.Headers["User-Name"];
         int userId = await _accountMemoryDB.GetUserId(userName);
+        ErrorState Error;
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Read Mail'");
 
-        if(!await _mailboxAccessDB.IsMailOwner(readMailRequest.MailId, userId))
+        if (userId == -1)
         {
-            _logger.ZLogInformation($"[{userId} {userName}] None Have Permission This Mail {readMailRequest.MailId}");
-
             return new MailReadResponse
             {
-                Error = ErrorState.NoneOwnerThisMail
+                Error = ErrorState.NoneExistName
+            };
+        }
+
+        Error = await Verify(readMailRequest.MailId, userId);
+        if(Error != ErrorState.None)
+        {
+            return new MailReadResponse
+            {
+                Error = Error
             };
         }
 
@@ -76,5 +84,18 @@ public class MailReadController : Controller
             Title = mail.Title,
             Content = mail.Content
         };
+    }
+
+    async Task<ErrorState> Verify(int mailId, int userId)
+    {
+        if(await _mailboxAccessDB.IsDeletedMail(mailId))
+        {
+            return ErrorState.DeletedMail;
+        }
+        if(!await _mailboxAccessDB.IsMailOwner(mailId, userId))
+        {
+            return ErrorState.NoneOwnerThisMail;
+        }
+        return ErrorState.None;
     }
 }
