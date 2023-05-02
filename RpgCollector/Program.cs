@@ -33,6 +33,7 @@ builder.Services.AddTransient<IMailboxAccessDB, MailboxAccessDB>();
 builder.Services.AddTransient<IPackagePaymentDB, PackagePaymentDB>();
 builder.Services.AddTransient<IEnchantDB, EnchantDB>();
 builder.Services.AddTransient<IAttendanceDB, AttendanceDB>();
+builder.Services.AddSingleton<IMasterDataDB, MasterDataDB>();
 
 SettingLogger();
 
@@ -49,8 +50,6 @@ app.UseAuthenticationMiddleware(configuration.GetSection("DbConfig")["RedisDB"])
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 #pragma warning restore ASP0014
 
-
-
 if (!await LoadData())
 {
     return;
@@ -62,9 +61,6 @@ void SettingLogger()
 {
     var logging = builder.Logging;
     logging.ClearProviders();
-
-    // Add File Logging.
-    //logging.AddZLoggerFile("./logs/access.log");
 
     // Add Rolling File Logging.
     logging.AddZLoggerRollingFile(
@@ -95,11 +91,6 @@ void SettingLogger()
             info.WriteToJsonWriter(writer);
         };
     });
-}
-
-async Task<bool> LogMasterData()
-{
-
 }
 
 /*
