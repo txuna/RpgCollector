@@ -13,6 +13,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using RpgCollector.Models.NoticeModel;
 using ZLogger;
+using RpgCollector.Models.InitPlayerModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,6 +95,11 @@ void SettingLogger()
             info.WriteToJsonWriter(writer);
         };
     });
+}
+
+async Task<bool> LogMasterData()
+{
+
 }
 
 /*

@@ -118,7 +118,7 @@ public class AttendaceRewardController : Controller
         {
             return 1;
         }
-        return lastLog.SequenceDayCount + 1;
+        return (lastLog.SequenceDayCount + 1) % 30;
     }
 
     async Task<bool> IsYesterdayAttendance(int userId, string yesterDay)
