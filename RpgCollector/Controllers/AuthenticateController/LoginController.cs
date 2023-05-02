@@ -59,7 +59,7 @@ public class LoginController : Controller
         string authToken = HashManager.GenerateAuthToken();
         authToken = authToken.Replace("+", "d");
 
-        if (!await _memoryDB.StoreUser(user, authToken))
+        if (!await _memoryDB.StoreRedisUser(user, authToken))
         {
             _logger.ZLogError($"[{loginRequest.UserName}] None Exist UserName");
             return new LoginResponse

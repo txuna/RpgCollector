@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
 using RpgCollector.Utility;
+using RpgCollector.Models.AccountModel;
 
 namespace RpgCollector.Middlewares
 {
@@ -137,10 +138,12 @@ namespace RpgCollector.Middlewares
                     return false;
                 }
                 
-                string redisAuthToken = await redisDB.StringGetAsync(userName);
+                //string redisAuthToken = await redisDB.StringGetAsync(userName);
+                string redisString = await redisDB.StringGetAsync(userName);
+                RedisUser redisUser = JsonSerializer.Deserialize<RedisUser>(redisString);
 
                 // 저장된 토큰이랑 불일치
-                if (redisAuthToken != authToken)
+                if (redisUser.AuthToken != authToken)
                 {
                     return false;
                 }
