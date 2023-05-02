@@ -64,7 +64,7 @@ public class MailOpenController : Controller
             };
         }
 
-        /* 전체적으로 불러온  */
+        /* 전체적으로 불러온 - 네트워크 과부하 */
         //MailOpenResponse? mailOpenResponse = getPartialMails(mails, openMailboxRequest);
 
         //if(mailOpenResponse == null)
