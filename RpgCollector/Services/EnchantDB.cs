@@ -15,7 +15,6 @@ public interface IEnchantDB
 {
     Task<bool> IsUserHasItem(int playerItemId, int userId);
     Task<bool> DoEnchant(PlayerItem playerItem);
-    Task<MasterEnchantInfo?> GetEnchantInfo(int currentEnchantCount);
     Task<bool> EnchantLog(int playerItemId, int userId, int currentEnchantCount, int result);
 }
 
@@ -51,20 +50,6 @@ public class EnchantDB : IEnchantDB
         {
             _logger.ZLogError(ex.Message);
             return false;
-        }
-    }
-
-    public async Task<MasterEnchantInfo?> GetEnchantInfo(int currentEnchantCount)
-    {
-        try
-        {
-            MasterEnchantInfo? masterEnchantInfo  = await queryFactory.Query("master_enchant_info").Where("enchantCount", currentEnchantCount + 1).FirstAsync<MasterEnchantInfo>();
-            return masterEnchantInfo;
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return null;
         }
     }
 

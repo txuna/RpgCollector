@@ -14,13 +14,19 @@ public class AttendaceRewardController : Controller
     IMailboxAccessDB _mailboxAccessDB;
     IAccountDB _accountDB;
     IAttendanceDB _attendanceDB;
+    IMasterDataDB _masterDataDB;
     readonly ILogger<AttendaceRewardController> _logger;
 
-    public AttendaceRewardController(IMailboxAccessDB mailboxAccessDB, IAccountDB accountDB, IAttendanceDB attendanceDB, ILogger<AttendaceRewardController> logger)
+    public AttendaceRewardController(IMailboxAccessDB mailboxAccessDB, 
+                                     IAccountDB accountDB, 
+                                     IAttendanceDB attendanceDB, 
+                                     IMasterDataDB masterDataDB,
+                                     ILogger<AttendaceRewardController> logger)
     {
         _mailboxAccessDB = mailboxAccessDB;
         _accountDB = accountDB;
         _attendanceDB = attendanceDB;
+        _masterDataDB = masterDataDB;
         _logger = logger;
     }
 
@@ -142,7 +148,7 @@ public class AttendaceRewardController : Controller
     // 출석 보상 지급 에러 -> 출석 UNDO
     async Task<ErrorState> SendAttendanceReward(int userId, int sequenceDayCount)
     {
-        MasterAttendanceReward? reward = await _attendanceDB.GetAttendanceReward(sequenceDayCount);
+        MasterAttendanceReward? reward = _masterDataDB.GetMasterAttendanceReward(sequenceDayCount);
         if (reward == null)
         {
             return ErrorState.FailedSendAttendanceReward;

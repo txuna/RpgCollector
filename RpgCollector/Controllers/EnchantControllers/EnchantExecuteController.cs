@@ -17,12 +17,18 @@ public class EnchantExecuteController : Controller
     IAccountDB _accountDB;
     ILogger<EnchantExecuteController> _logger;
     IPlayerAccessDB _playerAccessDB;
+    IMasterDataDB _masterDataDB;
 
-    public EnchantExecuteController(IEnchantDB enchantDB, IAccountDB accountDB, IPlayerAccessDB playerAccessDB, ILogger<EnchantExecuteController> logger)
+    public EnchantExecuteController(IEnchantDB enchantDB, 
+                                    IAccountDB accountDB,
+                                    IPlayerAccessDB playerAccessDB, 
+                                    ILogger<EnchantExecuteController> logger,
+                                    IMasterDataDB masterDataDB)
     {
         _enchantDB = enchantDB;
         _accountDB = accountDB;
         _playerAccessDB = playerAccessDB;
+        _masterDataDB = masterDataDB;
         _logger = logger;
     }
 
@@ -72,9 +78,9 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        MasterItem? masterItem = await _playerAccessDB.GetMasterItemFromItemId(playerItem.ItemId);
+        MasterItem? masterItem = _masterDataDB.GetMasterItem(playerItem.ItemId);
 
-        if(masterItem == null)
+        if (masterItem == null)
         {
             _logger.ZLogInformation($"[{userId}:{userName}] None Exist Master Item : {playerItem.ItemId}");
             return new EnchantExecuteResponse
@@ -83,7 +89,7 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        Error = await VerifyItemType(masterItem.AttributeId);
+        Error = VerifyItemType(masterItem.AttributeId);
 
         if(Error != ErrorState.None)
         {
@@ -105,7 +111,7 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        (Error, result) = await ExecuteEnchant(playerItem, masterItem, userId);
+        (Error, result) = await ExecuteEnchant(playerItem, userId);
 
         if(Error != ErrorState.None)
         {
@@ -142,11 +148,16 @@ public class EnchantExecuteController : Controller
         return ErrorState.None;
     }
 
-    async Task<ErrorState> VerifyItemType(int attributeId)
+    ErrorState VerifyItemType(int attributeId)
     {
-        TypeDefinition itemType = await _playerAccessDB.GetItemType(attributeId);
+        MasterItemType? itemType = _masterDataDB.GetMasterItemType(attributeId);
 
-        if(itemType != TypeDefinition.EQUIPMENT)
+        if(itemType == null)
+        {
+            return ErrorState.NoneExistItemType;
+        }
+
+        if ((TypeDefinition)itemType.TypeId != TypeDefinition.EQUIPMENT)
         {
             return ErrorState.CantNotEnchantThisType;
         }
@@ -166,11 +177,11 @@ public class EnchantExecuteController : Controller
     /*
      확률을 참고하며 실패시 아이템 삭제
      */
-    async Task<(ErrorState, int)> ExecuteEnchant(PlayerItem playerItem, MasterItem masterItem, int userId)
+    async Task<(ErrorState, int)> ExecuteEnchant(PlayerItem playerItem, int userId)
     {
         // 현재 강화 진행 상태에 따른 강화확률에 따라강화 진행 
-        MasterEnchantInfo? masterEnchantInfo = await _enchantDB.GetEnchantInfo(playerItem.EnchantCount);
-        if(masterEnchantInfo == null)
+        MasterEnchantInfo? masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount+1);
+        if (masterEnchantInfo == null)
         {
             return (ErrorState.NoneExistEnchantCount, -1);
         }
@@ -178,6 +189,7 @@ public class EnchantExecuteController : Controller
         Random random = new Random();
         int randomValue = random.Next(101);
         int result = randomValue < masterEnchantInfo.Percent ? 1 : 0;
+
         // 강화 실패
         if (result == 0)
         {

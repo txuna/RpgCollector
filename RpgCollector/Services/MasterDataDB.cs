@@ -22,7 +22,7 @@ public interface IMasterDataDB
     public MasterItem? GetMasterItem(int itemId);
     public MasterItemAttribute? GetMasterItemAttribute(int attributeId);
     public MasterItemType? GetMasterItemType(int typeId);
-    public MasterPackage? GetMasterPackage(int packageId);
+    public MasterPackage[] GetMasterPackage(int packageId);
     public MasterPlayerState? GetMasterPlayerState(int level);
 }
 
@@ -78,9 +78,9 @@ public class MasterDataDB : IMasterDataDB
     {
         return masterItemType.FirstOrDefault( e=> e.TypeId == typeId);  
     }
-    public MasterPackage? GetMasterPackage(int packageId)
+    public MasterPackage[] GetMasterPackage(int packageId)
     {
-        return masterPackage.FirstOrDefault( e=> e.PackageId == packageId);
+        return masterPackage.Where(e => e.PackageId == packageId).ToArray(); // 조건에 없으면 빈 배열
     }
 
     public MasterPlayerState? GetMasterPlayerState(int level)

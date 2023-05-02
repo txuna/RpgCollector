@@ -2,9 +2,9 @@
 using RpgCollector.RequestResponseModel.PaymentModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
-using RpgCollector.Models.PackgeItemModel;
 using RpgCollector.Models;
 using ZLogger;
+using RpgCollector.Models.PackageItemModel;
 
 namespace RpgCollector.Controllers.PackageControllers;
 
@@ -15,13 +15,19 @@ public class PackageBuyController : Controller
     IAccountDB _accountDB;
     IMailboxAccessDB _mailboxAccessDB;
     ILogger<PackageBuyController> _logger;
+    IMasterDataDB _masterDataDB;
 
-    public PackageBuyController(IPackagePaymentDB packagePaymentDB, IAccountDB accountDB, IMailboxAccessDB mailboxAccessDB, ILogger<PackageBuyController> logger) 
+    public PackageBuyController(IPackagePaymentDB packagePaymentDB, 
+                                IAccountDB accountDB, 
+                                IMailboxAccessDB mailboxAccessDB, 
+                                ILogger<PackageBuyController> logger,
+                                IMasterDataDB masterDataDB) 
     {
         _packagePaymentDB = packagePaymentDB;
         _accountDB = accountDB;
         _mailboxAccessDB = mailboxAccessDB;
         _logger = logger;
+        _masterDataDB = masterDataDB;
     }
     /*
      * 클라이언트가 어떤 패키지를 샀는지 확인 및 보낸 영수증 ID 중복 검증 
@@ -101,8 +107,8 @@ public class PackageBuyController : Controller
         {
             return ErrorState.InvalidReceipt;
         }
-
-        if (!await _packagePaymentDB.VertifyPackageId(packageBuyRequest.PackageId))
+        
+        if(_masterDataDB.GetMasterPackage(packageBuyRequest.PackageId).Length == 0)
         {
             return ErrorState.InvalidPackage;
         }
@@ -112,14 +118,14 @@ public class PackageBuyController : Controller
 
     async Task<ErrorState> SendPackageToMail(PackageBuyRequest packageBuyRequest, int userId)
     {
-        PackageItem[]? packageItems = await _packagePaymentDB.GetPackageItems(packageBuyRequest.PackageId);
+        MasterPackage[] masterPackages = _masterDataDB.GetMasterPackage(packageBuyRequest.PackageId);
 
-        if (packageItems == null)
+        if (masterPackages.Length == 0)
         {
             return ErrorState.NoneExistPackgeId;
         }
 
-        foreach (PackageItem item in packageItems)
+        foreach (MasterPackage item in masterPackages)
         {
             if (!await _mailboxAccessDB.SendMail(1,
                                                 userId,

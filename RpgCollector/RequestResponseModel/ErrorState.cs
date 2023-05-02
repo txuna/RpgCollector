@@ -46,6 +46,7 @@
         AlreadyMaxiumEnchantCount = 503,
         NoneExistEnchantCount = 504,
         FailedLogEnchant = 505,
+        NoneExistItemType = 506,
 
 
         /* Attendance 601 ~ 700 */

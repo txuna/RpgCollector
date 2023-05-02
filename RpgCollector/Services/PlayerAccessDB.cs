@@ -15,7 +15,6 @@ namespace RpgCollector.Services;
 
 public interface IPlayerAccessDB
 {
-    Task<TypeDefinition> GetItemType(int attributeId);
     Task<PlayerInfo?> GetPlayerFromUserId(int userId);
     Task<bool> AddItemToPlayer(int userId, int itemId, int quantity);
     Task<bool> AddMoneyToPlayer(int userId, int money);
@@ -24,8 +23,6 @@ public interface IPlayerAccessDB
     Task<bool> UpdatePlayerConsumptionItem(int userId, int itemId, PlayerItem playerItem, int quantity);
     Task<PlayerItem?> GetPlayerConsumptionItem(int userId, int itemId);
     Task<bool> HasItem(int userId, int itemId);
-    Task<MasterItemAttribute?> GetMasterItemAttributeFromId(int attributeId);
-    Task<MasterItem?> GetMasterItemFromItemId(int itemId);
     Task<PlayerItem?> GetPlayerItem(int playerItemId);
     Task<bool> SetInitPlayerState(int userId);
     Task<bool> SetInitPlayerItems(int userId);
@@ -41,11 +38,13 @@ public class PlayerAccessDB : IPlayerAccessDB
     QueryFactory queryFactory;
     IOptions<DbConfig> _dbConfig;
     ILogger<PlayerAccessDB> _logger;
+    IMasterDataDB _masterDataDB;
 
-    public PlayerAccessDB(IOptions<DbConfig> dbConfig, ILogger<PlayerAccessDB> logger) 
+    public PlayerAccessDB(IOptions<DbConfig> dbConfig, ILogger<PlayerAccessDB> logger, IMasterDataDB masterDataDB) 
     {
         _dbConfig = dbConfig;
         _logger = logger;
+        _masterDataDB = masterDataDB;
         Open();
     }
 
@@ -60,27 +59,6 @@ public class PlayerAccessDB : IPlayerAccessDB
         {
             _logger.ZLogError(ex.Message);
             return false;
-        }
-    }
-
-    public async Task<TypeDefinition> GetItemType(int attributeId)
-    {
-        try
-        {
-            MasterItemAttribute? masterItemAttribute = await queryFactory.Query("master_item_attribute")
-                                                                        .Where("attributeId", attributeId)
-                                                                        .FirstAsync<MasterItemAttribute>();
-            if (masterItemAttribute == null)
-            {
-                return TypeDefinition.UNKNOWN;
-            }
-            return (TypeDefinition)masterItemAttribute.TypeId;
-
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return TypeDefinition.UNKNOWN;
         }
     }
 
@@ -129,38 +107,6 @@ public class PlayerAccessDB : IPlayerAccessDB
             return playerItem; ;
         }
         catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return null;
-        }
-    }
-
-    public async Task<MasterItem?> GetMasterItemFromItemId(int itemId)
-    {
-        try
-        {
-            MasterItem masterItem = await queryFactory.Query("master_item_info")
-                                                      .Where("itemId", itemId)
-                                                      .FirstAsync<MasterItem>();
-            return masterItem;
-        }
-        catch ( Exception ex )
-        {
-            _logger.ZLogError(ex.Message);
-            return null;
-        }
-    }
-
-    public async Task<MasterItemAttribute?> GetMasterItemAttributeFromId(int attributeId)
-    {
-        try
-        {
-            MasterItemAttribute masterItemAttribute = await queryFactory.Query("master_item_attribute")
-                                                    .Where("attributeId", attributeId)
-                                                    .FirstAsync<MasterItemAttribute>();
-            return masterItemAttribute; 
-        }
-        catch ( Exception ex)
         {
             _logger.ZLogError(ex.Message);
             return null;
@@ -275,13 +221,14 @@ public class PlayerAccessDB : IPlayerAccessDB
     // 오버래핑 불가능한 경우 quantity 만큼 row 추가
     public async Task<bool> AddItemToPlayer(int userId, int itemId, int quantity)
     {
-        MasterItem? masterItem = await GetMasterItemFromItemId(itemId);
+        MasterItem? masterItem = _masterDataDB.GetMasterItem(itemId);
+
         if (masterItem == null)
         {
             return false;
         }
 
-        MasterItemAttribute? masterItemAttribute = await GetMasterItemAttributeFromId(masterItem.AttributeId);
+        MasterItemAttribute? masterItemAttribute = _masterDataDB.GetMasterItemAttribute(masterItem.AttributeId);
         if (masterItemAttribute == null)
         {
             return false;
@@ -333,7 +280,7 @@ public class PlayerAccessDB : IPlayerAccessDB
     {
         try
         {
-            InitPlayerState? initPlayerState = await queryFactory.Query("init_player_state").FirstAsync<InitPlayerState>();
+            InitPlayerState initPlayerState = _masterDataDB.GetInitPlayerState();
             await queryFactory.Query("players").InsertAsync(new
             {
                 userId = userId,
@@ -355,8 +302,8 @@ public class PlayerAccessDB : IPlayerAccessDB
     {
         try
         {
-            IEnumerable<InitPlayerItem> initPlayerItems = await queryFactory.Query("init_player_items").GetAsync<InitPlayerItem>();
-            foreach(var item in initPlayerItems)
+            InitPlayerItem[] initPlayerItem = _masterDataDB.GetInitPlayerItems();
+            foreach(var item in initPlayerItem)
             {
                 if(!await AddItemToPlayer(userId, item.ItemId, item.Quantity))
                 {
