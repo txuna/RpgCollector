@@ -88,7 +88,11 @@ public class MailReadController : Controller
 
     async Task<ErrorState> Verify(int mailId, int userId)
     {
-        if(await _mailboxAccessDB.IsDeletedMail(mailId))
+        if (await _mailboxAccessDB.IsDeadLine(mailId))
+        {
+            return ErrorState.AlreadyMailDeadlineExpireDate;
+        }
+        if (await _mailboxAccessDB.IsDeletedMail(mailId))
         {
             return ErrorState.DeletedMail;
         }

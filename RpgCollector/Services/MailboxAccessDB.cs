@@ -25,6 +25,7 @@ public interface IMailboxAccessDB
     Task<Mailbox[]?> GetPartialMails(int userId, bool isFirst, int pageNumber);
     Task<bool> IsDeletedMail(int mailId);
     Task<bool> DeleteMail(int mailId);
+    Task<bool> IsDeadLine(int mailId);
 }
 
 public class MailboxAccessDB : IMailboxAccessDB
@@ -34,21 +35,29 @@ public class MailboxAccessDB : IMailboxAccessDB
     QueryFactory queryFactory;
     IOptions<DbConfig> _dbConfig;
     ILogger<MailboxAccessDB> _logger;
+    DateTime deadLine;
 
     public MailboxAccessDB(IOptions<DbConfig> dbConfig, ILogger<MailboxAccessDB> logger) 
     {
         _dbConfig = dbConfig;
         _logger = logger;
+        deadLine = DateTime.Now.AddDays(-1);
         Open();
     }
-
+    
+    /* 유효기간 확인 */
     public async Task<Mailbox[]?> GetPartialMails(int receiverId, bool isFirst, int pageNumber)
     {
         try
         {
             if(isFirst)
             {
-                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox").Where("receiverId", receiverId).WhereNot("isRead", 1).WhereNot("isDeleted", 1).Take(20).GetAsync<Mailbox>();
+                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
+                                                               .Where("receiverId", receiverId)
+                                                               .WhereNot("isRead", 1)
+                                                               .WhereNot("isDeleted", 1)
+                                                               .Where("sendDate", ">=", deadLine)
+                                                               .Take(20).GetAsync<Mailbox>();
                 return mails.ToArray();
             }
             else
@@ -57,7 +66,12 @@ public class MailboxAccessDB : IMailboxAccessDB
                 {
                     return null;
                 }
-                int mailCount = await queryFactory.Query("mailbox").Where("receiverId", receiverId).WhereNot("isRead", 1).WhereNot("isDeleted", 1).CountAsync<int>();
+                int mailCount = await queryFactory.Query("mailbox")
+                                                  .Where("receiverId", receiverId)
+                                                  .WhereNot("isRead", 1)
+                                                  .WhereNot("isDeleted", 1)
+                                                  .Where("sendDate", ">=", deadLine)
+                                                  .CountAsync<int>();
                 Console.WriteLine(mailCount);
                 if ((pageNumber - 1) * 20 > mailCount)
                 {
@@ -67,7 +81,14 @@ public class MailboxAccessDB : IMailboxAccessDB
                 int start = (pageNumber - 1) * 20;
                 int end = start + 20;
 
-                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox").Where("receiverId", receiverId).WhereNot("isRead", 1).WhereNot("isDeleted", 1).Skip(start).Take(end).GetAsync<Mailbox>();
+                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
+                                                               .Where("receiverId", receiverId)
+                                                               .WhereNot("isRead", 1)
+                                                               .WhereNot("isDeleted", 1)
+                                                               .Where("sendDate", ">=", deadLine)
+                                                               .Skip(start)
+                                                               .Take(end)
+                                                               .GetAsync<Mailbox>();
                 return mails.ToArray();
             }
         }
@@ -77,6 +98,25 @@ public class MailboxAccessDB : IMailboxAccessDB
             return null;
         }
     }
+
+    public async Task<bool> IsDeadLine(int mailId)
+    {
+        try
+        {
+            int count = await queryFactory.Query("mailbox").Where("mailId", mailId).Where("sendDate", "<", deadLine).CountAsync<int>();
+            if(count > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        catch(Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
+    }
+
     public async Task<bool> DeleteMail(int mailId)
     {
         try

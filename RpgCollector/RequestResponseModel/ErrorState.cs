@@ -32,6 +32,7 @@
         FailedSendMail = 209,
         DeletedMail = 210,
         FailedDeleteMail = 211,
+        AlreadyMailDeadlineExpireDate = 212,
 
         /* NOtice 301 ~ 400 */
 

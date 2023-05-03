@@ -89,7 +89,11 @@ public class MailGetItemController : Controller
 
     async Task<ErrorState> VerifyMail(MailGetItemRequest mailGetItemRequest, int userId)
     {
-        if(await _mailboxAccessDB.IsDeletedMail(mailGetItemRequest.MailId))
+        if (await _mailboxAccessDB.IsDeadLine(mailGetItemRequest.MailId))
+        {
+            return ErrorState.AlreadyMailDeadlineExpireDate;
+        }
+        if (await _mailboxAccessDB.IsDeletedMail(mailGetItemRequest.MailId))
         {
             return ErrorState.DeletedMail;
         }

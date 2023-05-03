@@ -59,7 +59,11 @@ public class MailDeleteController : Controller
     /* 메일의 존재유무 및 권한 확인 */
     async Task<ErrorState> Verify(int mailId, int userId)
     {
-        if(!await _mailboxAccessDB.IsMailOwner(mailId, userId))
+        if (await _mailboxAccessDB.IsDeadLine(mailId))
+        {
+            return ErrorState.AlreadyMailDeadlineExpireDate;
+        }
+        if (!await _mailboxAccessDB.IsMailOwner(mailId, userId))
         {
             return ErrorState.NoneOwnerThisMail;
         }
