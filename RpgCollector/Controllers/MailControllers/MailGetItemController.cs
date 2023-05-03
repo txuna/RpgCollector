@@ -40,7 +40,6 @@ public class MailGetItemController : Controller
     {
         var userName = HttpContext.Request.Headers["User-Name"];
         ErrorState Error; 
-
         /* userName을 기반으로 사용자의 userId 반환 */
         int userId = await _accountMemoryDB.GetUserId(userName);
 
@@ -58,7 +57,6 @@ public class MailGetItemController : Controller
 
         /* userId가 요청된 mailId에 대해서 접근권한이 있는지 확인 */
         Error = await VerifyMail(mailGetItemRequest, userId);
-
         if(Error != ErrorState.None)
         {
             _logger.ZLogInformation($"[{userId} {userName}] None Have Permission This Mail {mailGetItemRequest.MailId}");
@@ -71,7 +69,6 @@ public class MailGetItemController : Controller
 
         /* 해당 메일에 존재하는 아이템 플레이어에게 제공 */
         Error = await AddItemToPlayer(userId, mailGetItemRequest.MailId);
-
         if(Error != ErrorState.None)
         {
             _logger.ZLogInformation($"[{userId} {userName}] Failed Received Mail Item");
