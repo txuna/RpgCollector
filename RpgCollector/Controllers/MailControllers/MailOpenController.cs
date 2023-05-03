@@ -57,7 +57,7 @@ public class MailOpenController : Controller
 
         if (mails == null)
         {
-            _logger.ZLogError($"[{userId} {userName}] Invalid PageNumber");
+            _logger.ZLogInformation($"[{userId} {userName}] Invalid PageNumber");
             return new MailOpenResponse
             {
                 Error = ErrorState.InvalidPageNumber

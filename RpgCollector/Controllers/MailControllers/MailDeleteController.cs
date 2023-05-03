@@ -29,6 +29,7 @@ public class MailDeleteController : Controller
 
         /* 메일 유효성 검사 */
         Error = await Verify(mailDeleteRequest.MailId, userId); 
+
         if(Error != ErrorState.None)
         {
             return new MailDeleteResponse
@@ -39,6 +40,7 @@ public class MailDeleteController : Controller
 
         /* 메일 삭제 진행 - isDeleted Flag Update */
         Error = await ExecuteDelete(mailDeleteRequest.MailId);
+
         return new MailDeleteResponse
         {
             Error = Error

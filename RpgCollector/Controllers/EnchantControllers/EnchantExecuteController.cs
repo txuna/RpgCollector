@@ -58,6 +58,7 @@ public class EnchantExecuteController : Controller
 
         /* playerItemId에 대한 userId 소유권자 확인 */
         Error = await VerifyItemPermission(playerItemId, userId); 
+
         if(Error != ErrorState.None)
         {
             _logger.ZLogInformation($"[{userId}:{userName}] None Have Permission about  ItemId : {playerItemId}");
@@ -69,6 +70,7 @@ public class EnchantExecuteController : Controller
 
         /* 플레이어의 아이템 로드 */
         PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemId);
+
         if(playerItem == null)
         {
             _logger.ZLogInformation($"[{userId}:{userName}] None Exist Player ItemId : {playerItemId}");
@@ -80,6 +82,7 @@ public class EnchantExecuteController : Controller
 
         /* ItemId를 기반으로 마스터 아이템 로드 */
         MasterItem? masterItem = _masterDataDB.GetMasterItem(playerItem.ItemId);
+
         if (masterItem == null)
         {
             _logger.ZLogInformation($"[{userId}:{userName}] None Exist Master Item : {playerItem.ItemId}");
@@ -91,6 +94,7 @@ public class EnchantExecuteController : Controller
 
         /* 강화 가능 타입인지 확인 */
         Error = VerifyItemType(masterItem.AttributeId);
+
         if(Error != ErrorState.None)
         {
             _logger.ZLogInformation($"[{userId}:{userName}] Can not Enchant this Item ItemId : {playerItem.ItemId}");
@@ -102,6 +106,7 @@ public class EnchantExecuteController : Controller
 
         /* 현재 플레이어 아이템의 강화 횟수 및 마스터 아이템의 최대 강화횟수 비교 */
         Error = VerifyEnchatMaxCount(playerItem, masterItem);
+
         if(Error != ErrorState.None)
         {
             _logger.ZLogInformation($"[{userId}:{userName}] This Item is Already Max Enchant Count ItemId : {playerItem.ItemId}");
@@ -113,6 +118,7 @@ public class EnchantExecuteController : Controller
 
         /* 아이템 강화 진행 */
         (Error, result) = await ExecuteEnchant(playerItem, userId);
+
         if(Error != ErrorState.None)
         {
             _logger.ZLogInformation($"[{userId}:{userName}] None Exist Player Item : {playerItem.ItemId}");
@@ -151,6 +157,7 @@ public class EnchantExecuteController : Controller
     ErrorState VerifyItemType(int attributeId)
     {
         MasterItemAttribute? itemAttribute = _masterDataDB.GetMasterItemAttribute(attributeId);
+
         if(itemAttribute == null)
         {
             return ErrorState.NoneExistItemType;
@@ -179,6 +186,7 @@ public class EnchantExecuteController : Controller
     {
         // 현재 강화 진행 상태에 따른 강화확률에 따라강화 진행 
         MasterEnchantInfo? masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount+1);
+
         if (masterEnchantInfo == null)
         {
             return (ErrorState.NoneExistEnchantCount, -1);
