@@ -12,7 +12,6 @@ namespace RpgCollector.Services;
 
 public interface IMailboxAccessDB
 {
-    Task<Mailbox[]?> GetAllMailFromUserId(int userId);
     Task<Mailbox?> GetMailFromUserId(int mailId, int userId);
     Task<bool> ReadMail(int mailId);
     Task<MailItem?> ReceiveMailItem(int mailId);
@@ -221,20 +220,6 @@ public class MailboxAccessDB : IMailboxAccessDB
             return false;
         }
         return true;
-    }
-
-    public async Task<Mailbox[]?> GetAllMailFromUserId(int userId)
-    {
-        try
-        {
-            IEnumerable<Mailbox> mails =  await queryFactory.Query("mailbox").Where("receiverId", userId).WhereNot("isDeleted", 1).GetAsync<Mailbox>();
-            return mails.ToArray();
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return null;
-        }
     }
 
     public async Task<Mailbox?> GetMailFromUserId(int mailId, int userId)

@@ -53,8 +53,6 @@ public class MailOpenController : Controller
         }
 
         /* userId가 receiverdId인 모든 메일 가지고옴 */
-        //Mailbox[]? mails = await _mailboxAccessDB.GetAllMailFromUserId(userId);
-
         Mailbox[]? mails = await _mailboxAccessDB.GetPartialMails(userId, (bool)openMailboxRequest.IsFirstOpen, (int)openMailboxRequest.PageNumber);
 
         if (mails == null)
@@ -69,7 +67,22 @@ public class MailOpenController : Controller
         return new MailOpenResponse
         {
             Error = ErrorState.None,
-            Mails = mails
+            Mails = ProcessingMail(mails)
         };
+    }
+
+    OpenMail[] ProcessingMail(Mailbox[] mails)
+    {
+        OpenMail[] openMail = new OpenMail[mails.Length];
+        for(int i = 0; i < mails.Length; i++)
+        {
+            openMail[i] = new OpenMail();
+            openMail[i].Title = mails[i].Title;
+            openMail[i].SenderId = mails[i].SenderId;
+            openMail[i].SendDate = mails[i].SendDate;
+            openMail[i].MailId = mails[i].MailId;
+        }
+
+        return openMail;
     }
 }
