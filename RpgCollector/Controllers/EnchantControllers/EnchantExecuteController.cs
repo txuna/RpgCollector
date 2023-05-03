@@ -151,14 +151,11 @@ public class EnchantExecuteController : Controller
     ErrorState VerifyItemType(int attributeId)
     {
         MasterItemAttribute? itemAttribute = _masterDataDB.GetMasterItemAttribute(attributeId);
-        MasterItemType? itemType = _masterDataDB.GetMasterItemType(itemAttribute.TypeId);
-
-        if(itemType == null)
+        if(itemAttribute == null)
         {
             return ErrorState.NoneExistItemType;
         }
-
-        if ((TypeDefinition)itemType.TypeId != TypeDefinition.EQUIPMENT)
+        if(itemAttribute.TypeId != (int)TypeDefinition.EQUIPMENT)
         {
             return ErrorState.CantNotEnchantThisType;
         }
