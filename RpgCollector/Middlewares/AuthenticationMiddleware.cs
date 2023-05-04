@@ -30,6 +30,14 @@ namespace RpgCollector.Middlewares
         public async Task Invoke(HttpContext httpContext)
         {
             Open();
+            
+            if (!await VerifyVersion(httpContext))
+            {
+                httpContext.Response.StatusCode = 401;
+                await httpContext.Response.WriteAsync("Invalid Data Version");
+                return;
+            }
+
             // 인증을 거쳐야하는 PATH라면
             if (!CheckExclusivePath(httpContext))
             {
@@ -46,13 +54,6 @@ namespace RpgCollector.Middlewares
                 {
                     httpContext.Response.StatusCode = 401;
                     await httpContext.Response.WriteAsync("Invalid Token");
-                    return;
-                }
-
-                if (!await VerifyVersion(httpContext))
-                {
-                    httpContext.Response.StatusCode = 401;
-                    await httpContext.Response.WriteAsync("Invalid Data Version");
                     return;
                 }
             }

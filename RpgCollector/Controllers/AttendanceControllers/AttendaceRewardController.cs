@@ -77,8 +77,6 @@ public class AttendaceRewardController : Controller
             };
         }
 
-        _logger.ZLogInformation($"[{userName} : {userId}] Complement Attandace");
-
         /* 연속 날짜 만큼 출석 보상 메일로 전송 */
         Error = await SendAttendanceReward(userId, sequenceDayCount);
 

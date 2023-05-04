@@ -92,17 +92,9 @@ public class EnchantExecuteController : Controller
         /* 아이템 강화 진행 */
         (Error, result) = await ExecuteEnchant(playerItem, userId);
 
-        if (Error != ErrorState.None)
-        {
-            return new EnchantExecuteResponse
-            {
-                Error = Error
-            };
-        }
-
         return new EnchantExecuteResponse
         {
-            Error = ErrorState.None,
+            Error = Error,
             Result = result
         };
     }
