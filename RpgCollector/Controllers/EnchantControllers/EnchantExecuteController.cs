@@ -7,6 +7,8 @@ using RpgCollector.Models.EnchantModel;
 using ZLogger;
 using RpgCollector.Models.PlayerModel;
 using RpgCollector.Models;
+using RpgCollector.Models.AccountModel;
+using StackExchange.Redis;
 
 namespace RpgCollector.Controllers.EnchantControllers;
 
@@ -56,60 +58,31 @@ public class EnchantExecuteController : Controller
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Enchant'");
 
-        /* playerItemId에 대한 userId 소유권자 확인 */
-        Error = await VerifyItemPermission(playerItemId, userId); 
-
-        if(Error != ErrorState.None)
-        {
-            _logger.ZLogInformation($"[{userId}:{userName}] None Have Permission about  ItemId : {playerItemId}");
-            return new EnchantExecuteResponse
-            {
-                Error = Error
-            };
-        }
-
         /* 플레이어의 아이템 로드 */
         PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemId);
 
-        if(playerItem == null)
+        if (playerItem == null)
         {
-            _logger.ZLogInformation($"[{userId}:{userName}] None Exist Player ItemId : {playerItemId}");
             return new EnchantExecuteResponse
             {
                 Error = ErrorState.NoneExistItem
             };
         }
-
         /* ItemId를 기반으로 마스터 아이템 로드 */
         MasterItem? masterItem = _masterDataDB.GetMasterItem(playerItem.ItemId);
 
         if (masterItem == null)
         {
-            _logger.ZLogInformation($"[{userId}:{userName}] None Exist Master Item : {playerItem.ItemId}");
             return new EnchantExecuteResponse
             {
                 Error = ErrorState.NoneExistItem
             };
         }
 
-        /* 강화 가능 타입인지 확인 */
-        Error = VerifyItemType(masterItem.AttributeId);
-
+        /* 강화 유효성 판단 */
+        Error = await Verify(playerItem, masterItem, userId); 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"[{userId}:{userName}] Can not Enchant this Item ItemId : {playerItem.ItemId}");
-            return new EnchantExecuteResponse
-            {
-                Error = Error
-            };
-        }
-
-        /* 현재 플레이어 아이템의 강화 횟수 및 마스터 아이템의 최대 강화횟수 비교 */
-        Error = VerifyEnchatMaxCount(playerItem, masterItem);
-
-        if(Error != ErrorState.None)
-        {
-            _logger.ZLogInformation($"[{userId}:{userName}] This Item is Already Max Enchant Count ItemId : {playerItem.ItemId}");
             return new EnchantExecuteResponse
             {
                 Error = Error
@@ -119,22 +92,12 @@ public class EnchantExecuteController : Controller
         /* 아이템 강화 진행 */
         (Error, result) = await ExecuteEnchant(playerItem, userId);
 
-        if(Error != ErrorState.None)
+        if (Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"[{userId}:{userName}] None Exist Player Item : {playerItem.ItemId}");
             return new EnchantExecuteResponse
             {
                 Error = Error
             };
-        }
-
-        if (result == 1)
-        {
-            _logger.ZLogInformation($"[{userId}:{userName}] Failed Enchant and Remove Item : {playerItem.ItemId}");
-        }
-        else
-        {
-            _logger.ZLogInformation($"[{userId}:{userName}] Success Enchant Item : {playerItem.ItemId}");
         }
 
         return new EnchantExecuteResponse
@@ -144,9 +107,33 @@ public class EnchantExecuteController : Controller
         };
     }
 
+    async Task<ErrorState> Verify(PlayerItem playerItem, MasterItem masterItem, int userId)
+    {
+        ErrorState Error;
+        Error = await VerifyItemPermission(playerItem.PlayerItemId, userId);
+        if(Error != ErrorState.None)
+        {
+            return Error;
+        }
+
+        Error = VerifyItemType(masterItem.AttributeId);
+        if (Error != ErrorState.None)
+        {
+            return Error;
+        }
+
+        Error = VerifyEnchatMaxCount(playerItem, masterItem);
+        if (Error != ErrorState.None)
+        {
+            return Error;
+        }
+
+        return ErrorState.None;
+    }
+
     async Task<ErrorState> VerifyItemPermission(int playerItemId, int userId)
     {
-        if(!await _enchantDB.IsUserHasItem(playerItemId, userId))
+        if (!await _playerAccessDB.IsItemOwner(playerItemId, userId))
         {
             return ErrorState.IsNotOwnerThisItem;
         }
@@ -158,11 +145,11 @@ public class EnchantExecuteController : Controller
     {
         MasterItemAttribute? itemAttribute = _masterDataDB.GetMasterItemAttribute(attributeId);
 
-        if(itemAttribute == null)
+        if (itemAttribute == null)
         {
             return ErrorState.NoneExistItemType;
         }
-        if(itemAttribute.TypeId != (int)TypeDefinition.EQUIPMENT)
+        if (itemAttribute.TypeId != (int)TypeDefinition.EQUIPMENT)
         {
             return ErrorState.CantNotEnchantThisType;
         }
@@ -172,20 +159,17 @@ public class EnchantExecuteController : Controller
 
     ErrorState VerifyEnchatMaxCount(PlayerItem playerItem, MasterItem masterItem)
     {
-        if(playerItem.EnchantCount >= masterItem.MaxEnchantCount)
+        if (playerItem.EnchantCount >= masterItem.MaxEnchantCount)
         {
             return ErrorState.AlreadyMaxiumEnchantCount;
         }
         return ErrorState.None;
     }
 
-    /*
-     확률을 참고하며 실패시 아이템 삭제
-     */
-    async Task<(ErrorState, int)> ExecuteEnchant(PlayerItem playerItem, int userId)
+    (ErrorState, int) CheckPercent(PlayerItem playerItem, int userId)
     {
         // 현재 강화 진행 상태에 따른 강화확률에 따라강화 진행 
-        MasterEnchantInfo? masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount+1);
+        MasterEnchantInfo? masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount + 1);
 
         if (masterEnchantInfo == null)
         {
@@ -196,20 +180,33 @@ public class EnchantExecuteController : Controller
         int randomValue = random.Next(101);
         int result = randomValue < masterEnchantInfo.Percent ? 1 : 0;
 
-        // 강화 실패시 아이템 삭제 진행
-        if (result == 0)
+        return (ErrorState.None, result);
+    }
+
+    /*
+     확률을 참고하며 실패시 아이템 삭제
+     */
+    async Task<(ErrorState, int)> ExecuteEnchant(PlayerItem playerItem, int userId)
+    {
+        var (Error, result) = CheckPercent(playerItem, userId);
+        if (Error != ErrorState.None)
         {
-            if(!await _playerAccessDB.RemovePlayerItem(playerItem.PlayerItemId))
+            return (Error, -1);
+        }
+
+        if (result == 1)
+        {
+            if (!await _enchantDB.DoEnchant(playerItem))
             {
                 return (ErrorState.NoneExistItem, -1);
             }
         }
         else
         {
-            if (!await _enchantDB.DoEnchant(playerItem))
+            if (!await _playerAccessDB.RemovePlayerItem(playerItem.PlayerItemId))
             {
                 return (ErrorState.NoneExistItem, -1);
-            }   
+            }
         }
 
         return await LogEnchant(playerItem, userId, result);
@@ -217,10 +214,11 @@ public class EnchantExecuteController : Controller
 
     async Task<(ErrorState, int)> LogEnchant(PlayerItem playerItem, int userId, int result)
     {
-        if(!await _enchantDB.EnchantLog(playerItem.PlayerItemId, userId, playerItem.EnchantCount, result))
+        if (!await _enchantDB.EnchantLog(playerItem.PlayerItemId, userId, playerItem.EnchantCount, result))
         {
-            return (ErrorState.FailedLogEnchant, -1);
+            _logger.ZLogError($"[{userId}] Failed Enchant Logging Player Item : {playerItem.PlayerItemId}");
         }
-        return (ErrorState.None, result); 
+
+       return (ErrorState.None, result);
     }
 }

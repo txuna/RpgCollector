@@ -12,8 +12,7 @@ using ZLogger;
 namespace RpgCollector.Services;
 
 public interface IEnchantDB
-{
-    Task<bool> IsUserHasItem(int playerItemId, int userId);
+{ 
     Task<bool> DoEnchant(PlayerItem playerItem);
     Task<bool> EnchantLog(int playerItemId, int userId, int currentEnchantCount, int result);
 }
@@ -41,7 +40,7 @@ public class EnchantDB : IEnchantDB
             {
                 playerItemId = playerItemId,
                 userId = userId,
-                enchantCount = currentEnchantCount,
+                enchantCount = currentEnchantCount + result,
                 result = result
             });
             return true;
@@ -64,26 +63,6 @@ public class EnchantDB : IEnchantDB
             return true;
         }
         catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return false;
-        }
-    }
-
-    public async Task<bool> IsUserHasItem(int playerItemId, int userId)
-    {
-        try
-        {
-            int count = await queryFactory.Query("player_items").Where("playerItemid", playerItemId)
-                                                          .Where("userId", userId)
-                                                          .CountAsync<int>();
-            if( count < 1)
-            {
-                return false;
-            }
-            return true;
-        }
-        catch(Exception ex)
         {
             _logger.ZLogError(ex.Message);
             return false;

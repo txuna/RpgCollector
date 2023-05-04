@@ -23,6 +23,7 @@ public interface IPlayerAccessDB
     Task<bool> UpdatePlayerConsumptionItem(int userId, int itemId, PlayerItem playerItem, int quantity);
     Task<PlayerItem?> GetPlayerConsumptionItem(int userId, int itemId);
     Task<bool> HasItem(int userId, int itemId);
+    Task<bool> IsItemOwner(int playerItemId, int userId);
     Task<PlayerItem?> GetPlayerItem(int playerItemId);
     Task<bool> SetInitPlayerState(int userId);
     Task<bool> SetInitPlayerItems(int userId);
@@ -110,6 +111,26 @@ public class PlayerAccessDB : IPlayerAccessDB
         {
             _logger.ZLogError(ex.Message);
             return null;
+        }
+    }
+
+    public async Task<bool> IsItemOwner(int playerItemId, int userId)
+    {
+        try
+        {
+            int count = await queryFactory.Query("player_items").Where("playerItemid", playerItemId)
+                                                          .Where("userId", userId)
+                                                          .CountAsync<int>();
+            if (count < 1)
+            {
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
         }
     }
 
