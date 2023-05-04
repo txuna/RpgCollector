@@ -53,7 +53,7 @@ public class MailboxAccessDB : IMailboxAccessDB
             {
                 IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
                                                                .Where("receiverId", receiverId)
-                                                               .WhereNot("isRead", 1)
+                                                               //.WhereNot("isRead", 1)
                                                                .WhereNot("isDeleted", 1)
                                                                .Where("sendDate", ">=", deadLine)
                                                                .Take(20).GetAsync<Mailbox>();
@@ -67,7 +67,7 @@ public class MailboxAccessDB : IMailboxAccessDB
                 }
                 int mailCount = await queryFactory.Query("mailbox")
                                                   .Where("receiverId", receiverId)
-                                                  .WhereNot("isRead", 1)
+                                                  //.WhereNot("isRead", 1)
                                                   .WhereNot("isDeleted", 1)
                                                   .Where("sendDate", ">=", deadLine)
                                                   .CountAsync<int>();
@@ -82,7 +82,7 @@ public class MailboxAccessDB : IMailboxAccessDB
 
                 IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
                                                                .Where("receiverId", receiverId)
-                                                               .WhereNot("isRead", 1)
+                                                               //.WhereNot("isRead", 1)
                                                                .WhereNot("isDeleted", 1)
                                                                .Where("sendDate", ">=", deadLine)
                                                                .Skip(start)
@@ -240,6 +240,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
     }
 
+    /* 읽은 메일은 다시 읽을 수 있게 */
     public async Task<bool> ReadMail(int mailId)
     {
         try

@@ -23,6 +23,7 @@ namespace RpgCollector.Middlewares
 
         public AuthenticationMiddleware(RequestDelegate next, string redisAddress)
         {
+            
             _next = next;
             _redisAddress = redisAddress;
         }
