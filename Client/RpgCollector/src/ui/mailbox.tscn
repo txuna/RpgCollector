@@ -60,9 +60,9 @@ layout_mode = 2
 
 [node name="PageBtnList" type="HBoxContainer" parent="ColorRect"]
 layout_mode = 0
-offset_left = 73.0
-offset_top = 439.0
-offset_right = 665.0
-offset_bottom = 475.0
+offset_left = 71.0
+offset_top = 452.0
+offset_right = 663.0
+offset_bottom = 488.0
 
 [connection signal="pressed" from="ColorRect/ExitBtn" to="." method="_on_exit_btn_pressed"]

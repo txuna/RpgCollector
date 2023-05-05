@@ -17,6 +17,7 @@ public interface IMasterDataDB
 {
     public InitPlayerState GetInitPlayerState();
     public InitPlayerItem[] GetInitPlayerItems();
+    public MasterAttendanceReward[] GetAllMasterAttendanceReward();
     public MasterAttendanceReward? GetMasterAttendanceReward(int dayCount);
     public MasterEnchantInfo? GetMasterEnchantInfo(int enchantCount);
     public MasterItem? GetMasterItem(int itemId);
@@ -57,6 +58,10 @@ public class MasterDataDB : IMasterDataDB
     public InitPlayerItem[] GetInitPlayerItems()
     {
         return initPlayerItem;
+    }
+    public MasterAttendanceReward[] GetAllMasterAttendanceReward()
+    {
+        return masterAttendanceReward;
     }
     public MasterAttendanceReward? GetMasterAttendanceReward(int dayCount)
     {

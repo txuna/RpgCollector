@@ -33,7 +33,7 @@ func make_page_number(total_page_number):
 	for num in range(total_page_number):
 		var btn = Button.new() 
 		btn.text = str(num+1)
-		btn.add_theme_font_size_override("font_size", 16)
+		btn.add_theme_font_size_override("font_size", 24)
 		btn.pressed.connect(open_mail_request.bind(false, num+1))
 		page_btn_list.add_child(btn)
 
