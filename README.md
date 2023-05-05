@@ -527,7 +527,6 @@ public class MasterItemGetInfoResponse
 }
 ```
 
-
 ### MasterAttendanceReward API  
 1. 출석보상 리스트를 반환함
 
@@ -554,6 +553,35 @@ public class MasterAttendanceInfoResponse
 {
     public ErrorState Error { get; set; }
     public MasterAttendanceReward[] AttendanceRewards { get; set; }
+}
+```
+
+### AttendanceGetLog API 
+1. userId기준 마지막 연속출석 날짜를 반환함
+
+**Database** 
+```csharp
+player_attendance_log- GET
+```
+
+**Path** 
+```csharp
+POST /Attendance/Log  
+```
+
+**Request**
+```csharp 
+public class AtendanceGetLogRequest
+{
+}
+```
+
+**Response**
+```csharp
+public class AttendanceGetLogResponse
+{
+    public ErrorState Error { get; set; }
+    public int SequenceDayCount { get; set; } 
 }
 ```
 
