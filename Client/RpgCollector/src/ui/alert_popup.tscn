@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://src/ui/alert_popup.gd" id="1_vh57d"]
 
 [node name="AlertPopup" type="CanvasLayer"]
+layer = 2
 script = ExtResource("1_vh57d")
 
 [node name="ColorRect" type="ColorRect" parent="."]

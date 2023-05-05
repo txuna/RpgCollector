@@ -17,6 +17,7 @@ namespace RpgCollector.Services
         Task<PlayerAttendanceLog?> GetLastAttendanceLog(int userId);
         Task<MasterAttendanceReward?> GetAttendanceReward(int day);
         Task<bool> UndoAttendance(int userId, string day);
+        Task<PlayerAttendanceLog?> GetLastSequenceDayCount(int userId);
     }
 
     public class AttendanceDB : IAttendanceDB
@@ -32,6 +33,23 @@ namespace RpgCollector.Services
             _dbConfig = dbConfig;
             _logger = logger;
             Open();
+        }
+
+        public async Task<PlayerAttendanceLog?> GetLastSequenceDayCount(int userId)
+        {
+            try
+            {
+                PlayerAttendanceLog log = await queryFactory.Query("player_attendance_log")
+                                                            .Where("userId", userId)
+                                                            .OrderByDesc("date")
+                                                            .FirstAsync<PlayerAttendanceLog>();
+                return log;
+            }
+            catch (Exception ex)
+            {
+                _logger.ZLogError(ex.Message);
+                return null;
+            }
         }
 
         public async Task<bool> UndoAttendance(int userId, string day)
@@ -52,7 +70,9 @@ namespace RpgCollector.Services
         {
             try
             {
-                MasterAttendanceReward reward = await queryFactory.Query("master_attendance_reward").Where("dayId", day).FirstAsync<MasterAttendanceReward>();
+                MasterAttendanceReward reward = await queryFactory.Query("master_attendance_reward")
+                                                                  .Where("dayId", day)
+                                                                  .FirstAsync<MasterAttendanceReward>();
                 return reward;
             }
             catch (Exception ex)

@@ -5,6 +5,7 @@ extends CanvasLayer
 @onready var get_item_btn = $ColorRect/GetItemBtn
 @onready var date = $ColorRect/DateLabel
 @onready var item_label = $ColorRect/ItemLabel
+@onready var item_texture = $ColorRect/TextureRect
 
 signal get_item(item_id)
 signal delete_mail(mail_id)
@@ -64,6 +65,7 @@ func _on_item_info_response(result, response_code, headers, body):
 			"item_name" : json.masterItem.itemName,
 			"quantity" : quantity
 		})
+		item_texture.texture = MasterData.item_texture[str(json.masterItem.itemId)]
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]

@@ -31,7 +31,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "인벤토리"
 
-[node name="Button3" type="Button" parent="ColorRect/Control"]
+[node name="AttendanceBtn" type="Button" parent="ColorRect/Control"]
 layout_mode = 0
 offset_top = 203.0
 offset_right = 152.0
@@ -59,3 +59,4 @@ theme_override_font_sizes/font_size = 36
 text = "강화"
 
 [connection signal="pressed" from="ColorRect/Control/MailboxBtn" to="." method="_on_mailbox_btn_pressed"]
+[connection signal="pressed" from="ColorRect/Control/AttendanceBtn" to="." method="_on_attendance_btn_pressed"]

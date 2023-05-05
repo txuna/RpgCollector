@@ -20,7 +20,7 @@ func open_mail_request(is_first:bool, page_number:int):
 		"IsFirstOpen" : is_first, 
 		"PageNumber" : page_number
 	})
-	var http = HTTPRequest.new()
+	var http = HTTPRequest.new() 
 	add_child(http)
 	http.request_completed.connect(_on_http_open_mail_response)
 	http.request(Global.BASE_URL + "Mail/Open", Global.headers, Global.POST, json)
