@@ -71,7 +71,7 @@ func _on_http_login_response(result, response_code, headers, body):
 		get_tree().change_scene_to_file("res://src/main.tscn")
 	
 	else:
-		Global.open_alert(Global.ERROR_MSG[json['error']])
+		Global.open_alert(Global.ERROR_MSG[str(json['error'])])
 
 
 
