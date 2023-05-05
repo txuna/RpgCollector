@@ -80,13 +80,15 @@ public class MailReadController : Controller
             };
         }
 
+        MailItem? mailItem = await _mailboxAccessDB.GetMailItem(readMailRequest.MailId);
+
         _logger.ZLogInformation($"[{userId} {userName}] Success Read Mail {readMailRequest.MailId}");
 
         return new MailReadResponse
         {
             Error = ErrorState.None,
-            Title = mail.Title,
-            Content = mail.Content
+            Mail = mail,
+            MailItem = mailItem
         };
     }
 

@@ -1,0 +1,92 @@
+[gd_scene load_steps=2 format=3 uid="uid://bouny6tjy7igk"]
+
+[ext_resource type="Script" path="res://src/ui/mail_content.gd" id="1_3wijc"]
+
+[node name="MailContent" type="CanvasLayer"]
+script = ExtResource("1_3wijc")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = 190.0
+offset_top = 89.0
+offset_right = 1027.0
+offset_bottom = 702.0
+color = Color(0.152941, 0.152941, 0.152941, 1)
+
+[node name="TitleLabel" type="Label" parent="ColorRect"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -285.5
+offset_bottom = -201.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 58
+text = "메일 제목"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GetItemBtn" type="Button" parent="ColorRect"]
+layout_mode = 0
+offset_left = 139.0
+offset_top = 499.0
+offset_right = 399.0
+offset_bottom = 575.0
+theme_override_font_sizes/font_size = 48
+text = "아이템 수령"
+
+[node name="DeleteMailBtn" type="Button" parent="ColorRect"]
+layout_mode = 0
+offset_left = 425.0
+offset_top = 500.0
+offset_right = 685.0
+offset_bottom = 576.0
+theme_override_font_sizes/font_size = 48
+text = "메일 삭제"
+
+[node name="ExitMailBtn" type="Button" parent="ColorRect"]
+layout_mode = 0
+offset_left = 747.0
+offset_top = 14.0
+offset_right = 817.0
+offset_bottom = 90.0
+theme_override_font_sizes/font_size = 48
+text = "X"
+
+[node name="ContentLabel" type="Label" parent="ColorRect"]
+layout_mode = 0
+offset_left = 73.0
+offset_top = 156.0
+offset_right = 778.0
+offset_bottom = 347.0
+theme_override_font_sizes/font_size = 24
+autowrap_mode = 2
+clip_text = true
+text_overrun_behavior = 2
+
+[node name="ItemLabel" type="Label" parent="ColorRect"]
+layout_mode = 0
+offset_left = 82.0
+offset_top = 360.0
+offset_right = 771.0
+offset_bottom = 421.0
+theme_override_font_sizes/font_size = 36
+text = "돈 x 1000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DateLabel" type="Label" parent="ColorRect"]
+layout_mode = 0
+offset_left = 82.0
+offset_top = 430.0
+offset_right = 316.0
+offset_bottom = 467.0
+theme_override_font_sizes/font_size = 24
+text = "05/04/2023 22:45:46"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="ColorRect/GetItemBtn" to="." method="_on_get_item_btn_pressed"]
+[connection signal="pressed" from="ColorRect/DeleteMailBtn" to="." method="_on_delete_mail_btn_pressed"]
+[connection signal="pressed" from="ColorRect/ExitMailBtn" to="." method="_on_exit_mail_btn_pressed"]

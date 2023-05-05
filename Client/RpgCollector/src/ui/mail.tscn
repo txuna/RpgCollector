@@ -1,0 +1,36 @@
+[gd_scene load_steps=2 format=3 uid="uid://bd72ja0ueowi7"]
+
+[ext_resource type="Script" path="res://src/ui/mail.gd" id="1_ybwik"]
+
+[node name="Mail" type="ColorRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -65.0
+offset_bottom = -728.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.207843, 0.207843, 0.207843, 1)
+script = ExtResource("1_ybwik")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "패키지 선물이 도착했습니다."
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_font_sizes/font_size = 24
+text = "열기"
+
+[connection signal="pressed" from="HBoxContainer/Button" to="." method="_on_button_pressed"]

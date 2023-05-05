@@ -12,6 +12,8 @@ namespace RpgCollector.Services;
 
 public interface IMailboxAccessDB
 {
+    Task<int> GetTotalMailNumber(int receiverId);
+    Task<MailItem?> GetMailItem(int mailId);
     Task<Mailbox?> GetMailFromUserId(int mailId, int userId);
     Task<bool> ReadMail(int mailId);
     Task<MailItem?> ReceiveMailItem(int mailId);
@@ -40,7 +42,7 @@ public class MailboxAccessDB : IMailboxAccessDB
     {
         _dbConfig = dbConfig;
         _logger = logger;
-        deadLine = DateTime.Now.AddDays(-1);
+        deadLine = DateTime.Now.AddDays(-30);
         Open();
     }
     
@@ -95,6 +97,20 @@ public class MailboxAccessDB : IMailboxAccessDB
         {
             _logger.ZLogError(ex.Message);
             return null;
+        }
+    }
+
+    public async Task<int> GetTotalMailNumber(int receiverId)
+    {
+        try
+        {
+            int count = await queryFactory.Query("mailbox").Where("receiverId", receiverId).Where("sendDate", ">=", deadLine).Where("isDeleted", 0).CountAsync<int>();
+            return count;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return 0;
         }
     }
 
@@ -245,7 +261,7 @@ public class MailboxAccessDB : IMailboxAccessDB
     {
         try
         {
-            int effectedRow = await queryFactory.Query("mailbox").Where("mailId", mailId).Where("isRead", 0).UpdateAsync(new {
+            int effectedRow = await queryFactory.Query("mailbox").Where("mailId", mailId).UpdateAsync(new {
                 isRead = 1
             });
             // 이미 읽은 경우
@@ -281,6 +297,20 @@ public class MailboxAccessDB : IMailboxAccessDB
         {
             _logger.ZLogError(ex.Message);
             return false;
+        }
+    }
+
+    public async Task<MailItem?> GetMailItem(int mailId)
+    {
+        try
+        {
+            MailItem? mailItem = await queryFactory.Query("mail_item").Where("mailId", mailId).FirstAsync<MailItem>();
+            return mailItem;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message); 
+            return null;
         }
     }
 

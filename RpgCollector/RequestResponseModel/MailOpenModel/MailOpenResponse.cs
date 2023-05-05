@@ -13,6 +13,7 @@ namespace RpgCollector.RequestResponseModel.MailOpenModel
     {
         public ErrorState Error { get; set; }
         //public Mailbox[] Mails { get; set; }
+        public int TotalPageNumber { get; set; }
         public OpenMail[] Mails { get; set; }
     }
 }

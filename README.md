@@ -1,10 +1,14 @@
 ### 컴투스 서버캠퍼스 1기 
 김수창
 
-# 게임서버 API 목록
+## Images 
+![Login](./Images/login.png)
+![main](./Images/main.png)
+![mailbox](./Images/mailbox.png)
+![mail_read](./Images/read_mail.png)
+![mail_item](./Images/get_item.png)
 
 ## API 목록
-
 ### Login API
 
 1. username과 password를 입력받아 AccountDB의 users 테이블 검증

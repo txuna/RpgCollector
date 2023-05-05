@@ -64,10 +64,13 @@ public class MailOpenController : Controller
             };
         }
 
+        int totalPageNumber = await _mailboxAccessDB.GetTotalMailNumber(userId);
+
         return new MailOpenResponse
         {
             Error = ErrorState.None,
-            Mails = ProcessingMail(mails)
+            Mails = ProcessingMail(mails),
+            TotalPageNumber = (int)Math.Ceiling((double)totalPageNumber / 20)
         };
     }
 
