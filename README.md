@@ -220,6 +220,7 @@ public class MailOpenResponse
 {
     public ErrorState Error { get; set; }
     //public Mailbox[] Mails { get; set; }
+    public int TotalPageNumber { get; set; }
     public OpenMail[] Mails { get; set; }
 }
 ```
@@ -261,8 +262,8 @@ public class MailReadRequest
 public class MailReadResponse
 {
     public ErrorState Error { get; set; }
-    public string Title { get; set; }
-    public string Content { get; set; }
+    public Mailbox Mail { get; set; }
+    public MailItem? MailItem { get; set; }
 }
 ```
 
@@ -492,6 +493,69 @@ public class PackageBuyResponse
     public ErrorState Error { get; set; }
 }
 ```
+
+### MasterItemInfo API 
+1. 요청받은 itemId의 master data를 넘겨줌 
+
+**Database** 
+```csharp
+master_item_info - GET
+```
+
+**Path** 
+```csharp
+POST /Master/Item  
+```
+
+**Request**
+```csharp
+public class MasterItemGetInfoRequest
+{
+    public int ItemId { get; set; }
+}
+```
+
+**Response**
+```csharp
+public class MasterItemGetInfoResponse
+{
+    public ErrorState Error { get; set; }
+    public MasterItem MasterItem { get; set; }
+    public string AttributeName { get; set; }
+    public string TypeName { get; set; }
+}
+```
+
+
+### MasterAttendanceReward API  
+1. 출석보상 리스트를 반환함
+
+**Database** 
+```csharp
+master_attendance_info- GET
+```
+
+**Path** 
+```csharp
+POST /Master/Attendance  
+```
+
+**Request**
+```csharp 
+public class MasterAttendanceInfoRequest
+{
+}
+```
+
+**Response**
+```csharp
+public class MasterAttendanceInfoResponse
+{
+    public ErrorState Error { get; set; }
+    public MasterAttendanceReward[] AttendanceRewards { get; set; }
+}
+```
+
 
 ### 2차 피드백  
 2차 피드백  
