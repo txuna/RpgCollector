@@ -7,6 +7,7 @@
 ![mailbox](./Images/mailbox.png)
 ![mail_read](./Images/read_mail.png)
 ![mail_item](./Images/get_item.png)
+![attendance](./Images/attendance.png)
 
 ## API 목록
 ### Login API
