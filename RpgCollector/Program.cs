@@ -122,13 +122,15 @@ async Task<bool> LoadData()
         await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(new Notice
         {
             NoticeId = 1,
-            Content = "Hello World", 
+            Title = "[긴급점검]",
+            Content = "비정상 데이터 수신으로 인하여 서버가 잠시 중단될 예정입니다.", 
             UploaderId = 1,
         }));
         await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(new Notice
         {
-            NoticeId = 1,
-            Content = "Hello World",
+            NoticeId = 2,
+            Title = "[출석보상 이벤트 안내]",
+            Content = "2023년도 다시 돌아온 출석보상 이벤트안내입니다.",
             UploaderId = 1,
         }));
 

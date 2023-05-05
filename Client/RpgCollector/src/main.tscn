@@ -22,7 +22,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "우편함"
 
-[node name="Button2" type="Button" parent="ColorRect/Control"]
+[node name="InventoryBtn" type="Button" parent="ColorRect/Control"]
 layout_mode = 0
 offset_top = 101.0
 offset_right = 152.0
@@ -40,7 +40,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "출석"
 
-[node name="Button4" type="Button" parent="ColorRect/Control"]
+[node name="PaymentBtn" type="Button" parent="ColorRect/Control"]
 layout_mode = 0
 offset_top = 308.0
 offset_right = 152.0
@@ -49,7 +49,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "인앱결제"
 
-[node name="Button5" type="Button" parent="ColorRect/Control"]
+[node name="EnchantBtn" type="Button" parent="ColorRect/Control"]
 layout_mode = 0
 offset_top = 416.0
 offset_right = 152.0
@@ -58,5 +58,15 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "강화"
 
+[node name="NoticeBtn" type="Button" parent="ColorRect/Control"]
+layout_mode = 0
+offset_top = 525.0
+offset_right = 152.0
+offset_bottom = 606.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 36
+text = "공지"
+
 [connection signal="pressed" from="ColorRect/Control/MailboxBtn" to="." method="_on_mailbox_btn_pressed"]
 [connection signal="pressed" from="ColorRect/Control/AttendanceBtn" to="." method="_on_attendance_btn_pressed"]
+[connection signal="pressed" from="ColorRect/Control/NoticeBtn" to="." method="_on_notice_btn_pressed"]

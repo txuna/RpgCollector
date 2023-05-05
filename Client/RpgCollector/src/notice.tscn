@@ -1,0 +1,73 @@
+[gd_scene load_steps=3 format=3 uid="uid://8pe1bguukiob"]
+
+[ext_resource type="Texture2D" uid="uid://cryylulirjn2d" path="res://assets/popup_background.png" id="1_xyryb"]
+[ext_resource type="Script" path="res://src/notice.gd" id="1_yopg7"]
+
+[node name="Notice" type="CanvasLayer"]
+script = ExtResource("1_yopg7")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = 15.0
+offset_top = -13.0
+offset_right = 1179.0
+offset_bottom = 812.0
+texture = ExtResource("1_xyryb")
+
+[node name="ExitBtn" type="Button" parent="TextureRect"]
+layout_mode = 0
+offset_left = 946.0
+offset_top = 105.0
+offset_right = 1008.0
+offset_bottom = 163.0
+theme_override_font_sizes/font_size = 36
+text = "X"
+
+[node name="Label" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 172.0
+offset_top = 106.0
+offset_right = 926.0
+offset_bottom = 174.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 48
+text = "공지사항"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="TextureRect"]
+layout_mode = 0
+offset_left = 203.0
+offset_top = 199.0
+offset_right = 954.0
+offset_bottom = 699.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TextureRect/ScrollContainer"]
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="TextureRect/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(750, 100)
+layout_mode = 2
+color = Color(0.486275, 0.486275, 0.486275, 1)
+
+[node name="Label" type="Label" parent="TextureRect/ScrollContainer/VBoxContainer/ColorRect"]
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 0
+offset_left = 5.0
+offset_right = 753.0
+offset_bottom = 37.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "HELLO WORLD"
+
+[node name="Label2" type="Label" parent="TextureRect/ScrollContainer/VBoxContainer/ColorRect"]
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 0
+offset_left = 5.0
+offset_top = 30.0
+offset_right = 753.0
+offset_bottom = 101.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 16
+text = "HELLO WORLD"
+
+[connection signal="pressed" from="TextureRect/ExitBtn" to="." method="_on_exit_btn_pressed"]
