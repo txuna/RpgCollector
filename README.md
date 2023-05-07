@@ -9,6 +9,7 @@
 ![mail_item](./Images/get_item.png)
 ![attendance](./Images/attendance.png)
 ![notices](./Images/notice.png)
+![inventory](./Images/inventory.png)
 
 ## API 목록
 ### Login API
