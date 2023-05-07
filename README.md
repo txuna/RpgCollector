@@ -10,6 +10,7 @@
 ![attendance](./Images/attendance.png)
 ![notices](./Images/notice.png)
 ![inventory](./Images/inventory.png)
+![detail](./Images/detail.png)
 
 ## API 목록
 ### Login API
@@ -613,6 +614,40 @@ public class PlayerInventoryGetResponse
 {
     public ErrorState Error { get; set; }
     public PlayerItem[]? Items { get; set; }
+}
+```
+
+### Player Items Detail GET API
+1. userId기준 소유한 아이템의 상세설명을 반환함
+
+**Database** 
+```csharp
+player_items - GET
+master_enchant_info - GET
+```
+
+**Path** 
+```csharp
+POST /Inventory/Item
+```
+
+**Request**
+```csharp 
+public class PlayerItemDetailGetRequest
+{
+    public int PlayerItemId { get; set; }
+}
+```
+
+**Response**
+```csharp
+public class PlayerItemDetailGetResponse
+{
+    public ErrorState Error { get; set; }
+    // EnchantCount의 가치만큼 해당 값 수정
+    public MasterItem ItemPrototype { get; set; }
+    public AdditionalState PlusState { get; set; }
+    public int EnchantCount { get; set; }
 }
 ```
 

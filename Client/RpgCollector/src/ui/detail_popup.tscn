@@ -1,3 +1,86 @@
-[gd_scene format=3 uid="uid://cganm6vpuf8gb"]
+[gd_scene load_steps=7 format=3 uid="uid://cganm6vpuf8gb"]
+
+[ext_resource type="Script" path="res://src/ui/detail_popup.gd" id="1_lg42q"]
+[ext_resource type="Texture2D" uid="uid://cryylulirjn2d" path="res://assets/popup_background.png" id="2_2nipl"]
+[ext_resource type="Texture2D" uid="uid://cj0avjaofdsd1" path="res://assets/close_btn_normal.png" id="3_wlnc5"]
+[ext_resource type="Texture2D" uid="uid://bbr1ydo557c7a" path="res://assets/close_btn_pressed.png" id="4_06qja"]
+[ext_resource type="Texture2D" uid="uid://cux4lrm11ph6c" path="res://assets/inventory_slot.png" id="5_sqpjv"]
+[ext_resource type="Texture2D" uid="uid://jhmdfjiuxplk" path="res://assets/rusty_sword.png" id="6_m8lxo"]
 
 [node name="DetailPopup" type="CanvasLayer"]
+script = ExtResource("1_lg42q")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = 321.0
+offset_top = 79.0
+offset_right = 841.0
+offset_bottom = 653.0
+texture = ExtResource("2_2nipl")
+
+[node name="Label" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 71.0
+offset_right = 448.0
+offset_bottom = 119.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "나무 검(+2)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextureButton" type="TextureButton" parent="TextureRect"]
+layout_mode = 0
+offset_left = 415.0
+offset_top = 74.0
+offset_right = 447.0
+offset_bottom = 106.0
+texture_normal = ExtResource("3_wlnc5")
+texture_pressed = ExtResource("4_06qja")
+texture_hover = ExtResource("4_06qja")
+
+[node name="TextureRect" type="TextureRect" parent="TextureRect"]
+layout_mode = 0
+offset_left = 196.0
+offset_top = 127.0
+offset_right = 324.0
+offset_bottom = 252.0
+texture = ExtResource("5_sqpjv")
+
+[node name="TextureRect2" type="TextureRect" parent="TextureRect/TextureRect"]
+layout_mode = 0
+offset_right = 128.0
+offset_bottom = 125.0
+texture = ExtResource("6_m8lxo")
+
+[node name="AttackLabel" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 98.0
+offset_top = 284.0
+offset_right = 429.0
+offset_bottom = 315.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "공격력 : 14 (+5)"
+
+[node name="MagicLabel" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 98.0
+offset_top = 334.0
+offset_right = 429.0
+offset_bottom = 372.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "공격력 : 14 + (5)"
+
+[node name="DefenceLabel" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 98.0
+offset_top = 384.0
+offset_right = 429.0
+offset_bottom = 422.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "공격력 : 14 + (5)"
+
+[connection signal="pressed" from="TextureRect/TextureButton" to="." method="_on_texture_button_pressed"]

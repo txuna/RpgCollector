@@ -66,6 +66,21 @@ func load_inventory(items):
 		back_texture.add_child(quantity_label)
 		inventory_container.add_child(back_texture)
 		
+		back_texture.gui_input.connect(_on_open_detail.bind(item.playerItemId))
+		
+		
+func _on_open_detail(event: InputEvent, player_item_id):
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT and not event.pressed:		
+			var detail_popup = load("res://src/ui/detail_popup.tscn").instantiate() 
+			add_child(detail_popup)
+			detail_popup._on_open_detail_popup(player_item_id)
+		# item use !
+		elif event.double_click:
+			# 아이템 타입이 기타 아이템이라면 패스
+			pass 
+	return 	
+		
 
 func _on_exit_btn_pressed():
 	queue_free()
