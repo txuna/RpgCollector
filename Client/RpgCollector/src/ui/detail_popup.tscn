@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://cganm6vpuf8gb"]
+
+[node name="DetailPopup" type="CanvasLayer"]

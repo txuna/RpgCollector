@@ -586,6 +586,34 @@ public class AttendanceGetLogResponse
 }
 ```
 
+### Player Items Get API
+1. userId기준 소유한 아이템을 반환함
+
+**Database** 
+```csharp
+player_items - GET
+```
+
+**Path** 
+```csharp
+POST /Inventory
+```
+
+**Request**
+```csharp 
+public class PlayerInventoryGetRequest
+{
+}
+```
+
+**Response**
+```csharp
+public class PlayerInventoryGetResponse
+{
+    public ErrorState Error { get; set; }
+    public PlayerItem[]? Items { get; set; }
+}
+```
 
 ### 2차 피드백  
 2차 피드백  

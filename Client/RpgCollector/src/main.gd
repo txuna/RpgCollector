@@ -36,3 +36,12 @@ func _on_notice_btn_pressed():
 	var notice_instance = load("res://src/notice.tscn").instantiate()
 	notice_instance.name = "notice"
 	add_child(notice_instance)
+
+
+func _on_inventory_btn_pressed():
+	if get_node_or_null("inventory") != null:
+		return 
+		
+	var inventory_instance = load("res://src/ui/inventory.tscn").instantiate()
+	inventory_instance.name = 'inventory'
+	add_child(inventory_instance)

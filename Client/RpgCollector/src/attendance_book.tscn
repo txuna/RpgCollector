@@ -36,6 +36,7 @@ theme_override_font_sizes/font_size = 24
 text = "X"
 
 [node name="GridContainer" type="GridContainer" parent="TextureRect"]
+layout_mode = 0
 offset_left = 197.0
 offset_top = 168.0
 offset_right = 731.0

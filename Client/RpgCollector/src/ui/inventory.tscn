@@ -1,0 +1,81 @@
+[gd_scene load_steps=7 format=3 uid="uid://bw7vg63ta58kd"]
+
+[ext_resource type="Texture2D" uid="uid://cryylulirjn2d" path="res://assets/popup_background.png" id="1_gts3l"]
+[ext_resource type="Script" path="res://src/ui/inventory.gd" id="1_h0ief"]
+[ext_resource type="Texture2D" uid="uid://cj0avjaofdsd1" path="res://assets/close_btn_normal.png" id="2_lt0ms"]
+[ext_resource type="Texture2D" uid="uid://bbr1ydo557c7a" path="res://assets/close_btn_pressed.png" id="3_oc024"]
+[ext_resource type="Texture2D" uid="uid://cux4lrm11ph6c" path="res://assets/inventory_slot.png" id="5_5if6a"]
+[ext_resource type="Texture2D" uid="uid://jhmdfjiuxplk" path="res://assets/rusty_sword.png" id="6_643by"]
+
+[node name="Inventory" type="CanvasLayer"]
+script = ExtResource("1_h0ief")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = 174.0
+offset_top = 5.0
+offset_right = 1039.0
+offset_bottom = 791.0
+texture = ExtResource("1_gts3l")
+
+[node name="ExitBtn" type="TextureButton" parent="TextureRect"]
+layout_mode = 0
+offset_left = 698.0
+offset_top = 100.0
+offset_right = 730.0
+offset_bottom = 132.0
+scale = Vector2(1.5, 1.5)
+texture_normal = ExtResource("2_lt0ms")
+texture_pressed = ExtResource("3_oc024")
+texture_hover = ExtResource("3_oc024")
+texture_disabled = ExtResource("3_oc024")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="TextureRect"]
+layout_mode = 0
+offset_left = 121.0
+offset_top = 174.0
+offset_right = 733.0
+offset_bottom = 677.0
+
+[node name="GridContainer" type="GridContainer" parent="TextureRect/ScrollContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 15
+columns = 6
+
+[node name="TextureRect" type="TextureRect" parent="TextureRect/ScrollContainer/GridContainer"]
+custom_minimum_size = Vector2(92, 92)
+layout_mode = 2
+texture = ExtResource("5_5if6a")
+expand_mode = 1
+
+[node name="TextureRect" type="TextureRect" parent="TextureRect/ScrollContainer/GridContainer/TextureRect"]
+custom_minimum_size = Vector2(92, 92)
+layout_mode = 1
+offset_right = 64.0
+offset_bottom = 64.0
+texture = ExtResource("6_643by")
+
+[node name="Label" type="Label" parent="TextureRect/ScrollContainer/GridContainer/TextureRect"]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 66.0
+offset_right = 92.0
+offset_bottom = 92.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "1"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 115.0
+offset_top = 95.0
+offset_right = 744.0
+offset_bottom = 163.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 48
+text = "인벤토리"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="TextureRect/ExitBtn" to="." method="_on_exit_btn_pressed"]

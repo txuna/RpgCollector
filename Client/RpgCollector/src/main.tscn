@@ -11,14 +11,15 @@ offset_bottom = 800.0
 
 [node name="Control" type="Control" parent="ColorRect"]
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_left = 21.0
+offset_top = 25.0
+offset_right = 61.0
+offset_bottom = 65.0
 
 [node name="MailboxBtn" type="Button" parent="ColorRect/Control"]
 layout_mode = 0
 offset_right = 152.0
 offset_bottom = 81.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "우편함"
 
@@ -27,7 +28,6 @@ layout_mode = 0
 offset_top = 101.0
 offset_right = 152.0
 offset_bottom = 182.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "인벤토리"
 
@@ -36,7 +36,6 @@ layout_mode = 0
 offset_top = 203.0
 offset_right = 152.0
 offset_bottom = 284.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "출석"
 
@@ -45,7 +44,6 @@ layout_mode = 0
 offset_top = 308.0
 offset_right = 152.0
 offset_bottom = 389.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "인앱결제"
 
@@ -54,7 +52,6 @@ layout_mode = 0
 offset_top = 416.0
 offset_right = 152.0
 offset_bottom = 497.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "강화"
 
@@ -63,10 +60,10 @@ layout_mode = 0
 offset_top = 525.0
 offset_right = 152.0
 offset_bottom = 606.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
 text = "공지"
 
 [connection signal="pressed" from="ColorRect/Control/MailboxBtn" to="." method="_on_mailbox_btn_pressed"]
+[connection signal="pressed" from="ColorRect/Control/InventoryBtn" to="." method="_on_inventory_btn_pressed"]
 [connection signal="pressed" from="ColorRect/Control/AttendanceBtn" to="." method="_on_attendance_btn_pressed"]
 [connection signal="pressed" from="ColorRect/Control/NoticeBtn" to="." method="_on_notice_btn_pressed"]
