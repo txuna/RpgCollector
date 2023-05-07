@@ -77,7 +77,7 @@ func _on_open_detail(event: InputEvent, player_item_id):
 			detail_popup._on_open_detail_popup(player_item_id)
 		# item use !
 		elif event.double_click:
-			# 아이템 타입이 기타 아이템이라면 패스
+			# 아이템 타입이 소비타입이라면 사용
 			pass 
 	return 	
 		

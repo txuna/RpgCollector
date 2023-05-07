@@ -45,3 +45,13 @@ func _on_inventory_btn_pressed():
 	var inventory_instance = load("res://src/ui/inventory.tscn").instantiate()
 	inventory_instance.name = 'inventory'
 	add_child(inventory_instance)
+
+
+func _on_enchant_btn_pressed():
+	if get_node_or_null("enchant") != null:
+		return 
+		
+
+func _on_payment_btn_pressed():
+	if get_node_or_null("payment") != null:
+		return 

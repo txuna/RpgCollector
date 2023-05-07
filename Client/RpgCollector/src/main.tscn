@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://6eu5evtihtr"]
+[gd_scene load_steps=3 format=3 uid="uid://6eu5evtihtr"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_b13uu"]
+[ext_resource type="PackedScene" uid="uid://dn7up6bqfy0i5" path="res://src/ui/hud.tscn" id="2_j7hda"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_b13uu")
@@ -63,7 +64,11 @@ offset_bottom = 606.0
 theme_override_font_sizes/font_size = 36
 text = "공지"
 
+[node name="Hud" parent="ColorRect" instance=ExtResource("2_j7hda")]
+
 [connection signal="pressed" from="ColorRect/Control/MailboxBtn" to="." method="_on_mailbox_btn_pressed"]
 [connection signal="pressed" from="ColorRect/Control/InventoryBtn" to="." method="_on_inventory_btn_pressed"]
 [connection signal="pressed" from="ColorRect/Control/AttendanceBtn" to="." method="_on_attendance_btn_pressed"]
+[connection signal="pressed" from="ColorRect/Control/PaymentBtn" to="." method="_on_payment_btn_pressed"]
+[connection signal="pressed" from="ColorRect/Control/EnchantBtn" to="." method="_on_enchant_btn_pressed"]
 [connection signal="pressed" from="ColorRect/Control/NoticeBtn" to="." method="_on_notice_btn_pressed"]
