@@ -15,7 +15,7 @@ namespace RpgCollector.Services;
 
 public interface IPlayerAccessDB
 {
-    Task<PlayerInfo?> GetPlayerFromUserId(int userId);
+    Task<PlayerState?> GetPlayerFromUserId(int userId);
     Task<bool> AddItemToPlayer(int userId, int itemId, int quantity);
     Task<bool> AddMoneyToPlayer(int userId, int money);
     Task<bool> InsertPlayerEquipmentItem(int userId, int itemId, int quantity);
@@ -82,14 +82,14 @@ public class PlayerAccessDB : IPlayerAccessDB
     {
         try
         {
-            PlayerInfo? playerInfo = await GetPlayerFromUserId(userId);
-            if (playerInfo == null)
+            PlayerState? playerState = await GetPlayerFromUserId(userId);
+            if (playerState == null)
             {
                 return false;
             }
             await queryFactory.Query("players").Where("userId", userId).UpdateAsync(new
             {
-                money = playerInfo.Money + money
+                money = playerState.Money + money
             });
         }
         catch (Exception ex)
@@ -100,19 +100,19 @@ public class PlayerAccessDB : IPlayerAccessDB
         return true;
     }
 
-    public async Task<PlayerInfo?> GetPlayerFromUserId(int userId)
+    public async Task<PlayerState?> GetPlayerFromUserId(int userId)
     {
-        PlayerInfo playerInfo; 
+        PlayerState playerState; 
         try
         {
-            playerInfo = await queryFactory.Query("players").Where("userId", userId).FirstAsync<PlayerInfo>();
+            playerState = await queryFactory.Query("players").Where("userId", userId).FirstAsync<PlayerState>();
         }
         catch (Exception ex)
         {
             _logger.ZLogError(ex.Message);
             return null; 
         }
-        return playerInfo;
+        return playerState;
     }
 
     public async Task<PlayerItem?> GetPlayerItem(int playerItemId)
@@ -323,7 +323,10 @@ public class PlayerAccessDB : IPlayerAccessDB
                 hp = initPlayerState.Hp,
                 exp = initPlayerState.Exp,
                 level = initPlayerState.Level,
-                money = initPlayerState.Money
+                money = initPlayerState.Money,
+                attack = initPlayerState.Attack, 
+                defence = initPlayerState.Defence,
+                magic = initPlayerState.Magic,
             });
             return true;
         }
