@@ -46,6 +46,7 @@ public class MailOpenController : Controller
         if (userId == -1)
         {
             _logger.ZLogError($"[{userName}] Failed Connected Redis");
+
             return new MailOpenResponse
             {
                 Error = ErrorState.FailedConnectRedis
@@ -58,6 +59,7 @@ public class MailOpenController : Controller
         if (mails == null)
         {
             _logger.ZLogInformation($"[{userId} {userName}] Invalid PageNumber");
+
             return new MailOpenResponse
             {
                 Error = ErrorState.InvalidPageNumber
@@ -77,6 +79,7 @@ public class MailOpenController : Controller
     OpenMail[] ProcessingMail(Mailbox[] mails)
     {
         OpenMail[] openMail = new OpenMail[mails.Length];
+
         for(int i = 0; i < mails.Length; i++)
         {
             openMail[i] = new OpenMail();

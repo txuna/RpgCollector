@@ -66,6 +66,7 @@ namespace RpgCollector.Controllers.EnchantControllers
             }
 
             Error = await Verify(playerItem, masterItem, userId);
+
             if (Error != ErrorState.None)
             {
                 return new EnchantInfoGetResponse

@@ -36,6 +36,7 @@ namespace RpgCollector.Controllers.AttendanceControllers
             }
 
             PlayerAttendanceLog? playerAttendanceLog = await _attendanceDB.GetLastSequenceDayCount(userId);
+
             int count;
 
             if (playerAttendanceLog == null)

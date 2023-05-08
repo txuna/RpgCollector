@@ -98,10 +98,12 @@ public class MailReadController : Controller
         {
             return ErrorState.AlreadyMailDeadlineExpireDate;
         }
+
         if (await _mailboxAccessDB.IsDeletedMail(mailId))
         {
             return ErrorState.DeletedMail;
         }
+
         if(!await _mailboxAccessDB.IsMailOwner(mailId, userId))
         {
             return ErrorState.NoneOwnerThisMail;

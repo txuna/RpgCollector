@@ -55,6 +55,7 @@ namespace RpgCollector.Controllers.PlayerDataController
 
             /* playerItemId 기반으로 itemId를 가지고 옴 */
             PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemDetailGetRequest.PlayerItemId);
+
             if(playerItem == null)
             {
                 return new PlayerItemDetailGetResponse
@@ -65,6 +66,7 @@ namespace RpgCollector.Controllers.PlayerDataController
 
             /* 아이템의 프로토타입을 가지고 옴 */
             MasterItem? masterItem = _masterDataDB.GetMasterItem(playerItem.ItemId);
+
             if(masterItem == null)
             {
                 return new PlayerItemDetailGetResponse
@@ -82,6 +84,7 @@ namespace RpgCollector.Controllers.PlayerDataController
 
             /* 소비아이템의 경우 그대로 반환 */
             MasterItemAttribute masterItemAttribute = _masterDataDB.GetMasterItemAttribute(masterItem.AttributeId);
+
             if((TypeDefinition)masterItemAttribute.TypeId != TypeDefinition.EQUIPMENT)
             {
                 return new PlayerItemDetailGetResponse

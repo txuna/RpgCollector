@@ -133,6 +133,7 @@ public class EnchantExecuteController : Controller
     async Task<ErrorState> VerifyMoney(int userId, int nextEnchantCount)
     {
         MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(nextEnchantCount);
+
         int playerMoney = await _playerAccessDB.GetPlayerMoney(userId);
 
         if (playerMoney < masterEnchantInfo.Price)
@@ -201,6 +202,7 @@ public class EnchantExecuteController : Controller
     async Task<(ErrorState, int)> ExecuteEnchant(PlayerItem playerItem, int userId)
     {
         var (Error, result) = CheckPercent(playerItem, userId);
+
         if (Error != ErrorState.None)
         {
             return (Error, -1);

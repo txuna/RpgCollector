@@ -65,14 +65,17 @@ public class MailDeleteController : Controller
         {
             return ErrorState.AlreadyMailDeadlineExpireDate;
         }
+
         if (!await _mailboxAccessDB.IsMailOwner(mailId, userId))
         {
             return ErrorState.NoneOwnerThisMail;
         }
+
         if(await _mailboxAccessDB.IsDeletedMail(mailId))
         {
             return ErrorState.DeletedMail;
         }
+
         return ErrorState.None;
     }
 }

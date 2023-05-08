@@ -92,10 +92,12 @@ public class MailGetItemController : Controller
         {
             return ErrorState.AlreadyMailDeadlineExpireDate;
         }
+
         if (await _mailboxAccessDB.IsDeletedMail(mailGetItemRequest.MailId))
         {
             return ErrorState.DeletedMail;
         }
+
         if (!await _mailboxAccessDB.HasMailItem(mailGetItemRequest.MailId))
         {
             return ErrorState.NoneHaveItemInMail;
