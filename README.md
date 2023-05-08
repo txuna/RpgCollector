@@ -687,12 +687,14 @@ public class PackageShowResponse
 
 **Database** 
 ```csharp
-master_package_payment
+master_enchant_info - GET
+Redis Account DB - GET
+player_items - GET
 ```
 
 **Path** 
 ```csharp
-POST /Package/Show
+POST /Enchant/Info
 ```
 
 **Request**
