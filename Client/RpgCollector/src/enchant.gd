@@ -129,7 +129,7 @@ func load_enchant_info(current_enchant_count, next_enchant_count, percent, incre
 	percent_label.text = "성공 확률 : {p}%".format({
 		"p" : str(percent)
 	})
-	increase_label.text = "스탯 증가량 : {i}".format({
+	increase_label.text = "스탯 증가량 : {i}%".format({
 		"i" : str(increasement_value)
 	})
 	enchant_texture.texture = MasterData.item_texture[str(item_id)]

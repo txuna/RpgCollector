@@ -11,6 +11,8 @@
 ![notices](./Images/notice.png)
 ![inventory](./Images/inventory.png)
 ![detail](./Images/detail.png)
+![package](./Images/payment.png)
+![enchant](./Images/enchant.png)
 
 ## API 목록
 ### Login API
@@ -677,6 +679,42 @@ public class PackageShowResponse
 {
     public ErrorState Error { get; set; }
     public MasterPackagePayment[] PackagePayment { get; set; }
+}
+```
+
+### Master Enchant Info Get API
+1. 요청받은 플레이어 아이템 ID기준으로 강화 능력치를 가지고 옴
+
+**Database** 
+```csharp
+master_package_payment
+```
+
+**Path** 
+```csharp
+POST /Package/Show
+```
+
+**Request**
+```csharp 
+public class EnchantInfoGetRequest
+{
+    [Required]
+    public int PlayerItemId { get; set; }
+}
+```
+
+**Response**
+```csharp
+public class EnchantInfoGetResponse
+{
+    public ErrorState Error { get; set; }
+    public int CurrentEnchantCount { get; set; }
+    public int NextEnchantCount { get; set; }
+    public int Percent { get; set; }
+    public int IncreasementValue { get; set; }
+    public int ItemId { get; set; }
+    public int PlayerItemId { get; set; }
 }
 ```
 
