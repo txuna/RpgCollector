@@ -34,7 +34,7 @@ public class PackagePaymentDB : IPackagePaymentDB
     {
         try
         {
-            await queryFactory.Query("player_payment_info").InsertAsync(new
+            await queryFactory.Query("player_payment_log").InsertAsync(new
             {
                 receiptId = receiptId,
                 userId = userId,
@@ -53,7 +53,7 @@ public class PackagePaymentDB : IPackagePaymentDB
     {
         try
         {
-            int count = await queryFactory.Query("player_payment_info").Where("receiptId", receiptId).CountAsync<int>();
+            int count = await queryFactory.Query("player_payment_log").Where("receiptId", receiptId).CountAsync<int>();
             if (count > 0)
             {
                 return false;

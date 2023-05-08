@@ -469,7 +469,7 @@ Redis Account DB - GET
 
 GameDB 
 master_package_info - GET 
-player_payment_info - GET / INSERT
+player_payment_log - GET / INSERT
 mailbox - INSERT
 mail_item - INSERT 
 ```
