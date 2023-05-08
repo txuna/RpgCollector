@@ -25,6 +25,7 @@ public interface IMasterDataDB
     public MasterItemType? GetMasterItemType(int typeId);
     public MasterPackage[] GetMasterPackage(int packageId);
     public MasterPlayerState? GetMasterPlayerState(int level);
+    public MasterPackagePayment[] GetPackagePayment();
 }
 
 public class MasterDataDB : IMasterDataDB
@@ -38,6 +39,7 @@ public class MasterDataDB : IMasterDataDB
     MasterItemAttribute[] masterItemAttribute;
     MasterItemType[] masterItemType;
     MasterPackage[] masterPackage;
+    MasterPackagePayment[] masterPackagePayment;
 
     IOptions<DbConfig> _dbConfig;
     IDbConnection dbConnection;
@@ -50,6 +52,10 @@ public class MasterDataDB : IMasterDataDB
         _logger = logger;
         Open();
         Load();
+    }
+    public MasterPackagePayment[] GetPackagePayment()
+    {
+        return masterPackagePayment;
     }
     public InitPlayerState GetInitPlayerState()
     {
@@ -123,10 +129,14 @@ public class MasterDataDB : IMasterDataDB
 
             //마스터 플레이어 스탯 가지고 오기 
             masterPlayerState = (queryFactory.Query("master_player_state").Get<MasterPlayerState>()).ToArray();
+
+            //인앱결제 상품 정보 불러오기 
+            masterPackagePayment = (queryFactory.Query("master_package_payment").Get<MasterPackagePayment>()).ToArray();
         }
         catch (Exception ex)
         {
             _logger.ZLogError("Failed Load Master Data");
+            _logger.ZLogError(ex.Message);
         }
     }
 

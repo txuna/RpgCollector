@@ -1,7 +1,7 @@
 extends CanvasLayer
 
-@onready var mail_container = $ColorRect/ScrollContainer/VBoxContainer
-@onready var page_btn_list = $ColorRect/PageBtnList
+@onready var mail_container = $TextureRect/ScrollContainer/VBoxContainer
+@onready var page_btn_list = $TextureRect/PageBtnList
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -33,6 +33,7 @@ func make_page_number(total_page_number):
 	for num in range(total_page_number):
 		var btn = Button.new() 
 		btn.text = str(num+1)
+		btn.custom_minimum_size = Vector2(45, 45)
 		btn.add_theme_font_size_override("font_size", 24)
 		btn.pressed.connect(open_mail_request.bind(false, num+1))
 		page_btn_list.add_child(btn)
@@ -62,7 +63,7 @@ func add_mail(title:String, mail_id:int):
 	var mail_instance = load("res://src/ui/mail.tscn").instantiate()
 	mail_container.add_child(mail_instance)
 	mail_instance.setup(title, mail_id)
-	mail_instance.custom_minimum_size = Vector2(600, 45)
+	mail_instance.custom_minimum_size = Vector2(600, 60)
 	mail_instance.read_mail.connect(_on_read_mail)
 	
 	
@@ -144,8 +145,6 @@ func _on_http_get_item_response(result, response_code, headers, body):
 	
 	queue_free()
 	
-	
-	
-	
-	
-	
+
+func _on_texture_button_pressed():
+	queue_free()

@@ -1,31 +1,31 @@
-[gd_scene load_steps=3 format=3 uid="uid://w7bwsgqo17lv"]
+[gd_scene load_steps=6 format=3 uid="uid://w7bwsgqo17lv"]
 
 [ext_resource type="Script" path="res://src/ui/mailbox.gd" id="1_d5vu6"]
 [ext_resource type="PackedScene" uid="uid://bd72ja0ueowi7" path="res://src/ui/mail.tscn" id="2_2tdu3"]
+[ext_resource type="Texture2D" uid="uid://cryylulirjn2d" path="res://assets/popup_background.png" id="2_63nkm"]
+[ext_resource type="Texture2D" uid="uid://cj0avjaofdsd1" path="res://assets/close_btn_normal.png" id="4_ot657"]
+[ext_resource type="Texture2D" uid="uid://bbr1ydo557c7a" path="res://assets/close_btn_pressed.png" id="5_bnis2"]
 
 [node name="Mailbox" type="CanvasLayer"]
 script = ExtResource("1_d5vu6")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 229.0
-offset_top = 136.0
-offset_right = -243.0
-offset_bottom = -150.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.886275, 0.87451, 0.862745, 1)
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = 146.0
+offset_top = 2.0
+offset_right = 1081.0
+offset_bottom = 749.0
+texture = ExtResource("2_63nkm")
 
-[node name="Label" type="Label" parent="ColorRect"]
+[node name="Label" type="Label" parent="TextureRect"]
 layout_mode = 1
 anchors_preset = 14
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_top = -226.0
-offset_bottom = -148.0
+offset_left = 136.0
+offset_top = -279.5
+offset_right = -128.0
+offset_bottom = -201.5
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -34,35 +34,38 @@ text = "우편함"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ExitBtn" type="Button" parent="ColorRect"]
-layout_mode = 0
-offset_left = 651.0
-offset_top = 12.0
-offset_right = 716.0
-offset_bottom = 65.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 32
-text = "X"
+[node name="ScrollContainer" type="ScrollContainer" parent="TextureRect"]
+offset_left = 164.0
+offset_top = 232.0
+offset_right = 764.0
+offset_bottom = 577.0
 
-[node name="ScrollContainer" type="ScrollContainer" parent="ColorRect"]
-layout_mode = 0
-offset_left = 66.0
-offset_top = 119.0
-offset_right = 666.0
-offset_bottom = 447.0
+[node name="VBoxContainer" type="VBoxContainer" parent="TextureRect/ScrollContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/ScrollContainer"]
+[node name="Mail" parent="TextureRect/ScrollContainer/VBoxContainer" instance=ExtResource("2_2tdu3")]
+custom_minimum_size = Vector2(600, 55)
 layout_mode = 2
 
-[node name="Mail" parent="ColorRect/ScrollContainer/VBoxContainer" instance=ExtResource("2_2tdu3")]
+[node name="Mail2" parent="TextureRect/ScrollContainer/VBoxContainer" instance=ExtResource("2_2tdu3")]
 custom_minimum_size = Vector2(600, 45)
 layout_mode = 2
 
-[node name="PageBtnList" type="HBoxContainer" parent="ColorRect"]
-layout_mode = 0
-offset_left = 71.0
-offset_top = 452.0
-offset_right = 663.0
-offset_bottom = 488.0
+[node name="PageBtnList" type="HBoxContainer" parent="TextureRect"]
+offset_left = 169.0
+offset_top = 582.0
+offset_right = 761.0
+offset_bottom = 618.0
 
-[connection signal="pressed" from="ColorRect/ExitBtn" to="." method="_on_exit_btn_pressed"]
+[node name="TextureButton" type="TextureButton" parent="TextureRect"]
+layout_mode = 0
+offset_left = 781.0
+offset_top = 91.0
+offset_right = 813.0
+offset_bottom = 123.0
+texture_normal = ExtResource("4_ot657")
+texture_pressed = ExtResource("5_bnis2")
+texture_hover = ExtResource("5_bnis2")
+
+[connection signal="pressed" from="TextureRect/TextureButton" to="." method="_on_texture_button_pressed"]

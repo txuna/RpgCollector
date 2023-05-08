@@ -55,3 +55,7 @@ func _on_enchant_btn_pressed():
 func _on_payment_btn_pressed():
 	if get_node_or_null("payment") != null:
 		return 
+		
+	var payment_instance = load("res://src/ui/package.tscn").instantiate() 
+	payment_instance.name = "payment"
+	add_child(payment_instance)

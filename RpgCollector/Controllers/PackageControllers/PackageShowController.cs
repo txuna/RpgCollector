@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RpgCollector.Models.PackageItemModel;
+using RpgCollector.RequestResponseModel.PackageShowModel;
 using RpgCollector.Services;
+using ZLogger;
 
 namespace RpgCollector.Controllers.PackageControllers
 {
@@ -18,9 +21,28 @@ namespace RpgCollector.Controllers.PackageControllers
 
         [Route("/Package/Show")]
         [HttpPost]
-        public IActionResult Index()
+        public async Task<PackageShowResponse> Index(PackageShowRequest packageShowRequest)
         {
-            return View();
+            string userName = HttpContext.Request.Headers["User-Name"];
+            int userId = await _accountMemoryDB.GetUserId(userName);
+
+            _logger.ZLogInformation($"[{userId}] Request /Package/Show ");
+
+            if(userId == -1)
+            {
+                return new PackageShowResponse
+                {
+                    Error = RequestResponseModel.ErrorState.NoneExistName
+                };
+            }
+
+            MasterPackagePayment[] masterPackagePayments = _masterDataDB.GetPackagePayment();
+
+            return new PackageShowResponse
+            {
+                Error = RequestResponseModel.ErrorState.None,
+                PackagePayment = masterPackagePayments,
+            };
         }
     }
 }

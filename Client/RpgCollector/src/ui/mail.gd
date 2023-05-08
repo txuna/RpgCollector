@@ -1,7 +1,7 @@
 extends ColorRect
 
-@onready var title = $HBoxContainer/Label
-@onready var btn = $HBoxContainer/Button
+@onready var title = $HBoxContainer/MarginContainer2/Label
+@onready var btn = $HBoxContainer/MarginContainer/Button
 
 signal read_mail(mail_id)
 

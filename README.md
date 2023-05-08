@@ -651,6 +651,35 @@ public class PlayerItemDetailGetResponse
 }
 ```
 
+### Package Show API
+1. 인앱결제 상품 목록을 반환함
+
+**Database** 
+```csharp
+master_package_payment
+```
+
+**Path** 
+```csharp
+POST /Package/Show
+```
+
+**Request**
+```csharp 
+public class PackageShowRequest
+{
+}
+```
+
+**Response**
+```csharp
+public class PackageShowResponse
+{
+    public ErrorState Error { get; set; }
+    public MasterPackagePayment[] PackagePayment { get; set; }
+}
+```
+
 ### 2차 피드백  
 2차 피드백  
 [해결]1. 중복로그인 체크하지 말고 -> 새로운값으로 토큰 발급하고 갱신  + TTL 추가   
