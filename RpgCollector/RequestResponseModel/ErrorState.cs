@@ -10,6 +10,7 @@
         FailedConnectMysql = 5,
         FailedConnectDatabase = 6,
         NoneExistItem = 7,
+        NonePermission = 8,
 
         /* Account 101 ~ 200 */
         InvalidPassword = 101,

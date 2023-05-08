@@ -722,6 +722,39 @@ public class EnchantInfoGetResponse
 }
 ```
 
+### Player State Get API
+1. 현재 플레이어의 상태를 반환함
+
+**Database** 
+```csharp
+master_player_state - GET
+player - GET
+Redis Account DB - GET
+```
+
+**Path** 
+```csharp
+POST /Player/State
+```
+
+**Request**
+```csharp 
+public class PlayerStateGetRequest
+{
+
+}
+```
+
+**Response**
+```csharp
+public class PlayerStateGetResponse
+{
+    public ErrorState Error { get; set; }
+    public PlayerState State { get; set; }
+    public MasterPlayerState MasterState { get; set; }
+}
+```
+
 ### 2차 피드백  
 2차 피드백  
 [해결]1. 중복로그인 체크하지 말고 -> 새로운값으로 토큰 발급하고 갱신  + TTL 추가   
