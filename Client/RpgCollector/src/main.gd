@@ -51,6 +51,10 @@ func _on_enchant_btn_pressed():
 	if get_node_or_null("enchant") != null:
 		return 
 		
+	var enchant_instance = load("res://src/enchant.tscn").instantiate()
+	enchant_instance.name = 'enchant'
+	add_child(enchant_instance)
+
 
 func _on_payment_btn_pressed():
 	if get_node_or_null("payment") != null:

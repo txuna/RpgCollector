@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RpgCollector.Models.AccountModel;
 using RpgCollector.Models.EnchantModel;
 using RpgCollector.Models.MasterModel;
 using RpgCollector.Models.PlayerModel;
 using RpgCollector.RequestResponseModel.PlayerItemDetailGetModel;
 using RpgCollector.Services;
+using ZLogger;
 
 namespace RpgCollector.Controllers.PlayerDataController
 {
@@ -30,9 +32,11 @@ namespace RpgCollector.Controllers.PlayerDataController
         public async Task<PlayerItemDetailGetResponse> PlayerItemGetDetail(PlayerItemDetailGetRequest playerItemDetailGetRequest)
         {
             string userName = HttpContext.Request.Headers["User-Name"];
-            int userID = await _accountMemoryDB.GetUserId(userName);
-            
-            if(userID == -1)
+            int userId = await _accountMemoryDB.GetUserId(userName);
+
+            _logger.ZLogInformation($"[{userId}] Request /Inventory/Item");
+
+            if (userId == -1)
             {
                 return new PlayerItemDetailGetResponse
                 {
@@ -41,7 +45,7 @@ namespace RpgCollector.Controllers.PlayerDataController
             }
 
             /* 권한 검사 */
-            if(!await _playerAccessDB.IsItemOwner(playerItemDetailGetRequest.PlayerItemId, userID))
+            if(!await _playerAccessDB.IsItemOwner(playerItemDetailGetRequest.PlayerItemId, userId))
             {
                 return new PlayerItemDetailGetResponse
                 {

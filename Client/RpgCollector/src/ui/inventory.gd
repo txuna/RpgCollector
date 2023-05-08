@@ -72,7 +72,10 @@ func load_inventory(items):
 func _on_open_detail(event: InputEvent, player_item_id):
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and not event.pressed:		
+			if get_node_or_null('detail') != null:
+				return
 			var detail_popup = load("res://src/ui/detail_popup.tscn").instantiate() 
+			detail_popup.name = 'detail'
 			add_child(detail_popup)
 			detail_popup._on_open_detail_popup(player_item_id)
 		# item use !

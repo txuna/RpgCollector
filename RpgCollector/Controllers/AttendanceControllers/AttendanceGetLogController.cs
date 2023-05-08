@@ -2,6 +2,7 @@
 using RpgCollector.Models.AttendanceData;
 using RpgCollector.RequestResponseModel.AttendanceGetLogModel;
 using RpgCollector.Services;
+using ZLogger;
 
 namespace RpgCollector.Controllers.AttendanceControllers
 {
@@ -23,6 +24,17 @@ namespace RpgCollector.Controllers.AttendanceControllers
         {
             string userName = HttpContext.Request.Headers["User-Name"];
             int userId = await _accountMemoryDB.GetUserId(userName);
+
+            _logger.ZLogInformation($"[{userId}] Request /Inventory");
+
+            if (userId == -1)
+            {
+                return new AttendanceGetLogResponse
+                {
+                    Error = RequestResponseModel.ErrorState.NoneExistName
+                };
+            }
+
             PlayerAttendanceLog? playerAttendanceLog = await _attendanceDB.GetLastSequenceDayCount(userId);
             int count;
 
