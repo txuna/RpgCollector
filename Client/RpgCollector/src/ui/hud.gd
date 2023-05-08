@@ -42,7 +42,6 @@ func _on_player_state_response(result, response_code, headers, body):
 
 
 func update_hud(player_state, master_state):
-	print(player_state, master_state)
 	hp_label.text = "HP: [ {c} / {m} ]".format({
 		"c" : str(player_state.hp),
 		"m" : str(master_state.hp)
