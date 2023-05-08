@@ -9,5 +9,6 @@
         public int IncreasementValue { get; set; }
         public int ItemId { get; set; }
         public int PlayerItemId { get; set; }
+        public int Price { get; set; }
     }
 }

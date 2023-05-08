@@ -15,7 +15,7 @@ script = ExtResource("1_ax5qy")
 offset_left = 183.0
 offset_top = 48.0
 offset_right = 831.0
-offset_bottom = 701.0
+offset_bottom = 754.0
 texture = ExtResource("1_ggkiw")
 
 [node name="Label" type="Label" parent="TextureRect"]
@@ -43,9 +43,9 @@ texture_hover = ExtResource("3_vh1rm")
 [node name="TextureRect" type="TextureRect" parent="TextureRect"]
 layout_mode = 0
 offset_left = 230.0
-offset_top = 141.0
+offset_top = 148.0
 offset_right = 431.0
-offset_bottom = 334.0
+offset_bottom = 341.0
 texture = ExtResource("5_3ang5")
 
 [node name="TextureRect" type="TextureRect" parent="TextureRect/TextureRect"]
@@ -60,9 +60,9 @@ texture = ExtResource("6_4ur08")
 [node name="Label2" type="Label" parent="TextureRect"]
 layout_mode = 0
 offset_left = 253.0
-offset_top = 345.0
+offset_top = 352.0
 offset_right = 412.0
-offset_bottom = 383.0
+offset_bottom = 390.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "현재 등급 : 2성"
@@ -70,9 +70,9 @@ text = "현재 등급 : 2성"
 [node name="Label3" type="Label" parent="TextureRect"]
 layout_mode = 0
 offset_left = 253.0
-offset_top = 385.0
+offset_top = 392.0
 offset_right = 412.0
-offset_bottom = 423.0
+offset_bottom = 430.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "다음 등급 : 3성"
@@ -80,9 +80,9 @@ text = "다음 등급 : 3성"
 [node name="Label4" type="Label" parent="TextureRect"]
 layout_mode = 0
 offset_left = 253.0
-offset_top = 425.0
+offset_top = 432.0
 offset_right = 412.0
-offset_bottom = 463.0
+offset_bottom = 470.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "성공률 : 30%"
@@ -90,9 +90,9 @@ text = "성공률 : 30%"
 [node name="Label5" type="Label" parent="TextureRect"]
 layout_mode = 0
 offset_left = 253.0
-offset_top = 461.0
+offset_top = 468.0
 offset_right = 447.0
-offset_bottom = 499.0
+offset_bottom = 506.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "스탯 증가율 : 10%"
@@ -100,11 +100,21 @@ text = "스탯 증가율 : 10%"
 [node name="Button" type="Button" parent="TextureRect"]
 layout_mode = 0
 offset_left = 95.0
-offset_top = 517.0
+offset_top = 558.0
 offset_right = 556.0
-offset_bottom = 573.0
+offset_bottom = 614.0
 theme_override_font_sizes/font_size = 24
 text = "강화하기"
+
+[node name="Label6" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 251.0
+offset_top = 505.0
+offset_right = 442.0
+offset_bottom = 543.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "강화 비용 : $1000"
 
 [node name="TextureRect2" type="TextureRect" parent="."]
 offset_left = 754.0

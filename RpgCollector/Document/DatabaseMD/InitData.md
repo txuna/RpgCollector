@@ -6,6 +6,9 @@ CREATE TABLE `init_player_state` (
   `exp` int NOT NULL,
   `money` int NOT NULL,
   `level` int NOT NULL,
+  `attack` int NOT NULL,
+  `defence` int NOT NULL,
+  `magic` int NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 ```

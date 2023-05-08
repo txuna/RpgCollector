@@ -86,6 +86,7 @@ namespace RpgCollector.Controllers.EnchantControllers
                 IncreasementValue = masterEnchantInfo.IncreasementValue,
                 ItemId = playerItem.ItemId,
                 PlayerItemId = playerItem.PlayerItemId,
+                Price = masterEnchantInfo.Price,
             };
         }
 

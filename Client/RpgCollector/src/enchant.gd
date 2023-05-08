@@ -6,6 +6,7 @@ extends CanvasLayer
 @onready var next_enchant_label = $TextureRect/Label3
 @onready var percent_label = $TextureRect/Label4
 @onready var increase_label = $TextureRect/Label5
+@onready var price_label = $TextureRect/Label6
 
 @onready var enchant_btn = $TextureRect/Button
 
@@ -111,7 +112,7 @@ func _on_get_enchant_info_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
-		load_enchant_info(json.currentEnchantCount, json.nextEnchantCount, json.percent, json.increasementValue, json.itemId, json.playerItemId)
+		load_enchant_info(json.currentEnchantCount, json.nextEnchantCount, json.percent, json.increasementValue, json.itemId, json.playerItemId, json.price)
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
@@ -119,7 +120,7 @@ func _on_get_enchant_info_response(result, response_code, headers, body):
 
 
 
-func load_enchant_info(current_enchant_count, next_enchant_count, percent, increasement_value, item_id, player_item_id):
+func load_enchant_info(current_enchant_count, next_enchant_count, percent, increasement_value, item_id, player_item_id, price):
 	current_enchant_label.text = "현재 등급 : {c}".format({
 		"c" : str(current_enchant_count)
 	})
@@ -132,6 +133,9 @@ func load_enchant_info(current_enchant_count, next_enchant_count, percent, incre
 	increase_label.text = "스탯 증가량 : {i}%".format({
 		"i" : str(increasement_value)
 	})
+	price_label.text = "강화 비용 : ${p}".format({
+		"p" : str(price)
+	})
 	enchant_texture.texture = MasterData.item_texture[str(item_id)]
 	enchant_btn.disabled = false
 	enchant_item_id = player_item_id
@@ -143,6 +147,7 @@ func init_info():
 	next_enchant_label.text = "다음 등급 : "
 	percent_label.text = "성공 확률 : "
 	increase_label.text = "스탯 증가량 : "
+	price_label.text = "강화 비용 : "
 	enchant_texture.texture = null
 	enchant_item_id = 0
 	enchant_btn.disabled = true

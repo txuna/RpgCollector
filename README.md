@@ -407,6 +407,7 @@ public class AttendanceResponse
 
 1. 요청받은 playerItemId가 userId의 소유권인지 존재하는지 확인한다. 
 2. 요청받은 playerItemId를 기반으로 플레이어의 아이템을 디비에서 가지고온다. 
+2. 해당 강화 비용을 확인하여 플레이어가 소지하고 있는 돈과 비교한다. 
 3. 해당 플레이어 아이템의 ItemId를 기반으로 Master Item을 가지와 해당 아이템의 타입이 강화를 진행할 수 있는 타입인지 확인한다. 
 4. 플레이어의 아이템에 포함된 현재 강화 단계와 Master Item의 최대 강화횟수와 비교하여 미만이라면 강화를 진행한다. 
 5. 위의 모든 조건이 만족되면 강화를 진행한다. 강화시 강화정보 마스터 데이터를 참조하여 현재 강화단계별 퍼센트를 확인한다. 
@@ -424,7 +425,7 @@ master_item_attribute - GET
 master_enchant_info - GET
 player_items - GET / UPDATE / DELETE
 player_enchant_log - INSERT
-
+players - GET / UPDATE
 ```
 
 **Path** 
@@ -717,6 +718,7 @@ public class EnchantInfoGetResponse
     public int IncreasementValue { get; set; }
     public int ItemId { get; set; }
     public int PlayerItemId { get; set; }
+    public int Price { get; set; }
 }
 ```
 

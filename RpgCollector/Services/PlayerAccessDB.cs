@@ -28,6 +28,7 @@ public interface IPlayerAccessDB
     Task<bool> SetInitPlayerState(int userId);
     Task<bool> SetInitPlayerItems(int userId);
     Task<bool> RemovePlayerItem(int playerItemId);
+    Task<int> GetPlayerMoney(int userId);
     // 착용한 아이템일 기반으로 플레이어의 공격력, 방어력, 마법력을 가지고옴 - 강화 수치 고려
     //void GetPlayerState();
     Task<PlayerItem[]?> GetPlayerAllItems(int userId);
@@ -62,6 +63,20 @@ public class PlayerAccessDB : IPlayerAccessDB
         {
             _logger.ZLogError(ex.Message);
             return null;
+        }
+    }
+
+    public async Task<int> GetPlayerMoney(int userId)
+    {
+        try
+        {
+            PlayerState playerState = await queryFactory.Query("players").Where("userId", userId).FirstAsync<PlayerState>();    
+            return playerState.Money;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return 0;
         }
     }
     public async Task<bool> RemovePlayerItem(int playerItemId)

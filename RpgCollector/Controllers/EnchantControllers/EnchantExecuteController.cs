@@ -91,7 +91,7 @@ public class EnchantExecuteController : Controller
 
         /* 아이템 강화 진행 */
         (Error, result) = await ExecuteEnchant(playerItem, userId);
-
+        
         return new EnchantExecuteResponse
         {
             Error = Error,
@@ -102,6 +102,7 @@ public class EnchantExecuteController : Controller
     async Task<ErrorState> Verify(PlayerItem playerItem, MasterItem masterItem, int userId)
     {
         ErrorState Error;
+
         Error = await VerifyItemPermission(playerItem.PlayerItemId, userId);
         if(Error != ErrorState.None)
         {
@@ -118,6 +119,25 @@ public class EnchantExecuteController : Controller
         if (Error != ErrorState.None)
         {
             return Error;
+        }
+
+        Error = await VerifyMoney(userId, playerItem.EnchantCount + 1);
+        if (Error != ErrorState.None)
+        {
+            return Error;
+        }
+
+        return ErrorState.None;
+    }
+
+    async Task<ErrorState> VerifyMoney(int userId, int nextEnchantCount)
+    {
+        MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(nextEnchantCount);
+        int playerMoney = await _playerAccessDB.GetPlayerMoney(userId);
+
+        if (playerMoney < masterEnchantInfo.Price)
+        {
+            return ErrorState.NotEnoughMoney;
         }
 
         return ErrorState.None;
@@ -200,6 +220,10 @@ public class EnchantExecuteController : Controller
                 return (ErrorState.NoneExistItem, -1);
             }
         }
+
+        MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount + 1);
+
+        await _playerAccessDB.AddMoneyToPlayer(userId, -masterEnchantInfo.Price);
 
         return await LogEnchant(playerItem, userId, result);
     }

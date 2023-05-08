@@ -9,8 +9,9 @@ CREATE TABLE `master_package_info` (
 
 ### Master Package Price 
 ```
-CREATE TABLE `master_package_price` (
+CREATE TABLE `master_package_payment` (
   `packageId` int NOT NULL,
+  `packageName` varchar(45) NOT NULL,
   `price` int NOT NULL,
   PRIMARY KEY (`packageId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
@@ -22,6 +23,7 @@ CREATE TABLE `player_payment_info` (
   `receiptId` int NOT NULL,
   `userId` int NOT NULL,
   `packageId` varchar(45) NOT NULL,
+  `buyDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`receiptId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 ```
