@@ -43,6 +43,7 @@ namespace RpgCollector.Controllers.PlayerDataController
             }
 
             PlayerState? playerState = await _playerAccessDB.GetPlayerFromUserId(userId);
+
             if(playerState == null)
             {
                 return new PlayerStateGetResponse

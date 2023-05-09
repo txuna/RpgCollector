@@ -72,6 +72,7 @@ public class PackageBuyController : Controller
         if(Error != ErrorState.None)
         {
             _logger.ZLogInformation($"[{userId} {userName}] Cannot buy This PackageId : {packageBuyRequest.PackageId}");
+
             return new PackageBuyResponse
             {
                 Error = Error
