@@ -4,34 +4,33 @@ using RpgCollector.RequestResponseModel.PackageShowModel;
 using RpgCollector.Services;
 using ZLogger;
 
-namespace RpgCollector.Controllers.PackageControllers
+namespace RpgCollector.Controllers.PackageControllers;
+
+[ApiController]
+public class PackageShowController : Controller
 {
-    [ApiController]
-    public class PackageShowController : Controller
+    IMasterDataDB _masterDataDB;
+    ILogger<PackageShowController> _logger; 
+    public PackageShowController(ILogger<PackageShowController> logger, IMasterDataDB masterDataDB)
     {
-        IMasterDataDB _masterDataDB;
-        ILogger<PackageShowController> _logger; 
-        public PackageShowController(ILogger<PackageShowController> logger, IMasterDataDB masterDataDB)
+        _logger = logger;
+        _masterDataDB = masterDataDB;
+    }
+
+    [Route("/Package/Show")]
+    [HttpPost]
+    public async Task<PackageShowResponse> Index(PackageShowRequest packageShowRequest)
+    {
+        int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
+
+        _logger.ZLogInformation($"[{userId}] Request /Package/Show ");
+
+        MasterPackagePayment[] masterPackagePayments = _masterDataDB.GetPackagePayment();
+
+        return new PackageShowResponse
         {
-            _logger = logger;
-            _masterDataDB = masterDataDB;
-        }
-
-        [Route("/Package/Show")]
-        [HttpPost]
-        public async Task<PackageShowResponse> Index(PackageShowRequest packageShowRequest)
-        {
-            int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
-
-            _logger.ZLogInformation($"[{userId}] Request /Package/Show ");
-
-            MasterPackagePayment[] masterPackagePayments = _masterDataDB.GetPackagePayment();
-
-            return new PackageShowResponse
-            {
-                Error = RequestResponseModel.ErrorState.None,
-                PackagePayment = masterPackagePayments,
-            };
-        }
+            Error = RequestResponseModel.ErrorState.None,
+            PackagePayment = masterPackagePayments,
+        };
     }
 }

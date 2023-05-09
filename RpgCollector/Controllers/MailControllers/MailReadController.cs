@@ -74,7 +74,11 @@ public class MailReadController : Controller
         return new MailReadResponse
         {
             Error = ErrorState.None,
-            Mail = mail,
+            MailId = mail.MailId, 
+            Title = mail.Title, 
+            Content = mail.Content,
+            SendDate = mail.SendDate,
+            HasItem = mail.HasItem,
             MailItem = mailItem
         };
     }

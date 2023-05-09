@@ -43,15 +43,14 @@ public class AttendaceRewardController : Controller
         string toDay = DateTime.Now.ToString("yyyy-MM-dd");
         string yesterDay = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
 
-        ErrorState Error;
+        _logger.ZLogInformation($"[{userId}] Request /Attendance");
 
-        _logger.ZLogInformation($"[{userId}] Request 'Attendance'");
-
-        Error = await IsTodayAttendance(userId, toDay);
+        ErrorState Error = await IsTodayAttendance(userId, toDay);
 
         if(Error != ErrorState.None)
         {
             _logger.ZLogInformation($"[{userId}] Today Already Attandace UserID");
+
             return new AttendanceResponse
             {
                 Error = Error
@@ -63,6 +62,7 @@ public class AttendaceRewardController : Controller
         if(Error != ErrorState.None)
         {
             _logger.ZLogError($"[{userId}] Failed Attandace");
+
             return new AttendanceResponse
             {
                 Error = Error
@@ -86,7 +86,6 @@ public class AttendaceRewardController : Controller
         return ErrorState.None;
     }
 
-    // 해당 유저의 가장 최근의 출석로그를 기반으로 판단 
     async Task<int> GetLastSequenceDayCount(int userId, string yesterDay)
     {
         if(!await IsYesterdayAttendance(userId, yesterDay))

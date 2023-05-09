@@ -25,12 +25,12 @@ func _process(delta):
 
 
 func setup(json:Dictionary):
-	title.text = json.mail.title 
-	content.text = json.mail.content 
-	date.text = json.mail.sendDate
-	mail_id = json.mail.mailId
+	title.text = json.title 
+	content.text = json.content 
+	date.text = json.sendDate
+	mail_id = json.mailId
 	
-	if json.mail.hasItem == 0 or json.mailItem == null:
+	if json.hasItem == 0 or json.mailItem == null:
 		get_item_btn.disabled = true
 		item_label.text = "아이템 포함되지 않은 메일입니다."
 		
@@ -71,7 +71,6 @@ func _on_item_info_response(result, response_code, headers, body):
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)
 	
-
 
 func _on_exit_mail_btn_pressed():
 	queue_free()
