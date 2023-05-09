@@ -30,6 +30,7 @@ public interface IPlayerAccessDB
     Task<bool> RemovePlayerItem(int playerItemId);
     Task<int> GetPlayerMoney(int userId);
     Task<PlayerItem[]?> GetPlayerAllItems(int userId);
+    Task<bool> UndoCreatePlayer(int userId);
 }
 
 public class PlayerAccessDB : IPlayerAccessDB
@@ -47,6 +48,20 @@ public class PlayerAccessDB : IPlayerAccessDB
         _logger = logger;
         _masterDataDB = masterDataDB;
         Open();
+    }
+
+    public async Task<bool> UndoCreatePlayer(int userId)
+    {
+        try
+        {
+            await queryFactory.Query("players").Where("userId", userId).DeleteAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
     }
 
     public async Task<PlayerItem[]?> GetPlayerAllItems(int userId)

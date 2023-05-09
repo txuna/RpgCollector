@@ -53,7 +53,6 @@ public class PackageBuyController : Controller
             };
         }
 
-        /* 영수증 정보 및 패키지ID 유효성 검사 */
         ErrorState Error = await Verify(packageBuyRequest); 
 
         if(Error != ErrorState.None)
@@ -66,7 +65,6 @@ public class PackageBuyController : Controller
             };
         }
 
-        /* 해당 영수증 정보 디비에 저장 */
         (Error, userId) = await Buy(packageBuyRequest, userId);
 
         if(Error != ErrorState.None)
@@ -78,13 +76,19 @@ public class PackageBuyController : Controller
                 Error = Error
             };
         }
-        
-        /* 플레이어에게 해당 패키지ID에 해당하는 상품 우편함으로 전송 */
+
         Error = await SendPackageToMail(packageBuyRequest, userId);
 
         if(Error != ErrorState.None)
         {
             _logger.ZLogInformation($"[{userId} {userName}] Failed Send Mail This PackageId : {packageBuyRequest.PackageId} To Player");
+
+            Error = await UndoBuy(packageBuyRequest); 
+            
+            if(Error != ErrorState.None)
+            {
+                _logger.ZLogInformation($"[{userId} {userName}] Failed Undo Player Payment ReceiptId : {packageBuyRequest.ReceiptId}");
+            }
         }
 
         _logger.ZLogInformation($"[{userId} {userName}] Success Send mail This PackageId : {packageBuyRequest.PackageId}");
@@ -140,6 +144,16 @@ public class PackageBuyController : Controller
             {
                 return ErrorState.FailedSendMail;
             }
+        }
+
+        return ErrorState.None;
+    }
+
+    async Task<ErrorState> UndoBuy(PackageBuyRequest packageBuyRequest)
+    {
+        if(!await _packagePaymentDB.UndoBuyPackage(packageBuyRequest.ReceiptId))
+        {
+            return ErrorState.FailedUndoPaymentLog;
         }
 
         return ErrorState.None;

@@ -13,6 +13,7 @@ public interface IPackagePaymentDB
 {
     Task<bool> VerifyReceipt(int receiptId);
     Task<bool> BuyPackage(int receiptId, int packageId, int userId);
+    Task<bool> UndoBuyPackage(int receiptId);
 }
 
 public class PackagePaymentDB : IPackagePaymentDB
@@ -28,6 +29,20 @@ public class PackagePaymentDB : IPackagePaymentDB
         _dbConfig = dbConfig;
         _logger = logger;
         Open();
+    }
+
+    public async Task<bool> UndoBuyPackage(int receiptId)
+    {
+        try
+        {
+            await queryFactory.Query("player_payment_log").Where("receiptId", receiptId).DeleteAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
     }
 
     public async Task<bool> BuyPackage(int receiptId, int packageId, int userId)

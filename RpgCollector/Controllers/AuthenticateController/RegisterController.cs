@@ -43,7 +43,6 @@ public class RegisterController : Controller
         if (!await CreatePlayer(userId))
         {
             _logger.ZLogError($"[{userId} {registerRequest.UserName}]Can not Create Player");
-            _logger.ZLogInformation($"[{userId} {registerRequest.UserName}] Trying... Undo Register Account");
 
             if (!await _accountDB.UndoRegisterUser(registerRequest.UserName))
             {
@@ -54,6 +53,17 @@ public class RegisterController : Controller
                     Error = ErrorState.FailedUndoRegisterUser 
                 };
             }
+
+            if(!await _playerAccessDB.UndoCreatePlayer(userId))
+            {
+                _logger.ZLogError($"[{userId} {registerRequest.UserName}] Can not undo create player");
+
+                return new RegisterResponse
+                {
+                    Error = ErrorState.FailedUndoRegisterUser
+                };
+            }
+
             _logger.ZLogError($"[{userId} {registerRequest.UserName}] Success Undo(remove) Player in Account DB");
 
             return new RegisterResponse

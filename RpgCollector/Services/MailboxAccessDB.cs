@@ -45,7 +45,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         deadLine = DateTime.Now.AddDays(-30);
         Open();
     }
-    
+
     /* 유효기간 확인 */
     public async Task<Mailbox[]?> GetPartialMails(int receiverId, bool isFirst, int pageNumber)
     {
@@ -55,7 +55,6 @@ public class MailboxAccessDB : IMailboxAccessDB
             {
                 IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
                                                                .Where("receiverId", receiverId)
-                                                               //.WhereNot("isRead", 1)
                                                                .WhereNot("isDeleted", 1)
                                                                .Where("sendDate", ">=", deadLine)
                                                                .Take(20).GetAsync<Mailbox>();
@@ -278,7 +277,6 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
     }
 
-    // 메일 아이템은 수령했지만 사용자 아이템에 정상적으로 들어가지 못한다면 해당 메일 읽기를 롤백한다. 
     public async Task<bool> UndoMailItem(int mailId)
     {
         try
