@@ -53,6 +53,7 @@ public class AccountDB : IAccountDB
     public async Task<User?> GetUser(string userName)
     {
         User user;
+
         try
         {
             user = await queryFactory.Query("users").Where("userName", userName).FirstAsync<User>();
@@ -64,8 +65,6 @@ public class AccountDB : IAccountDB
         }
         return user;
     }
-
-    
 
     public async Task<bool> UndoRegisterUser(string userName)
     {

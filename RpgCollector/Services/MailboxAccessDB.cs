@@ -18,15 +18,15 @@ public interface IMailboxAccessDB
     Task<bool> ReadMail(int mailId);
     Task<MailItem?> ReceiveMailItem(int mailId);
     Task<bool> HasMailItem(int mailId);
-    Task<bool> SendMail(int senderId, int receiverId, string title, string content); //일반 메일
-    Task<bool> SendMail(int senderId, int receiverId, string title, string content, int itemId, int quantity); //아이템 동봉 메일
-    // player의 아이템 받기가실패할시 mail undo 처리 
+    Task<bool> SendMail(int senderId, int receiverId, string title, string content); 
+    Task<bool> SendMail(int senderId, int receiverId, string title, string content, int itemId, int quantity); 
     Task<bool> UndoMailItem(int mailId);
     Task<bool> IsMailOwner(int mailId, int userId);
     Task<Mailbox[]?> GetPartialMails(int userId, bool isFirst, int pageNumber);
     Task<bool> IsDeletedMail(int mailId);
     Task<bool> DeleteMail(int mailId);
     Task<bool> IsDeadLine(int mailId);
+    Task<bool> setReceiveFlagInMailItem(int mailId);
 }
 
 public class MailboxAccessDB : IMailboxAccessDB
@@ -66,17 +66,18 @@ public class MailboxAccessDB : IMailboxAccessDB
                 {
                     return null;
                 }
+
                 int mailCount = await queryFactory.Query("mailbox")
                                                   .Where("receiverId", receiverId)
                                                   .WhereNot("isDeleted", 1)
                                                   .Where("sendDate", ">=", deadLine)
                                                   .CountAsync<int>();
-                Console.WriteLine(mailCount);
+
                 if ((pageNumber - 1) * 20 > mailCount)
                 {
-                    Console.WriteLine(mailCount);
                     return null;
                 }
+
                 int start = (pageNumber - 1) * 20;
                 int end = start + 20;
 
@@ -101,7 +102,12 @@ public class MailboxAccessDB : IMailboxAccessDB
     {
         try
         {
-            int count = await queryFactory.Query("mailbox").Where("receiverId", receiverId).Where("sendDate", ">=", deadLine).Where("isDeleted", 0).CountAsync<int>();
+            int count = await queryFactory.Query("mailbox")
+                                          .Where("receiverId", receiverId)
+                                          .Where("sendDate", ">=", deadLine)
+                                          .Where("isDeleted", 0)
+                                          .CountAsync<int>();
+
             return count;
         }
         catch (Exception ex)
@@ -168,11 +174,17 @@ public class MailboxAccessDB : IMailboxAccessDB
     {
         try
         {
-            int count = await queryFactory.Query("mailbox").Where("mailId", mailId).Where("receiverId", userId).WhereNot("isDeleted", 1).CountAsync<int>();
+            int count = await queryFactory.Query("mailbox")
+                                          .Where("mailId", mailId)
+                                          .Where("receiverId", userId)
+                                          .WhereNot("isDeleted", 1)
+                                          .CountAsync<int>();
+
             if(count > 0)
             {
                 return true;
             }
+
             return false;
         }
         catch (Exception ex)
@@ -274,14 +286,11 @@ public class MailboxAccessDB : IMailboxAccessDB
     {
         try
         {
-            int effectedRow = await queryFactory.Query("mail_Item").Where("mailId", mailId).Where("hasReceived", 1).UpdateAsync(new
+            await queryFactory.Query("mail_Item").Where("mailId", mailId).Where("hasReceived", 1).UpdateAsync(new
             {
                 hasReceived = 0
             });
-            if(effectedRow < 1)
-            {
-                return false;
-            }
+
             return true;
         }
         catch (Exception ex)
@@ -305,21 +314,31 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
     }
 
+    public async Task<bool> setReceiveFlagInMailItem(int mailId)
+    {
+        try
+        {
+            await queryFactory.Query("mail_Item")
+                              .Where("mailId", mailId)
+                              .Where("hasReceived", 0)
+                              .UpdateAsync(new {
+                                  hasReceived = 1,
+                                });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
+    }
+
     public async Task<MailItem?> ReceiveMailItem(int mailId)
     {
         try
         {
             MailItem? mailItem = await queryFactory.Query("mail_item").Where("mailId", mailId).FirstAsync<MailItem>();
-            int effectedRow = await queryFactory.Query("mail_Item")
-                                                .Where("mailId", mailId)
-                                                .Where("hasReceived", 0)
-                                                .UpdateAsync(new {
-                hasReceived = 1,
-            });
-            if(effectedRow < 1)
-            {
-                return null;
-            }
+
             return mailItem;
         }
         catch ( Exception ex)

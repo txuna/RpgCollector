@@ -21,7 +21,6 @@ namespace RpgCollector.Controllers.MasterDataControllers
         [HttpPost]
         public async Task<MasterAttendanceInfoResponse> GetAttendanceInfo(MasterAttendanceInfoRequest masterAttendanceInfoRequest)
         {
-            string userName = HttpContext.Request.Headers["User-Name"];
             int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
             _logger.ZLogInformation($"[{userId}] Request /Master/Attendance");

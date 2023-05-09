@@ -10,7 +10,6 @@ namespace RpgCollector.Services;
 
 public interface IAccountMemoryDB
 {
-    Task<bool> StoreUser(User user, string authToken);
     Task<bool> RemoveUser(string userName);
     Task<bool> StoreRedisUser(User user, string authToken);
     Task<int> GetUserId(string userName);
@@ -40,8 +39,10 @@ public class AccountMemoryDB : IAccountMemoryDB
                 UserId = user.UserId,
                 AuthToken = authToken
             };
+
             TimeSpan expiration = TimeSpan.FromMinutes(60);
             await redisDB.StringSetAsync(user.UserName, JsonSerializer.Serialize(redisUser), expiration);
+
             return true;
         }
         catch (Exception ex)
@@ -57,6 +58,7 @@ public class AccountMemoryDB : IAccountMemoryDB
         {
             string stringUser = await redisDB.StringGetAsync(userName);
             RedisUser redisUser = JsonSerializer.Deserialize<RedisUser>(stringUser);
+
             return redisUser.UserId;
         }
         catch (Exception ex)
@@ -64,21 +66,6 @@ public class AccountMemoryDB : IAccountMemoryDB
             _logger.ZLogError(ex.Message);
             return -1;
         }
-    }
-
-    public async Task<bool> StoreUser(User user, string authToken)
-    {
-        try
-        {
-            TimeSpan expiration = TimeSpan.FromMinutes(60);
-            await redisDB.StringSetAsync(user.UserName, authToken, expiration);
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return false;
-        }
-        return true;
     }
 
     public async Task<bool> RemoveUser(string userName)

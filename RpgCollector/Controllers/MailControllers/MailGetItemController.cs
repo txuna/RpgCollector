@@ -35,7 +35,6 @@ public class MailGetItemController : Controller
     [HttpPost]
     public async Task<MailGetItemResponse> GetItem(MailGetItemRequest mailGetItemRequest)
     {
-        var userName = HttpContext.Request.Headers["User-Name"];
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorState Error;
 
@@ -101,6 +100,11 @@ public class MailGetItemController : Controller
         if (mailItem == null)
         {
             return ErrorState.AlreadyReceivedItemFromMail;
+        }
+
+        if(!await _mailboxAccessDB.setReceiveFlagInMailItem(mailId))
+        {
+            return ErrorState.CannotSetReceivedFlagInMail;
         }
 
         if (!await _playerAccessDB.AddItemToPlayer(userId, mailItem.ItemId, mailItem.Quantity))

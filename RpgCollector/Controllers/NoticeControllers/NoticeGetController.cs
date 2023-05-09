@@ -29,7 +29,6 @@ public class NoticeGetController : Controller
     public async Task<NoticeGetResponse> Notice()
     {
         Notice[]? result = await _memoryDB.GetAllNotice();
-        string userName = HttpContext.Request.Headers["User-Name"];
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
         _logger.ZLogInformation($"[{userId}] Request 'Get Notice'");

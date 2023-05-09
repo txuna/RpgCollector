@@ -21,7 +21,6 @@ namespace RpgCollector.Controllers.PackageControllers
         [HttpPost]
         public async Task<PackageShowResponse> Index(PackageShowRequest packageShowRequest)
         {
-            string userName = HttpContext.Request.Headers["User-Name"];
             int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
             _logger.ZLogInformation($"[{userId}] Request /Package/Show ");

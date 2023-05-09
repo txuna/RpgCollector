@@ -35,6 +35,7 @@
         DeletedMail = 210,
         FailedDeleteMail = 211,
         AlreadyMailDeadlineExpireDate = 212,
+        CannotSetReceivedFlagInMail = 213,
 
         /* NOtice 301 ~ 400 */
 
