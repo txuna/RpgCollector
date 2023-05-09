@@ -2,24 +2,40 @@
 using RpgCollector.Models.MasterModel;
 using RpgCollector.RequestResponseModel.MasterItemGetInfoModel;
 using RpgCollector.Services;
+using ZLogger;
 
 namespace RpgCollector.Controllers.MasterDataControllers
 {
     [ApiController]
     public class MasterItemInfoGetController : Controller
     {
-        IMasterDataDB _masterDataDB { get; set; }
+        IMasterDataDB _masterDataDB;
         ILogger<MasterItemInfoGetController> _logger;
-        public MasterItemInfoGetController(IMasterDataDB masterDataDB, ILogger<MasterItemInfoGetController> logger)
+        IAccountMemoryDB _accountMemoryDB;
+        public MasterItemInfoGetController(IMasterDataDB masterDataDB, ILogger<MasterItemInfoGetController> logger, IAccountMemoryDB accountMemoryDB)
         {
             _masterDataDB = masterDataDB;
             _logger = logger;
+            _accountMemoryDB = accountMemoryDB;
         }
 
         [Route("/Master/Item")]
         [HttpPost]
-        public MasterItemGetInfoResponse GetItemInfo(MasterItemGetInfoRequest masterItemGetInfoRequest)
+        public async Task<MasterItemGetInfoResponse> GetItemInfo(MasterItemGetInfoRequest masterItemGetInfoRequest)
         {
+            string userName = HttpContext.Request.Headers["User-Name"];
+            int userId = await _accountMemoryDB.GetUserId(userName);
+
+            _logger.ZLogInformation($"[{userId}] Request /Master/Item");
+
+            if(userId == -1)
+            {
+                return new MasterItemGetInfoResponse
+                {
+                    Error = RequestResponseModel.ErrorState.NoneExistName
+                };
+            }
+
             MasterItem? masterItem = _masterDataDB.GetMasterItem(masterItemGetInfoRequest.ItemId);
 
             if (masterItem == null)

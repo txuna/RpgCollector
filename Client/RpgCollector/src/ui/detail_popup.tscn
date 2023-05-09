@@ -56,9 +56,9 @@ texture = ExtResource("6_m8lxo")
 [node name="AttackLabel" type="Label" parent="TextureRect"]
 layout_mode = 0
 offset_left = 98.0
-offset_top = 284.0
+offset_top = 326.0
 offset_right = 429.0
-offset_bottom = 315.0
+offset_bottom = 364.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "공격력 : 14 (+5)"
@@ -66,9 +66,9 @@ text = "공격력 : 14 (+5)"
 [node name="MagicLabel" type="Label" parent="TextureRect"]
 layout_mode = 0
 offset_left = 98.0
-offset_top = 334.0
+offset_top = 376.0
 offset_right = 429.0
-offset_bottom = 372.0
+offset_bottom = 414.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "공격력 : 14 + (5)"
@@ -76,11 +76,23 @@ text = "공격력 : 14 + (5)"
 [node name="DefenceLabel" type="Label" parent="TextureRect"]
 layout_mode = 0
 offset_left = 98.0
-offset_top = 384.0
+offset_top = 426.0
 offset_right = 429.0
-offset_bottom = 422.0
+offset_bottom = 464.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "공격력 : 14 + (5)"
+
+[node name="Label2" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 191.0
+offset_top = 257.0
+offset_right = 333.0
+offset_bottom = 295.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "한손검 (장비)"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [connection signal="pressed" from="TextureRect/TextureButton" to="." method="_on_texture_button_pressed"]

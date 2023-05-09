@@ -10,5 +10,7 @@ namespace RpgCollector.RequestResponseModel.PlayerItemDetailGetModel
         public MasterItem ItemPrototype { get; set; }
         public AdditionalState PlusState { get; set; }
         public int EnchantCount { get; set; }
+        public string AttributeName { get; set; }
+        public string TypeName { get; set; }
     }
 }

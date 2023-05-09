@@ -82,49 +82,64 @@ namespace RpgCollector.Controllers.PlayerDataController
                 Defence = 0,
             };
 
-            /* 소비아이템의 경우 그대로 반환 */
+            /* 장비아이템이 아닐경우 */
             MasterItemAttribute masterItemAttribute = _masterDataDB.GetMasterItemAttribute(masterItem.AttributeId);
+            MasterItemType? masterItemType = _masterDataDB.GetMasterItemType(masterItemAttribute.TypeId);
 
-            if((TypeDefinition)masterItemAttribute.TypeId != TypeDefinition.EQUIPMENT)
+            if ((TypeDefinition)masterItemAttribute.TypeId != TypeDefinition.EQUIPMENT)
             {
                 return new PlayerItemDetailGetResponse
                 {
                     Error = RequestResponseModel.ErrorState.None,
                     ItemPrototype = masterItem,
                     PlusState = additionalState,
-                    EnchantCount = 0
+                    EnchantCount = 0,
+                    AttributeName = masterItemAttribute.AttributeName,
+                    TypeName = masterItemType.TypeName
                 };
-            }
-
-            /* 
-             * 플레이어 아이템의 강화 횟수만큼 - 능력치 뻥튀기 
-             * 방어구는 방어력, 무기는 마법력과 공력력 master_enchant_info table 참고 
-             * ex) 4성이라면 1성 테이블 참고, 2성 테이블 참고 ... 4성 테이블 참고 이런식으로 진행
-             */
-            
-
-            for(int i = 1; i <= playerItem.EnchantCount; i++)
-            {
-                MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(i);
-                // 공격력
-                if(masterItem.AttributeId == 1)
-                {
-                    additionalState.Attack += (int)Math.Ceiling((double)(additionalState.Attack + masterItem.Attack) * masterEnchantInfo.IncreasementValue / 100);
-                }
-                // 방어력 
-                else if(masterItem.AttributeId == 2 || masterItem.AttributeId == 3)
-                {
-                    additionalState.Defence += (int)Math.Ceiling((double)(additionalState.Defence + masterItem.Defence) * masterEnchantInfo.IncreasementValue / 100);
-                }
             }
 
             return new PlayerItemDetailGetResponse
             {
                 Error = RequestResponseModel.ErrorState.None,
                 ItemPrototype = masterItem, 
-                PlusState = additionalState, 
-                EnchantCount = playerItem.EnchantCount
+                PlusState = CalculateEnchantState(playerItem, masterItem), 
+                EnchantCount = playerItem.EnchantCount,
+                AttributeName = masterItemAttribute.AttributeName,
+                TypeName = masterItemType.TypeName
             };
+        }
+
+        /* 
+            * 플레이어 아이템의 강화 횟수만큼 - 능력치 뻥튀기 
+            * 방어구는 방어력, 무기는 마법력과 공력력 master_enchant_info table 참고 
+            * ex) 4성이라면 1성 테이블 참고, 2성 테이블 참고 ... 4성 테이블 참고 이런식으로 진행
+        */
+        AdditionalState CalculateEnchantState(PlayerItem playerItem, MasterItem masterItem)
+        {
+            AdditionalState additionalState = new AdditionalState
+            {
+                Attack = 0,
+                Defence = 0,
+                Magic = 0,
+            };
+
+            for (int i = 1; i <= playerItem.EnchantCount; i++)
+            {
+                MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(i);
+                // 공격력
+                if (masterItem.AttributeId == 1)
+                {
+                    additionalState.Attack += (int)Math.Ceiling((double)(additionalState.Attack + masterItem.Attack) * masterEnchantInfo.IncreasementValue / 100);
+                }
+                // 방어력 
+                else if (masterItem.AttributeId == 2 || masterItem.AttributeId == 3)
+                {
+                    additionalState.Defence += (int)Math.Ceiling((double)(additionalState.Defence + masterItem.Defence) * masterEnchantInfo.IncreasementValue / 100);
+                }
+            }
+            
+            return additionalState;
         }
     }
 }

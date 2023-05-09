@@ -11,6 +11,7 @@
         FailedConnectDatabase = 6,
         NoneExistItem = 7,
         NonePermission = 8,
+        FailedUpdateMoney = 9,
 
         /* Account 101 ~ 200 */
         InvalidPassword = 101,
@@ -53,6 +54,7 @@
         FailedLogEnchant = 505,
         NoneExistItemType = 506,
         NotEnoughMoney = 507,
+        
 
 
         /* Attendance 601 ~ 700 */

@@ -58,6 +58,14 @@ public class EnchantExecuteController : Controller
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Enchant'");
 
+        if (userId == -1)
+        {
+            return new EnchantExecuteResponse
+            {
+                Error = ErrorState.NoneExistName
+            };
+        }
+
         /* 플레이어의 아이템 로드 */
         PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemId);
 

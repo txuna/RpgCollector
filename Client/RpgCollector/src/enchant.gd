@@ -10,7 +10,7 @@ extends CanvasLayer
 
 @onready var enchant_btn = $TextureRect/Button
 
-var enchant_item_id = 0
+var enchant_item_id = -1
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -141,7 +141,6 @@ func load_enchant_info(current_enchant_count, next_enchant_count, percent, incre
 	enchant_item_id = player_item_id
 	
 
-
 func init_info():
 	current_enchant_label.text = "현재 등급 : "
 	next_enchant_label.text = "다음 등급 : "
@@ -149,12 +148,16 @@ func init_info():
 	increase_label.text = "스탯 증가량 : "
 	price_label.text = "강화 비용 : "
 	enchant_texture.texture = null
-	enchant_item_id = 0
+	enchant_item_id = -1
 	enchant_btn.disabled = true
 
 	
 # 요청후 다시 인벤토리 로드
 func do_enchant_request():
+	if enchant_item_id == -1:
+		Global.open_alert("강화할 장비를 선택해주세요.")
+		return 
+		
 	var json = JSON.stringify({
 		'PlayerItemId' : enchant_item_id
 	})
@@ -184,13 +187,20 @@ func _on_do_enchant_response(result, response_code, headers, body):
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+func _on_texture_rect_gui_input(event):
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT and not event.pressed:		
+			if get_node_or_null('detail') != null:
+				return
+				
+			if enchant_item_id == -1:
+				Global.open_alert("강화할 장비를 선택해주세요.")
+				return 
+				
+			var detail_popup = load("res://src/ui/detail_popup.tscn").instantiate() 
+			add_child(detail_popup)
+			detail_popup.name = 'detail'
+			detail_popup._on_open_detail_popup(enchant_item_id)
+
+	return 	

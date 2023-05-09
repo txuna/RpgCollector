@@ -5,6 +5,7 @@ extends CanvasLayer
 @onready var magic_label = $TextureRect/MagicLabel
 @onready var defence_label = $TextureRect/DefenceLabel
 @onready var item_texture = $TextureRect/TextureRect/TextureRect2
+@onready var type_label = $TextureRect/Label2
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -37,14 +38,14 @@ func get_player_item_info_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
-		load_detail(json.itemPrototype, json.plusState, json.enchantCount)
+		load_detail(json.itemPrototype, json.plusState, json.enchantCount, json.attributeName, json.typeName)
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)
 
 
-func load_detail(item_prototype, plus_state, enchant_count):
+func load_detail(item_prototype, plus_state, enchant_count, attr_name, type_name):
 	item_name_label.text = "{item_name}(+{enchant_count})".format({
 		"item_name" : item_prototype.itemName, 
 		"enchant_count" : str(enchant_count)
@@ -62,6 +63,12 @@ func load_detail(item_prototype, plus_state, enchant_count):
 		"base" : str(item_prototype.defence),
 		"plus" : str(plus_state.defence)
 	})
+	type_label.text = "{attr}({type})".format({
+	"attr" : attr_name, 
+	"type" : type_name
+	})
+
 
 func _on_texture_button_pressed():
 	queue_free()
+
