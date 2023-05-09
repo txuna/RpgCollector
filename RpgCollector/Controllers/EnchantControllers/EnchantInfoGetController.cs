@@ -44,7 +44,6 @@ namespace RpgCollector.Controllers.EnchantControllers
                 };
             }
 
-            /* 플레이어의 아이템 로드 */
             PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(enchantInfoGetRequest.PlayerItemId);
 
             if (playerItem == null)
@@ -54,7 +53,7 @@ namespace RpgCollector.Controllers.EnchantControllers
                     Error = ErrorState.NoneExistItem
                 };
             }
-            /* ItemId를 기반으로 마스터 아이템 로드 */
+
             MasterItem? masterItem = _masterDataDB.GetMasterItem(playerItem.ItemId);
 
             if (masterItem == null)
@@ -75,7 +74,6 @@ namespace RpgCollector.Controllers.EnchantControllers
                 };
             }
 
-            /* player의 enchant count와 next enchant count 체킹 */
             MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount+1);
 
             return new EnchantInfoGetResponse

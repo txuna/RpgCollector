@@ -22,9 +22,7 @@ namespace RpgCollector.Controllers.PlayerDataController
             _accountMemoryDB = accountMemoryDB;
             _masterDataDB = masterDataDB;
         }
-        /**
-         * 요청 행위자(userId)와 요청 userId의 일치성 확인 필요
-         */
+
         [Route("/Player/State")]
         [HttpPost]
         public async Task<PlayerStateGetResponse> PlayerStateGet(PlayerStateGetRequest playerStateGetRequest)

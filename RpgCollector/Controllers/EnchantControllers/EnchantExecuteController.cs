@@ -66,7 +66,6 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        /* 플레이어의 아이템 로드 */
         PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemId);
 
         if (playerItem == null)
@@ -76,7 +75,7 @@ public class EnchantExecuteController : Controller
                 Error = ErrorState.NoneExistItem
             };
         }
-        /* ItemId를 기반으로 마스터 아이템 로드 */
+
         MasterItem? masterItem = _masterDataDB.GetMasterItem(playerItem.ItemId);
 
         if (masterItem == null)
@@ -87,7 +86,6 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        /* 강화 유효성 판단 */
         Error = await Verify(playerItem, masterItem, userId); 
 
         if(Error != ErrorState.None)
@@ -98,7 +96,6 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        /* 아이템 강화 진행 */
         (Error, result) = await ExecuteEnchant(playerItem, userId);
         
         return new EnchantExecuteResponse

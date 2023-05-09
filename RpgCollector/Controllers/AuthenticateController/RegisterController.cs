@@ -48,12 +48,14 @@ public class RegisterController : Controller
             if (!await _accountDB.UndoRegisterUser(registerRequest.UserName))
             {
                 _logger.ZLogError($"[{userId} {registerRequest.UserName}] Can not undo register account");
+
                 return new RegisterResponse 
                 { 
                     Error = ErrorState.FailedUndoRegisterUser 
                 };
             }
             _logger.ZLogError($"[{userId} {registerRequest.UserName}] Success Undo(remove) Player in Account DB");
+
             return new RegisterResponse
             {
                 Error = ErrorState.FailedCreatePlayer
@@ -68,7 +70,6 @@ public class RegisterController : Controller
         };
     }
 
-    // 플레이어는 만들어졌는데 초기 아이템 로드에서 문제가 생길경우 players도 같이 지우기
     async Task<bool> CreatePlayer(int userId)
     {
         if (!await _playerAccessDB.SetInitPlayerState(userId))

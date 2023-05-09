@@ -18,12 +18,14 @@ namespace RpgCollector.Controllers.AttendanceControllers
             _logger = logger;
             _accountMemoryDB = accountMemoryDB;
         }
+
         [Route("/Attendance/Log")]
         [HttpPost]
         public async Task<AttendanceGetLogResponse> GetAttendanceLog()
         {
             string userName = HttpContext.Request.Headers["User-Name"];
             int userId = await _accountMemoryDB.GetUserId(userName);
+            int count;
 
             _logger.ZLogInformation($"[{userId}] Request /Inventory");
 
@@ -36,8 +38,6 @@ namespace RpgCollector.Controllers.AttendanceControllers
             }
 
             PlayerAttendanceLog? playerAttendanceLog = await _attendanceDB.GetLastSequenceDayCount(userId);
-
-            int count;
 
             if (playerAttendanceLog == null)
             {

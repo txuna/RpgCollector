@@ -50,7 +50,6 @@ public class AttendaceRewardController : Controller
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Attendance'");
 
-        /* 오늘자 출석 유무 확인 */
         Error = await IsTodayAttendance(userId, toDay);
 
         if(Error != ErrorState.None)
@@ -62,10 +61,8 @@ public class AttendaceRewardController : Controller
             };
         }
 
-        /* 해당 유저의 어제 출석일을 확인하여 연속날짜 확인 */
         int sequenceDayCount = await GetLastSequenceDayCount(userId, yesterDay);
 
-        /* 유저의 출석 진행 */
         Error = await DoAttendance(userId, sequenceDayCount);
 
         if(Error != ErrorState.None)
@@ -77,7 +74,6 @@ public class AttendaceRewardController : Controller
             };
         }
 
-        /* 연속 날짜 만큼 출석 보상 메일로 전송 */
         Error = await SendAttendanceReward(userId, sequenceDayCount);
 
         if(Error  != ErrorState.None)
@@ -111,13 +107,11 @@ public class AttendaceRewardController : Controller
     // 해당 유저의 가장 최근의 출석로그를 기반으로 판단 
     async Task<int> GetLastSequenceDayCount(int userId, string yesterDay)
     {
-        // 어제자 출석로그가 없다면
         if(!await IsYesterdayAttendance(userId, yesterDay))
         {
             return 1;
         }
 
-        // 어제가 출석로그가 있다면 가장 최근의 로그를 가지고온다. (어제의 로그)
         PlayerAttendanceLog? lastLog = await _attendanceDB.GetLastAttendanceLog(userId);
 
         if(lastLog == null)
@@ -148,7 +142,6 @@ public class AttendaceRewardController : Controller
         return ErrorState.None;
     }
 
-    // 출석 보상 지급 에러 -> 출석 UNDO
     async Task<ErrorState> SendAttendanceReward(int userId, int sequenceDayCount)
     {
         MasterAttendanceReward? reward = _masterDataDB.GetMasterAttendanceReward(sequenceDayCount);
