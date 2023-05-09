@@ -99,7 +99,6 @@ public class AttendaceRewardController : Controller
         };
     }
 
-
     async Task<ErrorState> IsTodayAttendance(int userId, string toDay)
     {
         if(await _attendanceDB.IsAttendance(userId, toDay))
@@ -125,6 +124,7 @@ public class AttendaceRewardController : Controller
         {
             return 1;
         }
+
         return (lastLog.SequenceDayCount + 1) % 31;
     }
 
@@ -134,6 +134,7 @@ public class AttendaceRewardController : Controller
         {
             return true;
         }
+
         return false;
     }
 
@@ -143,6 +144,7 @@ public class AttendaceRewardController : Controller
         {
             return ErrorState.FailedAttendance;
         }
+
         return ErrorState.None;
     }
 
@@ -166,6 +168,7 @@ public class AttendaceRewardController : Controller
         {
             return ErrorState.FailedUndoAttendance;
         }
+
         return ErrorState.None;
     }
 }

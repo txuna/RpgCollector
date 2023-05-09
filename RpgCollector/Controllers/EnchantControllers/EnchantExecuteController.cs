@@ -89,6 +89,7 @@ public class EnchantExecuteController : Controller
 
         /* 강화 유효성 판단 */
         Error = await Verify(playerItem, masterItem, userId); 
+
         if(Error != ErrorState.None)
         {
             return new EnchantExecuteResponse
@@ -112,24 +113,28 @@ public class EnchantExecuteController : Controller
         ErrorState Error;
 
         Error = await VerifyItemPermission(playerItem.PlayerItemId, userId);
+
         if(Error != ErrorState.None)
         {
             return Error;
         }
 
         Error = VerifyItemType(masterItem.AttributeId);
+
         if (Error != ErrorState.None)
         {
             return Error;
         }
 
         Error = VerifyEnchatMaxCount(playerItem, masterItem);
+
         if (Error != ErrorState.None)
         {
             return Error;
         }
 
         Error = await VerifyMoney(userId, playerItem.EnchantCount + 1);
+
         if (Error != ErrorState.None)
         {
             return Error;
@@ -170,6 +175,7 @@ public class EnchantExecuteController : Controller
         {
             return ErrorState.NoneExistItemType;
         }
+
         if (itemAttribute.TypeId != (int)TypeDefinition.EQUIPMENT)
         {
             return ErrorState.CantNotEnchantThisType;
@@ -184,6 +190,7 @@ public class EnchantExecuteController : Controller
         {
             return ErrorState.AlreadyMaxiumEnchantCount;
         }
+
         return ErrorState.None;
     }
 

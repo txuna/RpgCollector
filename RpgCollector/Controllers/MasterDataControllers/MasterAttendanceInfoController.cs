@@ -18,6 +18,7 @@ namespace RpgCollector.Controllers.MasterDataControllers
             _logger = logger;
             _accountMemoryDB = accountMemoryDB;
         }
+
         [Route("/Master/Attendance")]
         [HttpPost]
         public async Task<MasterAttendanceInfoResponse> GetAttendanceInfo(MasterAttendanceInfoRequest masterAttendanceInfoRequest)

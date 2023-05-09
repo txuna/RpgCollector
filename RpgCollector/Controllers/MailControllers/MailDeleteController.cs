@@ -19,6 +19,7 @@ public class MailDeleteController : Controller
         _logger = logger;
         _accountMemoryDB = accountMemoryDB;
     }
+
     [Route("/Mail/Delete")]
     [HttpPost]
     public async Task<MailDeleteResponse> DeleteMail(MailDeleteRequest mailDeleteRequest)

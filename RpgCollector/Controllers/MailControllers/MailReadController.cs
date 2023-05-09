@@ -50,6 +50,8 @@ public class MailReadController : Controller
 
         if(Error != ErrorState.None)
         {
+            _logger.ZLogInformation($"[{userId} {userName}] None Have Permission This Mail : {readMailRequest.MailId}");
+
             return new MailReadResponse
             {
                 Error = Error
