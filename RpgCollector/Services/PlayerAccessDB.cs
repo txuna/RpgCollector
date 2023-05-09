@@ -130,25 +130,24 @@ public class PlayerAccessDB : IPlayerAccessDB
 
     public async Task<PlayerState?> GetPlayerFromUserId(int userId)
     {
-        PlayerState playerState; 
         try
         {
-            playerState = await queryFactory.Query("players").Where("userId", userId).FirstAsync<PlayerState>();
+            PlayerState playerState = await queryFactory.Query("players").Where("userId", userId).FirstAsync<PlayerState>();
+            return playerState;
         }
         catch (Exception ex)
         {
             _logger.ZLogError(ex.Message);
             return null; 
         }
-        return playerState;
     }
 
     public async Task<PlayerItem?> GetPlayerItem(int playerItemId)
     {
         try
         {
-            PlayerItem? playerItem = await queryFactory.Query("player_items").Where("playerItemId", playerItemId).FirstAsync<PlayerItem>();
-            return playerItem; ;
+            PlayerItem playerItem = await queryFactory.Query("player_items").Where("playerItemId", playerItemId).FirstAsync<PlayerItem>();
+            return playerItem;
         }
         catch (Exception ex)
         {
