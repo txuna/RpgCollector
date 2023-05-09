@@ -17,17 +17,14 @@ public class MailGetItemController : Controller
     IMailboxAccessDB _mailboxAccessDB;
     IPlayerAccessDB _playerAccessDB;
     ILogger<MailGetItemController> _logger;
-    IAccountMemoryDB _accountMemoryDB;
 
     public MailGetItemController(IMailboxAccessDB mailboxAccessDB, 
                                  IPlayerAccessDB playerAccessDB, 
-                                 ILogger<MailGetItemController> logger, 
-                                 IAccountMemoryDB accountMemoryDB) 
+                                 ILogger<MailGetItemController> logger) 
     {
         _mailboxAccessDB = mailboxAccessDB; 
         _playerAccessDB = playerAccessDB;
         _logger = logger;
-        _accountMemoryDB = accountMemoryDB;
     }
 /*
 * 사용자가 전송한 mailId를 기반으로 아이템을 동봉하고 있는지 확인 + 이미 수령했는지 확인 및 아이템 제공
@@ -39,20 +36,10 @@ public class MailGetItemController : Controller
     public async Task<MailGetItemResponse> GetItem(MailGetItemRequest mailGetItemRequest)
     {
         var userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountMemoryDB.GetUserId(userName);
+        int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorState Error;
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Get Mail Item'");
-
-        if (userId == -1)
-        {
-            _logger.ZLogInformation($"[{userName}] None Exist");
-
-            return new MailGetItemResponse
-            {
-                Error = ErrorState.FailedConnectRedis
-            };
-        }
 
         Error = await VerifyMail(mailGetItemRequest, userId);
 

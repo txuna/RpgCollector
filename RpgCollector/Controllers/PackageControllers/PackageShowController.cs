@@ -10,11 +10,9 @@ namespace RpgCollector.Controllers.PackageControllers
     public class PackageShowController : Controller
     {
         IMasterDataDB _masterDataDB;
-        IAccountMemoryDB _accountMemoryDB;
         ILogger<PackageShowController> _logger; 
-        public PackageShowController(IAccountMemoryDB accountMemoryDB, ILogger<PackageShowController> logger, IMasterDataDB masterDataDB)
+        public PackageShowController(ILogger<PackageShowController> logger, IMasterDataDB masterDataDB)
         {
-            _accountMemoryDB = accountMemoryDB;
             _logger = logger;
             _masterDataDB = masterDataDB;
         }
@@ -24,17 +22,9 @@ namespace RpgCollector.Controllers.PackageControllers
         public async Task<PackageShowResponse> Index(PackageShowRequest packageShowRequest)
         {
             string userName = HttpContext.Request.Headers["User-Name"];
-            int userId = await _accountMemoryDB.GetUserId(userName);
+            int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
             _logger.ZLogInformation($"[{userId}] Request /Package/Show ");
-
-            if(userId == -1)
-            {
-                return new PackageShowResponse
-                {
-                    Error = RequestResponseModel.ErrorState.NoneExistName
-                };
-            }
 
             MasterPackagePayment[] masterPackagePayments = _masterDataDB.GetPackagePayment();
 

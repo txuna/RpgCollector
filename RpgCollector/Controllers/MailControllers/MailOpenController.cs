@@ -17,15 +17,12 @@ namespace RpgCollector.Controllers.MailControllers;
 public class MailOpenController : Controller
 {
     IMailboxAccessDB _mailboxAccessDB;
-    IAccountMemoryDB _accountMemoryDB;
     ILogger<MailOpenController> _logger;
 
     public MailOpenController(IMailboxAccessDB mailboxAccessDB, 
-                              IAccountMemoryDB accountMemoryDB,
                               ILogger<MailOpenController> logger)
     {
         _mailboxAccessDB = mailboxAccessDB;
-        _accountMemoryDB = accountMemoryDB;
         _logger = logger;
     }
 
@@ -38,19 +35,9 @@ public class MailOpenController : Controller
     public async Task<MailOpenResponse> OpenMailbox(MailOpenRequest openMailboxRequest)
     {
         var userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountMemoryDB.GetUserId(userName);
+        int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Open Mail'");
-
-        if (userId == -1)
-        {
-            _logger.ZLogError($"[{userName}] Failed Connected Redis");
-
-            return new MailOpenResponse
-            {
-                Error = ErrorState.FailedConnectRedis
-            };
-        }
 
         /* userId가 receiverdId인 모든 메일 20개만 가지고옴 */
         Mailbox[]? mails = await _mailboxAccessDB.GetPartialMails(userId, (bool)openMailboxRequest.IsFirstOpen, (int)openMailboxRequest.PageNumber);

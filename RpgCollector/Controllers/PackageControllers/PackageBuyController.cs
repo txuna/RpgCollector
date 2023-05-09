@@ -12,19 +12,16 @@ namespace RpgCollector.Controllers.PackageControllers;
 public class PackageBuyController : Controller
 {
     IPackagePaymentDB _packagePaymentDB; 
-    IAccountMemoryDB _accountMemoryDB;
     IMailboxAccessDB _mailboxAccessDB;
     ILogger<PackageBuyController> _logger;
     IMasterDataDB _masterDataDB;
 
     public PackageBuyController(IPackagePaymentDB packagePaymentDB, 
-                                IAccountMemoryDB accountMemoryDB,
                                 IMailboxAccessDB mailboxAccessDB, 
                                 ILogger<PackageBuyController> logger,
                                 IMasterDataDB masterDataDB) 
     {
         _packagePaymentDB = packagePaymentDB;
-        _accountMemoryDB = accountMemoryDB;
         _mailboxAccessDB = mailboxAccessDB;
         _logger = logger;
         _masterDataDB = masterDataDB;
@@ -39,19 +36,9 @@ public class PackageBuyController : Controller
     public async Task<PackageBuyResponse> BuyPackage(PackageBuyRequest packageBuyRequest)
     {
         string userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountMemoryDB.GetUserId(userName);
+        int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Buy Package'");
-
-        if (userId == -1)
-        {
-            _logger.ZLogInformation($"[{userName}] None Exist Name");
-
-            return new PackageBuyResponse
-            {
-                Error = ErrorState.NoneExistName
-            };
-        }
 
         ErrorState Error = await Verify(packageBuyRequest); 
 

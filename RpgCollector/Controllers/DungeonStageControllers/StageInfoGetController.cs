@@ -8,10 +8,8 @@ namespace RpgCollector.Controllers.DungeonStageControllers
     public class StageInfoGetController : Controller
     {
         ILogger<StageInfoGetController> _logger;
-        IAccountMemoryDB _accountMemoryDB;
-        public StageInfoGetController(ILogger<StageInfoGetController> logger, IAccountMemoryDB accountMemoryDB)
+        public StageInfoGetController(ILogger<StageInfoGetController> logger)
         {
-            _accountMemoryDB = accountMemoryDB;
             _logger = logger;
         }
 

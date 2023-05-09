@@ -11,15 +11,13 @@ namespace RpgCollector.Controllers.PlayerDataController
     [ApiController]
     public class PlayerStateGetController : Controller
     {
-        IAccountMemoryDB _accountMemoryDB;
         ILogger<PlayerStateGetController> _logger;
         IPlayerAccessDB _playerAccessDB;
         IMasterDataDB _masterDataDB;
-        public PlayerStateGetController(ILogger<PlayerStateGetController> logger, IPlayerAccessDB playerAccessDB, IAccountMemoryDB accountMemoryDB, IMasterDataDB masterDataDB)
+        public PlayerStateGetController(ILogger<PlayerStateGetController> logger, IPlayerAccessDB playerAccessDB, IMasterDataDB masterDataDB)
         {
             _logger = logger;
             _playerAccessDB = playerAccessDB;
-            _accountMemoryDB = accountMemoryDB;
             _masterDataDB = masterDataDB;
         }
 
@@ -28,17 +26,9 @@ namespace RpgCollector.Controllers.PlayerDataController
         public async Task<PlayerStateGetResponse> PlayerStateGet(PlayerStateGetRequest playerStateGetRequest)
         {
             string userName = HttpContext.Request.Headers["User-Name"];
-            int userId = await _accountMemoryDB.GetUserId(userName);
+            int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
             _logger.ZLogInformation($"[{userId}] Request /Player/State");
-
-            if(userId == -1)
-            {
-                return new PlayerStateGetResponse
-                {
-                    Error = ErrorState.NoneExistName
-                };
-            }
 
             PlayerState? playerState = await _playerAccessDB.GetPlayerFromUserId(userId);
 

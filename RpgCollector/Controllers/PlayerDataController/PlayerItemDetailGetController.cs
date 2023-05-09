@@ -13,16 +13,13 @@ namespace RpgCollector.Controllers.PlayerDataController
     public class PlayerItemDetailGetController : Controller
     {
         ILogger<PlayerItemDetailGetController> _logger;
-        IAccountMemoryDB _accountMemoryDB;
         IPlayerAccessDB _playerAccessDB;
         IMasterDataDB _masterDataDB;
         public PlayerItemDetailGetController(IPlayerAccessDB playerAccessDB, 
                                              ILogger<PlayerItemDetailGetController> logger, 
-                                             IAccountMemoryDB accountMemoryDB,
                                              IMasterDataDB masterDataDB)
         {
             _playerAccessDB = playerAccessDB;
-            _accountMemoryDB = accountMemoryDB;
             _logger = logger;
             _masterDataDB = masterDataDB;
         }
@@ -32,17 +29,9 @@ namespace RpgCollector.Controllers.PlayerDataController
         public async Task<PlayerItemDetailGetResponse> PlayerItemGetDetail(PlayerItemDetailGetRequest playerItemDetailGetRequest)
         {
             string userName = HttpContext.Request.Headers["User-Name"];
-            int userId = await _accountMemoryDB.GetUserId(userName);
+            int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
             _logger.ZLogInformation($"[{userId}] Request /Inventory/Item");
-
-            if (userId == -1)
-            {
-                return new PlayerItemDetailGetResponse
-                {
-                    Error = RequestResponseModel.ErrorState.NoneExistName
-                };
-            }
 
             if(!await _playerAccessDB.IsItemOwner(playerItemDetailGetRequest.PlayerItemId, userId))
             {

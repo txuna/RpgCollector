@@ -11,12 +11,10 @@ namespace RpgCollector.Controllers.MasterDataControllers
     {
         IMasterDataDB _masterDataDB;
         ILogger<MasterAttendanceInfoController> _logger;
-        IAccountMemoryDB _accountMemoryDB;
-        public MasterAttendanceInfoController(IMasterDataDB masterDataDB, ILogger<MasterAttendanceInfoController> logger, IAccountMemoryDB accountMemoryDB)
+        public MasterAttendanceInfoController(IMasterDataDB masterDataDB, ILogger<MasterAttendanceInfoController> logger)
         {
             _masterDataDB = masterDataDB;
             _logger = logger;
-            _accountMemoryDB = accountMemoryDB;
         }
 
         [Route("/Master/Attendance")]
@@ -24,17 +22,9 @@ namespace RpgCollector.Controllers.MasterDataControllers
         public async Task<MasterAttendanceInfoResponse> GetAttendanceInfo(MasterAttendanceInfoRequest masterAttendanceInfoRequest)
         {
             string userName = HttpContext.Request.Headers["User-Name"];
-            int userId = await _accountMemoryDB.GetUserId(userName);
+            int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
             _logger.ZLogInformation($"[{userId}] Request /Master/Attendance");
-
-            if (userId == -1)
-            {
-                return new MasterAttendanceInfoResponse
-                {
-                    Error = RequestResponseModel.ErrorState.NoneExistName
-                };
-            }
 
             MasterAttendanceReward[] masterAttendanceRewards = _masterDataDB.GetAllMasterAttendanceReward();
 

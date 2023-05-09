@@ -11,12 +11,11 @@ namespace RpgCollector.Controllers.MasterDataControllers
     {
         IMasterDataDB _masterDataDB;
         ILogger<MasterItemInfoGetController> _logger;
-        IAccountMemoryDB _accountMemoryDB;
-        public MasterItemInfoGetController(IMasterDataDB masterDataDB, ILogger<MasterItemInfoGetController> logger, IAccountMemoryDB accountMemoryDB)
+        public MasterItemInfoGetController(IMasterDataDB masterDataDB, 
+                                           ILogger<MasterItemInfoGetController> logger)
         {
             _masterDataDB = masterDataDB;
             _logger = logger;
-            _accountMemoryDB = accountMemoryDB;
         }
 
         [Route("/Master/Item")]
@@ -24,17 +23,9 @@ namespace RpgCollector.Controllers.MasterDataControllers
         public async Task<MasterItemGetInfoResponse> GetItemInfo(MasterItemGetInfoRequest masterItemGetInfoRequest)
         {
             string userName = HttpContext.Request.Headers["User-Name"];
-            int userId = await _accountMemoryDB.GetUserId(userName);
+            int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
             _logger.ZLogInformation($"[{userId}] Request /Master/Item");
-
-            if(userId == -1)
-            {
-                return new MasterItemGetInfoResponse
-                {
-                    Error = RequestResponseModel.ErrorState.NoneExistName
-                };
-            }
 
             MasterItem? masterItem = _masterDataDB.GetMasterItem(masterItemGetInfoRequest.ItemId);
 

@@ -10,13 +10,12 @@ namespace RpgCollector.Controllers.PlayerDataController
     public class PlayerInventoryGetController : Controller
     {
         IPlayerAccessDB _playerAccessDB;
-        IAccountMemoryDB _accountMemoryDB;
         ILogger<PlayerInventoryGetController> _logger;
-        public PlayerInventoryGetController(ILogger<PlayerInventoryGetController> logger, IPlayerAccessDB playerAccessDB, IAccountMemoryDB accountMemoryDB)
+        public PlayerInventoryGetController(ILogger<PlayerInventoryGetController> logger, 
+                                            IPlayerAccessDB playerAccessDB)
         {
             _logger = logger;
             _playerAccessDB = playerAccessDB;
-            _accountMemoryDB = accountMemoryDB;
         }
 
         [Route("/Inventory")]
@@ -24,17 +23,9 @@ namespace RpgCollector.Controllers.PlayerDataController
         public async Task<PlayerInventoryGetResponse> PlayerInventoryGet(PlayerInventoryGetRequest playerInventoryGetRequest)
         {
             string userName = HttpContext.Request.Headers["User-Name"];
-            int userId = await _accountMemoryDB.GetUserId(userName);
+            int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
             _logger.ZLogInformation($"[{userId}] Request /Inventory");
-
-            if (userId == -1)
-            {
-                return new PlayerInventoryGetResponse
-                {
-                    Error = RequestResponseModel.ErrorState.NoneExistName
-                };
-            }
 
             PlayerItem[] items = await _playerAccessDB.GetPlayerAllItems(userId);
 

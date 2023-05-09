@@ -20,7 +20,7 @@ public interface IPlayerAccessDB
     Task<bool> AddMoneyToPlayer(int userId, int money);
     Task<bool> InsertPlayerEquipmentItem(int userId, int itemId, int quantity);
     Task<bool> InsertPlayerConsumptionItem(int userId, int itemId, int quantity);
-    Task<bool> UpdatePlayerConsumptionItem(int userId, int itemId, PlayerItem playerItem, int quantity);
+    Task<bool> UpdatePlayerConsumptionItem(int userId, int itemId, int quantity);
     Task<PlayerItem?> GetPlayerConsumptionItem(int userId, int itemId);
     Task<bool> HasItem(int userId, int itemId);
     Task<bool> IsItemOwner(int playerItemId, int userId);
@@ -216,7 +216,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
     }
 
-    public async Task<bool> UpdatePlayerConsumptionItem(int userId, int itemId, PlayerItem playerItem, int quantity)
+    public async Task<bool> UpdatePlayerConsumptionItem(int userId, int itemId, int quantity)
     {
         try
         {
@@ -310,13 +310,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         {
             if (await HasItem(userId, itemId))
             {
-                PlayerItem? playerItem = await GetPlayerConsumptionItem(userId, itemId);
-
-                if (playerItem == null)
-                {
-                    return false;
-                }
-                if (!await UpdatePlayerConsumptionItem(userId, itemId, playerItem, quantity))
+                if (!await UpdatePlayerConsumptionItem(userId, itemId, quantity))
                 {
                     return false;
                 }

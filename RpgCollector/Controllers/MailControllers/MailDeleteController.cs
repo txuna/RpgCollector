@@ -2,22 +2,20 @@
 using RpgCollector.RequestResponseModel;
 using RpgCollector.RequestResponseModel.MailDeleteModel;
 using RpgCollector.Services;
+using ZLogger;
 
 namespace RpgCollector.Controllers.MailControllers;
 
 [ApiController]
 public class MailDeleteController : Controller
 {
-    IAccountMemoryDB _accountMemoryDB;
     ILogger<MailDeleteController> _logger;
     IMailboxAccessDB _mailboxAccessDB;
     public MailDeleteController(IMailboxAccessDB mailboxAccessDB, 
-                                ILogger<MailDeleteController> logger, 
-                                IAccountMemoryDB accountMemoryDB)
+                                ILogger<MailDeleteController> logger)
     {
         _mailboxAccessDB = mailboxAccessDB;
         _logger = logger;
-        _accountMemoryDB = accountMemoryDB;
     }
 
     [Route("/Mail/Delete")]
@@ -25,13 +23,17 @@ public class MailDeleteController : Controller
     public async Task<MailDeleteResponse> DeleteMail(MailDeleteRequest mailDeleteRequest)
     {
         string userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountMemoryDB.GetUserId(userName);
+        int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorState Error;
+
+        _logger.ZLogInformation($"[{userId}] Request /Mail/Delete");
 
         Error = await Verify(mailDeleteRequest.MailId, userId); 
 
         if(Error != ErrorState.None)
         {
+            _logger.ZLogInformation($"[{userId}] None Have Permission Delete Mail : {mailDeleteRequest.MailId}");
+
             return new MailDeleteResponse
             {
                 Error = Error

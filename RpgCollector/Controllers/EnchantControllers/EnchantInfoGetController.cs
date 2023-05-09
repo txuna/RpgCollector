@@ -15,13 +15,11 @@ namespace RpgCollector.Controllers.EnchantControllers
     public class EnchantInfoGetController : Controller
     {
         ILogger<EnchantInfoGetController> _logger;
-        IAccountMemoryDB _accountMemoryDB;
         IMasterDataDB _masterDataDB;
         IPlayerAccessDB _playerAccessDB;
-        public EnchantInfoGetController(IMasterDataDB masterDataDB, ILogger<EnchantInfoGetController> logger, IAccountMemoryDB accountMemoryDB, IPlayerAccessDB playerAccessDB)
+        public EnchantInfoGetController(IMasterDataDB masterDataDB, ILogger<EnchantInfoGetController> logger, IPlayerAccessDB playerAccessDB)
         {
             _masterDataDB = masterDataDB;
-            _accountMemoryDB = accountMemoryDB;
             _logger = logger;
             _playerAccessDB = playerAccessDB;
         }
@@ -31,18 +29,10 @@ namespace RpgCollector.Controllers.EnchantControllers
         public async Task<EnchantInfoGetResponse> EnchantInfoGet(EnchantInfoGetRequest enchantInfoGetRequest)
         {
             string userName = HttpContext.Request.Headers["User-Name"];
-            int userId = await _accountMemoryDB.GetUserId(userName);
+            int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
             ErrorState Error;
 
             _logger.ZLogInformation($"[{userId}] Request /Enchant/Info ");
-
-            if(userId == -1)
-            {
-                return new EnchantInfoGetResponse
-                {
-                    Error = ErrorState.NoneExistName
-                };
-            }
 
             PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(enchantInfoGetRequest.PlayerItemId);
 

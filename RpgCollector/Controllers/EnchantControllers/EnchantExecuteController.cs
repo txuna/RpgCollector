@@ -16,19 +16,16 @@ namespace RpgCollector.Controllers.EnchantControllers;
 public class EnchantExecuteController : Controller
 {
     IEnchantDB _enchantDB;  
-    IAccountMemoryDB _accountMemoryDB;
     ILogger<EnchantExecuteController> _logger;
     IPlayerAccessDB _playerAccessDB;
     IMasterDataDB _masterDataDB;
 
     public EnchantExecuteController(IEnchantDB enchantDB, 
-                                    IAccountMemoryDB accountMemoryDB,
                                     IPlayerAccessDB playerAccessDB, 
                                     ILogger<EnchantExecuteController> logger,
                                     IMasterDataDB masterDataDB)
     {
         _enchantDB = enchantDB;
-        _accountMemoryDB = accountMemoryDB;
         _playerAccessDB = playerAccessDB;
         _masterDataDB = masterDataDB;
         _logger = logger;
@@ -54,17 +51,9 @@ public class EnchantExecuteController : Controller
         int result;
 
         string userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountMemoryDB.GetUserId(userName);
+        int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Enchant'");
-
-        if (userId == -1)
-        {
-            return new EnchantExecuteResponse
-            {
-                Error = ErrorState.NoneExistName
-            };
-        }
 
         PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemId);
 

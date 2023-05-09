@@ -130,7 +130,7 @@ namespace RpgCollector.Middlewares
         {
             string? authToken = httpContext.Request.Headers["Auth-Token"];
             string? userName = httpContext.Request.Headers["User-Name"];
-            IDatabase redisDB = redisClient.GetDatabase();
+            redisDB = redisClient.GetDatabase();
 
             try
             {
@@ -149,6 +149,9 @@ namespace RpgCollector.Middlewares
                 {
                     return false;
                 }
+
+                httpContext.Items["User-Id"] = Convert.ToString(redisUser.UserId);
+
                 return true;
 
             }catch (Exception ex)
