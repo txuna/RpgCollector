@@ -38,7 +38,6 @@ public class MailOpenController : Controller
     public async Task<MailOpenResponse> OpenMailbox(MailOpenRequest openMailboxRequest)
     {
         var userName = HttpContext.Request.Headers["User-Name"];
-        /* userName을 기반으로 userId를 불러옴 */
         int userId = await _accountMemoryDB.GetUserId(userName);
 
         _logger.ZLogInformation($"[{userId} {userName}] Request 'Open Mail'");
@@ -53,7 +52,7 @@ public class MailOpenController : Controller
             };
         }
 
-        /* userId가 receiverdId인 모든 메일 가지고옴 */
+        /* userId가 receiverdId인 모든 메일 20개만 가지고옴 */
         Mailbox[]? mails = await _mailboxAccessDB.GetPartialMails(userId, (bool)openMailboxRequest.IsFirstOpen, (int)openMailboxRequest.PageNumber);
 
         if (mails == null)

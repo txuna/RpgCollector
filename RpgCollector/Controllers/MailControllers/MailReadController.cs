@@ -45,7 +45,6 @@ public class MailReadController : Controller
             };
         }
 
-        /* 메일 유효성 검사 */
         Error = await Verify(readMailRequest.MailId, userId);
 
         if(Error != ErrorState.None)
@@ -58,7 +57,6 @@ public class MailReadController : Controller
             };
         }
 
-        /* 해당 mailId를 기반으로 메일을 가지고옴 */
         Mailbox? mail = await _mailboxAccessDB.GetMailFromUserId(readMailRequest.MailId, userId);
 
         if(mail == null)
@@ -71,7 +69,6 @@ public class MailReadController : Controller
             };
         }
 
-        /* 메일 읽음 표시 진행 */
         if(!await _mailboxAccessDB.ReadMail(readMailRequest.MailId))
         {
             _logger.ZLogInformation($"[{userId} {userName}] Already Read Mail : {readMailRequest.MailId}");
@@ -110,6 +107,7 @@ public class MailReadController : Controller
         {
             return ErrorState.NoneOwnerThisMail;
         }
+
         return ErrorState.None;
     }
 }

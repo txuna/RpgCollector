@@ -24,9 +24,6 @@ public class NoticeGetController : Controller
         _logger = logger;
     }
 
-    /*
-     * Redis에 저장된 공지사항을 리스트형식으로 뿌려준다. 
-     */
     [Route("/Notice")]
     [HttpPost]
     public async Task<NoticeGetResponse> Notice()

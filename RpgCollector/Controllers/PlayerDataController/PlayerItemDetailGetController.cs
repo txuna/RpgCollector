@@ -44,7 +44,6 @@ namespace RpgCollector.Controllers.PlayerDataController
                 };
             }
 
-            /* 권한 검사 */
             if(!await _playerAccessDB.IsItemOwner(playerItemDetailGetRequest.PlayerItemId, userId))
             {
                 return new PlayerItemDetailGetResponse
@@ -53,7 +52,6 @@ namespace RpgCollector.Controllers.PlayerDataController
                 };
             }
 
-            /* playerItemId 기반으로 itemId를 가지고 옴 */
             PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemDetailGetRequest.PlayerItemId);
 
             if(playerItem == null)
@@ -64,7 +62,7 @@ namespace RpgCollector.Controllers.PlayerDataController
                 };
             }
 
-            /* 아이템의 프로토타입을 가지고 옴 */
+   
             MasterItem? masterItem = _masterDataDB.GetMasterItem(playerItem.ItemId);
 
             if(masterItem == null)
@@ -82,7 +80,6 @@ namespace RpgCollector.Controllers.PlayerDataController
                 Defence = 0,
             };
 
-            /* 장비아이템이 아닐경우 */
             MasterItemAttribute masterItemAttribute = _masterDataDB.GetMasterItemAttribute(masterItem.AttributeId);
             MasterItemType? masterItemType = _masterDataDB.GetMasterItemType(masterItemAttribute.TypeId);
 
@@ -127,12 +124,11 @@ namespace RpgCollector.Controllers.PlayerDataController
             for (int i = 1; i <= playerItem.EnchantCount; i++)
             {
                 MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(i);
-                // 공격력
+
                 if (masterItem.AttributeId == 1)
                 {
                     additionalState.Attack += (int)Math.Ceiling((double)(additionalState.Attack + masterItem.Attack) * masterEnchantInfo.IncreasementValue / 100);
                 }
-                // 방어력 
                 else if (masterItem.AttributeId == 2 || masterItem.AttributeId == 3)
                 {
                     additionalState.Defence += (int)Math.Ceiling((double)(additionalState.Defence + masterItem.Defence) * masterEnchantInfo.IncreasementValue / 100);

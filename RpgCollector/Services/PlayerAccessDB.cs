@@ -223,10 +223,8 @@ public class PlayerAccessDB : IPlayerAccessDB
             await queryFactory.Query("player_items")
                                       .Where("userId", userId)
                                       .Where("itemId", itemId)
-                                      .UpdateAsync(new
-                                      {
-                                          quantity = playerItem.Quantity + quantity
-                                      });
+                                      .IncrementAsync("quantity", quantity);
+
             return true;
         }
         catch (Exception ex)
@@ -293,6 +291,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
 
         MasterItemAttribute? masterItemAttribute = _masterDataDB.GetMasterItemAttribute(masterItem.AttributeId);
+
         if (masterItemAttribute == null)
         {
             return false;
@@ -311,8 +310,8 @@ public class PlayerAccessDB : IPlayerAccessDB
         {
             if (await HasItem(userId, itemId))
             {
-
                 PlayerItem? playerItem = await GetPlayerConsumptionItem(userId, itemId);
+
                 if (playerItem == null)
                 {
                     return false;
@@ -330,6 +329,7 @@ public class PlayerAccessDB : IPlayerAccessDB
                 }
             }
         }
+
         else if(masterItemAttribute.TypeId == (int)TypeDefinition.EQUIPMENT)
         {
             if (!await InsertPlayerEquipmentItem(userId, itemId, quantity))
@@ -337,6 +337,7 @@ public class PlayerAccessDB : IPlayerAccessDB
                 return false;
             }
         }
+
         return true;
     }
 

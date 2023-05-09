@@ -28,7 +28,6 @@ public class MailDeleteController : Controller
         int userId = await _accountMemoryDB.GetUserId(userName);
         ErrorState Error;
 
-        /* 메일 유효성 검사 */
         Error = await Verify(mailDeleteRequest.MailId, userId); 
 
         if(Error != ErrorState.None)
@@ -39,7 +38,6 @@ public class MailDeleteController : Controller
             };
         }
 
-        /* 메일 삭제 진행 - isDeleted Flag Update */
         Error = await ExecuteDelete(mailDeleteRequest.MailId);
 
         return new MailDeleteResponse
@@ -48,7 +46,6 @@ public class MailDeleteController : Controller
         };
     }
 
-    /* 해당 메일이 포함하는 아이템 데이터 또한 삭제한다. */
     async Task<ErrorState> ExecuteDelete(int mailId)
     {
         if(!await _mailboxAccessDB.DeleteMail(mailId))
@@ -59,7 +56,6 @@ public class MailDeleteController : Controller
         return ErrorState.None;
     }
 
-    /* 메일의 존재유무 및 권한 확인 */
     async Task<ErrorState> Verify(int mailId, int userId)
     {
         if (await _mailboxAccessDB.IsDeadLine(mailId))

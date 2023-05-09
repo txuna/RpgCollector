@@ -45,6 +45,7 @@
         InvalidPackage = 403,
         FailedAddItemToPlayer = 404,
         FailedUndoMailItem = 405,
+        FailedUndoPaymentLog = 406,
 
         /* Enchant 501~600 */
         IsNotOwnerThisItem = 501,
