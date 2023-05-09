@@ -8,6 +8,9 @@ CREATE TABLE `players` (
   `exp` int NOT NULL,
   `level` int NOT NULL,
   `money` int NOT NULL,
+  `attack` int NOT NULL,
+  `defence` int NOT NULL,
+  `magic` int NOT NULL,
   PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 ```
