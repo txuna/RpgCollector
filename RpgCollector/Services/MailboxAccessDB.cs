@@ -68,7 +68,6 @@ public class MailboxAccessDB : IMailboxAccessDB
                 }
                 int mailCount = await queryFactory.Query("mailbox")
                                                   .Where("receiverId", receiverId)
-                                                  //.WhereNot("isRead", 1)
                                                   .WhereNot("isDeleted", 1)
                                                   .Where("sendDate", ">=", deadLine)
                                                   .CountAsync<int>();
@@ -83,7 +82,6 @@ public class MailboxAccessDB : IMailboxAccessDB
 
                 IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
                                                                .Where("receiverId", receiverId)
-                                                               //.WhereNot("isRead", 1)
                                                                .WhereNot("isDeleted", 1)
                                                                .Where("sendDate", ">=", deadLine)
                                                                .Skip(start)
@@ -255,19 +253,14 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
     }
 
-    /* 읽은 메일은 다시 읽을 수 있게 */
     public async Task<bool> ReadMail(int mailId)
     {
         try
         {
-            int effectedRow = await queryFactory.Query("mailbox").Where("mailId", mailId).UpdateAsync(new {
+            await queryFactory.Query("mailbox").Where("mailId", mailId).UpdateAsync(new {
                 isRead = 1
             });
-            // 이미 읽은 경우
-            if(effectedRow < 1)
-            {
-                return false;
-            }
+
             return true;
         }
         catch(Exception ex)

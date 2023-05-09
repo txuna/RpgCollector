@@ -28,17 +28,16 @@ public class MailReadController : Controller
     [HttpPost]
     public async Task<MailReadResponse> ReadMail(MailReadRequest readMailRequest)
     {
-        string userName = HttpContext.Request.Headers["User-Name"];
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorState Error;
 
-        _logger.ZLogInformation($"[{userId} {userName}] Request 'Read Mail'");
+        _logger.ZLogInformation($"[{userId}] Request /Mail/Read");
 
         Error = await Verify(readMailRequest.MailId, userId);
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"[{userId} {userName}] None Have Permission This Mail : {readMailRequest.MailId}");
+            _logger.ZLogInformation($"[{userId}] None Have Permission This Mail : {readMailRequest.MailId}");
 
             return new MailReadResponse
             {
@@ -50,7 +49,7 @@ public class MailReadController : Controller
 
         if(mail == null)
         {
-            _logger.ZLogInformation($"[{userId} {userName}] Failed Fetch Mail : {readMailRequest.MailId}");
+            _logger.ZLogInformation($"[{userId}] Failed Fetch Mail : {readMailRequest.MailId}");
 
             return new MailReadResponse
             {
@@ -60,17 +59,17 @@ public class MailReadController : Controller
 
         if(!await _mailboxAccessDB.ReadMail(readMailRequest.MailId))
         {
-            _logger.ZLogInformation($"[{userId} {userName}] Already Read Mail : {readMailRequest.MailId}");
+            _logger.ZLogInformation($"[{userId}] Already Read Mail : {readMailRequest.MailId}");
 
             return new MailReadResponse 
             { 
-                Error = ErrorState.AlreadyReadMail 
+                Error = ErrorState.FailedFetchMail
             };
         }
 
         MailItem? mailItem = await _mailboxAccessDB.GetMailItem(readMailRequest.MailId);
 
-        _logger.ZLogInformation($"[{userId} {userName}] Success Read Mail {readMailRequest.MailId}");
+        _logger.ZLogInformation($"[{userId}] Success Read Mail {readMailRequest.MailId}");
 
         return new MailReadResponse
         {

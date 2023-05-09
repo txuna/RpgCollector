@@ -31,17 +31,6 @@ public class EnchantExecuteController : Controller
         _logger = logger;
     }
 
-    /*
-    1. TypeDefinition 확인 (장비아이템만) 
-    2. EchantCount와 MaxEnchatCount 비교 
-    3.다음번에 갈 강화테이블 참조 
-    3.1 강화 참조 테이블 
-    EnchantCountId - Percent - increasementValue
-    4. 실패시 해당 아이템 삭제 
-    5. 강화 이력 테이블 갱신 
-    logId - userId - playerItemid - isSuccess - date 
-    실제 전투시 강화 테이블을 참조하여 데미지 계산 - 4성이면 프로토타입에서 10% 4번 곱하기
-     */
     [Route("/Enchant")]
     [HttpPost]
     public async Task<EnchantExecuteResponse> Enchant(EnchantExecuteRequest enchantExecuteRequest)
@@ -50,10 +39,9 @@ public class EnchantExecuteController : Controller
         ErrorState Error;
         int result;
 
-        string userName = HttpContext.Request.Headers["User-Name"];
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId} {userName}] Request 'Enchant'");
+        _logger.ZLogInformation($"[{userId}] Request /Enchant");
 
         PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemId);
 
@@ -86,6 +74,26 @@ public class EnchantExecuteController : Controller
         }
 
         (Error, result) = await ExecuteEnchant(playerItem, userId);
+
+        if(Error != ErrorState.None)
+        {
+            return new EnchantExecuteResponse
+            {
+                Error = Error
+            };
+        }
+
+        MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount + 1);
+
+        if(!await _playerAccessDB.AddMoneyToPlayer(userId, -masterEnchantInfo.Price))
+        {
+            return new EnchantExecuteResponse
+            {
+                Error = ErrorState.FailedFetchMoney
+            };
+        }
+
+        await LogEnchant(playerItem, userId, result);
         
         return new EnchantExecuteResponse
         {
@@ -182,7 +190,6 @@ public class EnchantExecuteController : Controller
 
     (ErrorState, int) CheckPercent(PlayerItem playerItem, int userId)
     {
-        // 현재 강화 진행 상태에 따른 강화확률에 따라강화 진행 
         MasterEnchantInfo? masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount + 1);
 
         if (masterEnchantInfo == null)
@@ -197,9 +204,6 @@ public class EnchantExecuteController : Controller
         return (ErrorState.None, result);
     }
 
-    /*
-     확률을 참고하며 실패시 아이템 삭제
-     */
     async Task<(ErrorState, int)> ExecuteEnchant(PlayerItem playerItem, int userId)
     {
         var (Error, result) = CheckPercent(playerItem, userId);
@@ -224,20 +228,16 @@ public class EnchantExecuteController : Controller
             }
         }
 
-        MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount + 1);
-
-        await _playerAccessDB.AddMoneyToPlayer(userId, -masterEnchantInfo.Price);
-
-        return await LogEnchant(playerItem, userId, result);
+        return (ErrorState.None, result);
     }
 
-    async Task<(ErrorState, int)> LogEnchant(PlayerItem playerItem, int userId, int result)
+    async Task<ErrorState> LogEnchant(PlayerItem playerItem, int userId, int result)
     {
         if (!await _enchantDB.EnchantLog(playerItem.PlayerItemId, userId, playerItem.EnchantCount, result))
         {
             _logger.ZLogError($"[{userId}] Failed Enchant Logging Player Item : {playerItem.PlayerItemId}");
         }
 
-       return (ErrorState.None, result);
+       return ErrorState.None;
     }
 }

@@ -10,32 +10,22 @@ namespace RpgCollector.Controllers.AttendanceControllers
     public class AttendanceGetLogController : Controller
     {
         ILogger<AttendanceGetLogController> _logger;
-        IAccountMemoryDB _accountMemoryDB;
         IAttendanceDB _attendanceDB; 
-        public AttendanceGetLogController(IAttendanceDB attendanceDB, ILogger<AttendanceGetLogController> logger, IAccountMemoryDB accountMemoryDB)
+        public AttendanceGetLogController(IAttendanceDB attendanceDB, 
+                                          ILogger<AttendanceGetLogController> logger)
         {
             _attendanceDB = attendanceDB;
             _logger = logger;
-            _accountMemoryDB = accountMemoryDB;
         }
 
         [Route("/Attendance/Log")]
         [HttpPost]
         public async Task<AttendanceGetLogResponse> GetAttendanceLog()
         {
-            string userName = HttpContext.Request.Headers["User-Name"];
-            int userId = await _accountMemoryDB.GetUserId(userName);
+            int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
             int count;
 
-            _logger.ZLogInformation($"[{userId}] Request /Inventory");
-
-            if (userId == -1)
-            {
-                return new AttendanceGetLogResponse
-                {
-                    Error = RequestResponseModel.ErrorState.NoneExistName
-                };
-            }
+            _logger.ZLogInformation($"[{userId}] Request /Attendance/Log");
 
             PlayerAttendanceLog? playerAttendanceLog = await _attendanceDB.GetLastSequenceDayCount(userId);
 

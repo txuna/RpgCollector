@@ -34,17 +34,16 @@ public class MailOpenController : Controller
     [HttpPost]
     public async Task<MailOpenResponse> OpenMailbox(MailOpenRequest openMailboxRequest)
     {
-        var userName = HttpContext.Request.Headers["User-Name"];
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId} {userName}] Request 'Open Mail'");
+        _logger.ZLogInformation($"[{userId}] Request 'Open Mail'");
 
         /* userId가 receiverdId인 모든 메일 20개만 가지고옴 */
         Mailbox[]? mails = await _mailboxAccessDB.GetPartialMails(userId, (bool)openMailboxRequest.IsFirstOpen, (int)openMailboxRequest.PageNumber);
 
         if (mails == null)
         {
-            _logger.ZLogInformation($"[{userId} {userName}] Invalid PageNumber");
+            _logger.ZLogInformation($"[{userId}] Invalid PageNumber");
 
             return new MailOpenResponse
             {
@@ -70,8 +69,8 @@ public class MailOpenController : Controller
         {
             openMail[i] = new OpenMail();
             openMail[i].Title = mails[i].Title;
-            openMail[i].SenderId = mails[i].SenderId;
-            openMail[i].SendDate = mails[i].SendDate;
+            //openMail[i].SenderId = mails[i].SenderId;
+            //openMail[i].SendDate = mails[i].SendDate;
             openMail[i].MailId = mails[i].MailId;
         }
 

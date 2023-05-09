@@ -22,7 +22,6 @@ namespace RpgCollector.Controllers.PlayerDataController
         [HttpPost]
         public async Task<PlayerInventoryGetResponse> PlayerInventoryGet(PlayerInventoryGetRequest playerInventoryGetRequest)
         {
-            string userName = HttpContext.Request.Headers["User-Name"];
             int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
             _logger.ZLogInformation($"[{userId}] Request /Inventory");

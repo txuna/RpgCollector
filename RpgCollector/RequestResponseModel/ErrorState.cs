@@ -46,6 +46,7 @@
         FailedAddItemToPlayer = 404,
         FailedUndoMailItem = 405,
         FailedUndoPaymentLog = 406,
+        FailedBuyPackage = 407,
 
         /* Enchant 501~600 */
         IsNotOwnerThisItem = 501,
@@ -55,6 +56,7 @@
         FailedLogEnchant = 505,
         NoneExistItemType = 506,
         NotEnoughMoney = 507,
+        FailedFetchMoney = 508,
         
 
 

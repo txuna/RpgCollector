@@ -27,18 +27,18 @@ public class LogoutController : Controller
         string userName = HttpContext.Request.Headers["User-Name"];
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId} {userName}] Request 'Logout'");
+        _logger.ZLogInformation($"[{userId}] Request /Logout");
 
         if (!await _accountMemoryDB.RemoveUser(userName))
         {
-            _logger.ZLogError($"[{userId} {userName}] Failed Remove User in Redis");
+            _logger.ZLogError($"[{userId}] Failed Remove User in Redis");
             return new LogoutResponse
             {
                 Error = ErrorState.FailedConnectRedis
             };
         }
 
-        _logger.ZLogInformation($"[{userId} {userName}] Success Logout User in Redis UserId");
+        _logger.ZLogInformation($"[{userId}] Success Logout User in Redis UserId");
 
         return new LogoutResponse
         {

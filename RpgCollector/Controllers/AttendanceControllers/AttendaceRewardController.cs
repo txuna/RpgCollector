@@ -6,6 +6,7 @@ using RpgCollector.Models.AttendanceData;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 using RpgCollector.Models.AccountModel;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RpgCollector.Controllers.AttandanceControllers;
 
@@ -13,7 +14,6 @@ namespace RpgCollector.Controllers.AttandanceControllers;
 public class AttendaceRewardController : Controller
 {
     IMailboxAccessDB _mailboxAccessDB;
-    IAccountMemoryDB _accountMemoryDB;
     IAttendanceDB _attendanceDB;
     IMasterDataDB _masterDataDB;
     readonly ILogger<AttendaceRewardController> _logger;
@@ -21,13 +21,11 @@ public class AttendaceRewardController : Controller
     public AttendaceRewardController(IMailboxAccessDB mailboxAccessDB, 
                                      IAttendanceDB attendanceDB, 
                                      IMasterDataDB masterDataDB,
-                                     IAccountMemoryDB accountMemoryDB,
                                      ILogger<AttendaceRewardController> logger)
     {
         _mailboxAccessDB = mailboxAccessDB;
         _attendanceDB = attendanceDB;
         _masterDataDB = masterDataDB;
-        _accountMemoryDB = accountMemoryDB;
         _logger = logger;
     }
 
@@ -40,54 +38,38 @@ public class AttendaceRewardController : Controller
     [HttpPost]
     public async Task<AttendanceResponse> Attendance()
     {
-        string userName = HttpContext.Request.Headers["User-Name"];
-        int userId = await _accountMemoryDB.GetUserId(userName);
+        int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
         string toDay = DateTime.Now.ToString("yyyy-MM-dd");
         string yesterDay = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
 
         ErrorState Error;
 
-        _logger.ZLogInformation($"[{userId} {userName}] Request 'Attendance'");
+        _logger.ZLogInformation($"[{userId}] Request 'Attendance'");
 
         Error = await IsTodayAttendance(userId, toDay);
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"[{userName} : {userId}] Today Already Attandace UserID");
+            _logger.ZLogInformation($"[{userId}] Today Already Attandace UserID");
             return new AttendanceResponse
             {
                 Error = Error
             };
         }
 
-        int sequenceDayCount = await GetLastSequenceDayCount(userId, yesterDay);
-
-        Error = await DoAttendance(userId, sequenceDayCount);
+        Error = await DoAttendance(userId, yesterDay, toDay);
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogError($"[{userName} : {userId}] Failed Attandace");
+            _logger.ZLogError($"[{userId}] Failed Attandace");
             return new AttendanceResponse
             {
                 Error = Error
             };
         }
 
-        Error = await SendAttendanceReward(userId, sequenceDayCount);
-
-        if(Error  != ErrorState.None)
-        {
-            _logger.ZLogError($"[{userName} : {userId}] Failed Send Attandace Reward");
-            Error = await UndoAttendance(userId, toDay);
-
-            return new AttendanceResponse
-            {
-                Error = Error
-            };
-        }
-
-        _logger.ZLogInformation($"[{userName} : {userId}] Complement Send Attandace Reward");
+        _logger.ZLogInformation($"[{userId}] Complement Send Attandace Reward");
 
         return new AttendanceResponse
         {
@@ -132,11 +114,21 @@ public class AttendaceRewardController : Controller
         return false;
     }
 
-    async Task<ErrorState> DoAttendance(int userId, int sequenceDayCount)
+    async Task<ErrorState> DoAttendance(int userId, string yesterDay, string toDay)
     {
-        if(!await _attendanceDB.DoAttendance(userId, sequenceDayCount))
+        int sequenceDayCount = await GetLastSequenceDayCount(userId, yesterDay);
+
+        if (!await _attendanceDB.DoAttendance(userId, sequenceDayCount))
         {
             return ErrorState.FailedAttendance;
+        }
+
+        ErrorState Error = await SendAttendanceReward(userId, sequenceDayCount);
+        
+        if(Error != ErrorState.None)
+        {
+            Error = await UndoAttendance(userId, toDay);
+            return Error;
         }
 
         return ErrorState.None;

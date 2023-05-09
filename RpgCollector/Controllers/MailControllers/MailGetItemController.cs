@@ -39,13 +39,13 @@ public class MailGetItemController : Controller
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorState Error;
 
-        _logger.ZLogInformation($"[{userId} {userName}] Request 'Get Mail Item'");
+        _logger.ZLogInformation($"[{userId}] Request /Mail/Item");
 
         Error = await VerifyMail(mailGetItemRequest, userId);
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"[{userId} {userName}] None Have Permission This Mail {mailGetItemRequest.MailId}");
+            _logger.ZLogInformation($"[{userId}] None Have Permission This Mail {mailGetItemRequest.MailId}");
 
             return new MailGetItemResponse
             {
@@ -57,11 +57,11 @@ public class MailGetItemController : Controller
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"[{userId} {userName}] Failed Received Mail Item");
+            _logger.ZLogInformation($"[{userId}] Failed Received Mail Item");
         }
         else
         {
-            _logger.ZLogInformation($"[{userId} {userName}] Success Received Mail Item and Add Item to Player");
+            _logger.ZLogInformation($"[{userId}] Success Received Mail Item and Add Item to Player");
         }
 
         return new MailGetItemResponse

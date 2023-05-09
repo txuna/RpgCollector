@@ -35,16 +35,15 @@ public class PackageBuyController : Controller
     [HttpPost]
     public async Task<PackageBuyResponse> BuyPackage(PackageBuyRequest packageBuyRequest)
     {
-        string userName = HttpContext.Request.Headers["User-Name"];
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId} {userName}] Request 'Buy Package'");
+        _logger.ZLogInformation($"[{userId} Request 'Buy Package'");
 
         ErrorState Error = await Verify(packageBuyRequest); 
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"[{userName}] Invalid PackageId : {packageBuyRequest.PackageId} or ReceiptId : {packageBuyRequest.ReceiptId}");
+            _logger.ZLogInformation($"[{userId}] Invalid PackageId : {packageBuyRequest.PackageId} or ReceiptId : {packageBuyRequest.ReceiptId}");
 
             return new PackageBuyResponse
             {
@@ -52,11 +51,11 @@ public class PackageBuyController : Controller
             };
         }
 
-        (Error, userId) = await Buy(packageBuyRequest, userId);
+        Error = await Buy(packageBuyRequest, userId);
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"[{userId} {userName}] Cannot buy This PackageId : {packageBuyRequest.PackageId}");
+            _logger.ZLogInformation($"[{userId}] Cannot buy This PackageId : {packageBuyRequest.PackageId}");
 
             return new PackageBuyResponse
             {
@@ -68,17 +67,17 @@ public class PackageBuyController : Controller
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"[{userId} {userName}] Failed Send Mail This PackageId : {packageBuyRequest.PackageId} To Player");
+            _logger.ZLogInformation($"[{userId}] Failed Send Mail This PackageId : {packageBuyRequest.PackageId} To Player");
 
             Error = await UndoBuy(packageBuyRequest); 
             
             if(Error != ErrorState.None)
             {
-                _logger.ZLogInformation($"[{userId} {userName}] Failed Undo Player Payment ReceiptId : {packageBuyRequest.ReceiptId}");
+                _logger.ZLogInformation($"[{userId}] Failed Undo Player Payment ReceiptId : {packageBuyRequest.ReceiptId}");
             }
         }
 
-        _logger.ZLogInformation($"[{userId} {userName}] Success Send mail This PackageId : {packageBuyRequest.PackageId}");
+        _logger.ZLogInformation($"[{userId}] Success Send mail This PackageId : {packageBuyRequest.PackageId}");
 
         return new PackageBuyResponse
         {
@@ -86,14 +85,14 @@ public class PackageBuyController : Controller
         };
     }
 
-    async Task<(ErrorState, int)> Buy(PackageBuyRequest packageBuyRequest, int userId)
+    async Task<ErrorState> Buy(PackageBuyRequest packageBuyRequest, int userId)
     {
         if(!await _packagePaymentDB.BuyPackage(packageBuyRequest.ReceiptId, packageBuyRequest.PackageId, userId))
         {
-            return (ErrorState.FailedConnectDatabase, -1);
+            return ErrorState.FailedBuyPackage;
         }
 
-        return (ErrorState.None, userId);
+        return ErrorState.None;
     }
 
     async Task<ErrorState> Verify(PackageBuyRequest packageBuyRequest)

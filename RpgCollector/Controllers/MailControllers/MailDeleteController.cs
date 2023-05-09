@@ -22,7 +22,6 @@ public class MailDeleteController : Controller
     [HttpPost]
     public async Task<MailDeleteResponse> DeleteMail(MailDeleteRequest mailDeleteRequest)
     {
-        string userName = HttpContext.Request.Headers["User-Name"];
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorState Error;
 

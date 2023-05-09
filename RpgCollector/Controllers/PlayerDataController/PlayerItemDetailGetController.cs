@@ -28,7 +28,6 @@ namespace RpgCollector.Controllers.PlayerDataController
         [HttpPost]
         public async Task<PlayerItemDetailGetResponse> PlayerItemGetDetail(PlayerItemDetailGetRequest playerItemDetailGetRequest)
         {
-            string userName = HttpContext.Request.Headers["User-Name"];
             int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
             _logger.ZLogInformation($"[{userId}] Request /Inventory/Item");
@@ -51,7 +50,6 @@ namespace RpgCollector.Controllers.PlayerDataController
                 };
             }
 
-   
             MasterItem? masterItem = _masterDataDB.GetMasterItem(playerItem.ItemId);
 
             if(masterItem == null)
@@ -62,34 +60,29 @@ namespace RpgCollector.Controllers.PlayerDataController
                 };
             }
 
-            AdditionalState additionalState = new AdditionalState
-            {
-                Attack = 0,
-                Magic = 0,
-                Defence = 0,
-            };
-
             MasterItemAttribute masterItemAttribute = _masterDataDB.GetMasterItemAttribute(masterItem.AttributeId);
             MasterItemType? masterItemType = _masterDataDB.GetMasterItemType(masterItemAttribute.TypeId);
+            AdditionalState additionalState;
 
             if ((TypeDefinition)masterItemAttribute.TypeId != TypeDefinition.EQUIPMENT)
             {
-                return new PlayerItemDetailGetResponse
+                additionalState = new AdditionalState
                 {
-                    Error = RequestResponseModel.ErrorState.None,
-                    ItemPrototype = masterItem,
-                    PlusState = additionalState,
-                    EnchantCount = 0,
-                    AttributeName = masterItemAttribute.AttributeName,
-                    TypeName = masterItemType.TypeName
+                    Attack = 0,
+                    Magic = 0,
+                    Defence = 0
                 };
+            }
+            else
+            {
+                additionalState = CalculateEnchantState(playerItem, masterItem);
             }
 
             return new PlayerItemDetailGetResponse
             {
                 Error = RequestResponseModel.ErrorState.None,
                 ItemPrototype = masterItem, 
-                PlusState = CalculateEnchantState(playerItem, masterItem), 
+                PlusState = additionalState, 
                 EnchantCount = playerItem.EnchantCount,
                 AttributeName = masterItemAttribute.AttributeName,
                 TypeName = masterItemType.TypeName
