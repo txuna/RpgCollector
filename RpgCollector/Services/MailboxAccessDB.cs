@@ -74,12 +74,7 @@ public class MailboxAccessDB : IMailboxAccessDB
             if(isFirst)
             {
                 Mailbox[]? mails = await GetMails(receiverId, 0, 20);
-                //IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
-                //                                               .Where("receiverId", receiverId)
-                //                                               .WhereNot("isDeleted", 1)
-                //                                               .Where("sendDate", ">=", deadLine)
-                //                                               .Take(20)
-                //                                               .GetAsync<Mailbox>();
+
                 return mails.ToArray();
             }
             else
@@ -90,11 +85,6 @@ public class MailboxAccessDB : IMailboxAccessDB
                 }
 
                 int mailCount = await GetTotalMailNumber(receiverId);
-                //int mailCount = await queryFactory.Query("mailbox")
-                //                                  .Where("receiverId", receiverId)
-                //                                  .WhereNot("isDeleted", 1)
-                //                                  .Where("sendDate", ">=", deadLine)
-                //                                  .CountAsync<int>();
 
                 if ((pageNumber - 1) * 20 > mailCount)
                 {
@@ -105,13 +95,7 @@ public class MailboxAccessDB : IMailboxAccessDB
                 int end = start + 20;
 
                 Mailbox[]? mails = await GetMails(receiverId, 0, 20);
-                //IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
-                //                                               .Where("receiverId", receiverId)
-                //                                               .WhereNot("isDeleted", 1)
-                //                                               .Where("sendDate", ">=", deadLine)
-                //                                               .Skip(start)
-                //                                               .Take(end)
-                //                                               .GetAsync<Mailbox>();
+
                 return mails.ToArray();
             }
         }
