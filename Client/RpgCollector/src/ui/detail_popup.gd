@@ -38,34 +38,34 @@ func get_player_item_info_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
-		load_detail(json.itemPrototype, json.plusState, json.enchantCount, json.attributeName, json.typeName)
+		load_detail(json)
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)
 
 
-func load_detail(item_prototype, plus_state, enchant_count, attr_name, type_name):
+func load_detail(json):
 	item_name_label.text = "{item_name}(+{enchant_count})".format({
-		"item_name" : item_prototype.itemName, 
-		"enchant_count" : str(enchant_count)
+		"item_name" : json.itemName, 
+		"enchant_count" : str(json.enchantCount)
 	})
-	item_texture.texture = MasterData.item_texture[str(item_prototype.itemId)]
+	item_texture.texture = MasterData.item_texture[str(json.itemId)]
 	attack_label.text = "공격력 : {base}(+{plus})".format({
-		"base" : str(item_prototype.attack),
-		"plus" : str(plus_state.attack)
+		"base" : str(json.baseAttack),
+		"plus" : str(json.plusAttack)
 	})
 	magic_label.text = "마법력 : {base}(+{plus})".format({
-		"base" : str(item_prototype.magic),
-		"plus" : str(plus_state.magic)
+		"base" : str(json.baseMagic),
+		"plus" : str(json.plusMagic)
 	})
 	defence_label.text = "방어력 : {base}(+{plus})".format({
-		"base" : str(item_prototype.defence),
-		"plus" : str(plus_state.defence)
+		"base" : str(json.baseDefence),
+		"plus" : str(json.plusDefence)
 	})
 	type_label.text = "{attr}({type})".format({
-	"attr" : attr_name, 
-	"type" : type_name
+	"attr" : json.attributeName, 
+	"type" : json.typeName
 	})
 
 

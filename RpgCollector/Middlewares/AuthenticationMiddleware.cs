@@ -55,7 +55,6 @@ namespace RpgCollector.Middlewares
                 }
             }
 
-            redisClient.Dispose();
             await _next(httpContext);
         }
 

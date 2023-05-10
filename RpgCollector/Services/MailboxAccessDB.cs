@@ -64,7 +64,6 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
     }
 
-    /* 유효기간 확인 */
     public async Task<Mailbox[]?> GetPartialMails(int receiverId, int pageNumber)
     {
         try
@@ -85,6 +84,11 @@ public class MailboxAccessDB : IMailboxAccessDB
             int end = start + 20;
 
             Mailbox[]? mails = await GetMails(receiverId, start, end);
+
+            if(mails == null)
+            {
+                return null;
+            }
 
             return mails.ToArray();
         }

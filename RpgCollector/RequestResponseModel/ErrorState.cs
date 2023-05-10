@@ -12,6 +12,7 @@
         NoneExistItem = 7,
         NonePermission = 8,
         FailedUpdateMoney = 9,
+        FailedFetchPlayerItem = 10,
 
         /* Account 101 ~ 200 */
         InvalidPassword = 101,

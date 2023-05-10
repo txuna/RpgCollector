@@ -28,13 +28,10 @@ public class EnchantInfoGetController : Controller
     [HttpPost]
     public async Task<EnchantInfoGetResponse> EnchantInfoGet(EnchantInfoGetRequest enchantInfoGetRequest)
     {
-        string userName = HttpContext.Request.Headers["User-Name"];
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorState Error;
 
-        _logger.ZLogInformation($"[{userId}] Request /Enchant/Info ");
-
-        PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(enchantInfoGetRequest.PlayerItemId);
+        PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(enchantInfoGetRequest.PlayerItemId, userId);
 
         if (playerItem == null)
         {

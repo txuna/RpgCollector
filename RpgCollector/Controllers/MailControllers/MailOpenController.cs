@@ -34,6 +34,7 @@ public class MailOpenController : Controller
 
         /* userId가 receiverdId인 모든 메일 20개만 가지고옴 */
         Mailbox[]? mails = await _mailboxAccessDB.GetPartialMails(userId, (int)openMailboxRequest.PageNumber);
+
         if (mails == null)
         {
             _logger.ZLogInformation($"[{userId}] Invalid PageNumber");

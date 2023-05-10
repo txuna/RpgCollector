@@ -77,13 +77,16 @@ public class MailGetItemController : Controller
     {
         if(!await _mailboxAccessDB.setReceiveFlagInMailItem(mailId))
         {
+            Console.WriteLine("a");
             return ErrorState.CannotSetReceivedFlagInMail;
         }
 
         if (!await _playerAccessDB.AddItemToPlayer(userId, itemId, quantity))
         {
+            Console.WriteLine("b");
             if (!await _mailboxAccessDB.UndoMailItem(mailId))
             {
+                Console.WriteLine("c");
                 return ErrorState.FailedUndoMailItem;
             }
 

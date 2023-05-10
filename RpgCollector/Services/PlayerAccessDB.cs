@@ -18,13 +18,14 @@ public interface IPlayerAccessDB
     Task<PlayerState?> GetPlayerFromUserId(int userId);
     Task<bool> AddItemToPlayer(int userId, int itemId, int quantity);
     Task<bool> AddMoneyToPlayer(int userId, int money);
+    Task<bool> SubtractionMoneyToPlayer(int userId, int money);
     Task<bool> InsertPlayerEquipmentItem(int userId, int itemId, int quantity);
     Task<bool> InsertPlayerConsumptionItem(int userId, int itemId, int quantity);
     Task<bool> UpdatePlayerConsumptionItem(int userId, int itemId, int quantity);
     Task<PlayerItem?> GetPlayerConsumptionItem(int userId, int itemId);
     Task<bool> HasItem(int userId, int itemId);
     Task<bool> IsItemOwner(int playerItemId, int userId);
-    Task<PlayerItem?> GetPlayerItem(int playerItemId);
+    Task<PlayerItem?> GetPlayerItem(int playerItemId, int userId);
     Task<bool> SetInitPlayerState(int userId);
     Task<bool> SetInitPlayerItems(int userId);
     Task<bool> RemovePlayerItem(int playerItemId);
@@ -110,22 +111,38 @@ public class PlayerAccessDB : IPlayerAccessDB
     {
         try
         {
-            PlayerState? playerState = await GetPlayerFromUserId(userId);
-            if (playerState == null)
+            int effectedRow = await queryFactory.Query("players").Where("userId", userId).IncrementAsync("money", money); 
+
+            if(effectedRow == 0)
             {
                 return false;
             }
-            await queryFactory.Query("players").Where("userId", userId).UpdateAsync(new
-            {
-                money = playerState.Money + money
-            });
+            return true;
         }
         catch (Exception ex)
         {
             _logger.ZLogError(ex.Message);
             return false;
         }
-        return true;
+    }
+
+    public async Task<bool> SubtractionMoneyToPlayer(int userId, int money)
+    {
+        try
+        {
+            int effectedRow = await queryFactory.Query("players").Where("userId", userId).IncrementAsync("money", -money);
+
+            if(effectedRow == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
     }
 
     public async Task<PlayerState?> GetPlayerFromUserId(int userId)
@@ -142,11 +159,14 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
     }
 
-    public async Task<PlayerItem?> GetPlayerItem(int playerItemId)
+    public async Task<PlayerItem?> GetPlayerItem(int playerItemId, int userId)
     {
         try
         {
-            PlayerItem playerItem = await queryFactory.Query("player_items").Where("playerItemId", playerItemId).FirstAsync<PlayerItem>();
+            PlayerItem playerItem = await queryFactory.Query("player_items")
+                                                      .Where("playerItemId", playerItemId)
+                                                      .Where("userId", userId)
+                                                      .FirstAsync<PlayerItem>();
             return playerItem;
         }
         catch (Exception ex)
@@ -265,7 +285,10 @@ public class PlayerAccessDB : IPlayerAccessDB
                     userId = userId,
                     itemId = itemId,
                     quantity = 1,
-                    enchantCount = 0
+                    enchantCount = 0,
+                    attack = 0,
+                    magic = 0, 
+                    defence = 0
                 });
             }
             return true;
@@ -339,6 +362,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         try
         {
             InitPlayerState initPlayerState = _masterDataDB.GetInitPlayerState();
+
             await queryFactory.Query("players").InsertAsync(new
             {
                 userId = userId,
@@ -350,6 +374,7 @@ public class PlayerAccessDB : IPlayerAccessDB
                 defence = initPlayerState.Defence,
                 magic = initPlayerState.Magic,
             });
+
             return true;
         }
         catch (Exception ex)

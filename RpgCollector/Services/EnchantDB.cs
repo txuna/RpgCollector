@@ -14,7 +14,6 @@ namespace RpgCollector.Services;
 public interface IEnchantDB
 { 
     Task<bool> DoEnchant(PlayerItem playerItem);
-    Task<bool> EnchantLog(int playerItemId, int userId, int currentEnchantCount, int result);
 }
 
 public class EnchantDB : IEnchantDB
@@ -32,34 +31,23 @@ public class EnchantDB : IEnchantDB
         Open();
     }
 
-    public async Task<bool> EnchantLog(int playerItemId, int userId, int currentEnchantCount, int result)
-    {
-        try
-        {
-            await queryFactory.Query("player_enchant_log").InsertAsync(new
-            {
-                playerItemId = playerItemId,
-                userId = userId,
-                enchantCount = currentEnchantCount + result,
-                result = result
-            });
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return false;
-        }
-    }
-
     public async Task<bool> DoEnchant(PlayerItem playerItem)
     {
         try
         {
-            await queryFactory.Query("player_items").Where("playerItemId", playerItem.PlayerItemId).UpdateAsync(new
+            int effectedRow = await queryFactory.Query("player_items").Where("playerItemId", playerItem.PlayerItemId).UpdateAsync(new
             {
-                enchantCount = playerItem.EnchantCount + 1
+                enchantCount = playerItem.EnchantCount + 1,
+                attack = playerItem.Attack,
+                defence = playerItem.Defence,
+                magic = playerItem.Magic,
             });
+
+            if(effectedRow == 0)
+            {
+                return false;
+            }
+
             return true;
         }
         catch (Exception ex)

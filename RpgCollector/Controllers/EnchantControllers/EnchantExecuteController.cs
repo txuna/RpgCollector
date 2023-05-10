@@ -41,15 +41,13 @@ public class EnchantExecuteController : Controller
 
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId}] Request /Enchant");
-
-        PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemId);
+        PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemId, userId);
 
         if (playerItem == null)
         {
             return new EnchantExecuteResponse
             {
-                Error = ErrorState.NoneExistItem
+                Error = ErrorState.FailedFetchPlayerItem
             };
         }
 
@@ -63,37 +61,35 @@ public class EnchantExecuteController : Controller
             };
         }
 
-        Error = await Verify(playerItem, masterItem, userId); 
-
-        if(Error != ErrorState.None)
-        {
-            return new EnchantExecuteResponse
-            {
-                Error = Error
-            };
-        }
-
-        (Error, result) = await ExecuteEnchant(playerItem, userId);
-
-        if(Error != ErrorState.None)
-        {
-            return new EnchantExecuteResponse
-            {
-                Error = Error
-            };
-        }
-
         MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount + 1);
 
-        if(!await _playerAccessDB.AddMoneyToPlayer(userId, -masterEnchantInfo.Price))
+        Error = await Verify(playerItem, masterItem, userId, masterEnchantInfo); 
+
+        if(Error != ErrorState.None)
+        {
+            return new EnchantExecuteResponse
+            {
+                Error = Error
+            };
+        }
+
+        (Error, result) = await ExecuteEnchant(playerItem, masterItem, masterEnchantInfo);
+
+        if(Error != ErrorState.None)
+        {
+            return new EnchantExecuteResponse
+            {
+                Error = Error
+            };
+        }
+
+        if (!await _playerAccessDB.SubtractionMoneyToPlayer(userId, masterEnchantInfo.Price))
         {
             return new EnchantExecuteResponse
             {
                 Error = ErrorState.FailedFetchMoney
             };
         }
-
-        await LogEnchant(playerItem, userId, result);
         
         return new EnchantExecuteResponse
         {
@@ -102,16 +98,9 @@ public class EnchantExecuteController : Controller
         };
     }
 
-    async Task<ErrorState> Verify(PlayerItem playerItem, MasterItem masterItem, int userId)
+    async Task<ErrorState> Verify(PlayerItem playerItem, MasterItem masterItem, int userId, MasterEnchantInfo masterEnchantInfo)
     {
         ErrorState Error;
-
-        Error = await VerifyItemPermission(playerItem.PlayerItemId, userId);
-
-        if(Error != ErrorState.None)
-        {
-            return Error;
-        }
 
         Error = VerifyItemType(masterItem.AttributeId);
 
@@ -127,7 +116,7 @@ public class EnchantExecuteController : Controller
             return Error;
         }
 
-        Error = await VerifyMoney(userId, playerItem.EnchantCount + 1);
+        Error = await VerifyMoney(userId, masterEnchantInfo);
 
         if (Error != ErrorState.None)
         {
@@ -137,25 +126,13 @@ public class EnchantExecuteController : Controller
         return ErrorState.None;
     }
 
-    async Task<ErrorState> VerifyMoney(int userId, int nextEnchantCount)
+    async Task<ErrorState> VerifyMoney(int userId, MasterEnchantInfo masterEnchantInfo)
     {
-        MasterEnchantInfo masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(nextEnchantCount);
-
         int playerMoney = await _playerAccessDB.GetPlayerMoney(userId);
 
         if (playerMoney < masterEnchantInfo.Price)
         {
             return ErrorState.NotEnoughMoney;
-        }
-
-        return ErrorState.None;
-    }
-
-    async Task<ErrorState> VerifyItemPermission(int playerItemId, int userId)
-    {
-        if (!await _playerAccessDB.IsItemOwner(playerItemId, userId))
-        {
-            return ErrorState.IsNotOwnerThisItem;
         }
 
         return ErrorState.None;
@@ -188,15 +165,8 @@ public class EnchantExecuteController : Controller
         return ErrorState.None;
     }
 
-    (ErrorState, int) CheckPercent(PlayerItem playerItem, int userId)
+    (ErrorState, int) CalculateCanEnchant(MasterEnchantInfo masterEnchantInfo)
     {
-        MasterEnchantInfo? masterEnchantInfo = _masterDataDB.GetMasterEnchantInfo(playerItem.EnchantCount + 1);
-
-        if (masterEnchantInfo == null)
-        {
-            return (ErrorState.NoneExistEnchantCount, -1);
-        }
-
         Random random = new Random();
         int randomValue = random.Next(101);
         int result = randomValue < masterEnchantInfo.Percent ? 1 : 0;
@@ -204,9 +174,9 @@ public class EnchantExecuteController : Controller
         return (ErrorState.None, result);
     }
 
-    async Task<(ErrorState, int)> ExecuteEnchant(PlayerItem playerItem, int userId)
+    async Task<(ErrorState, int)> ExecuteEnchant(PlayerItem playerItem, MasterItem masterItem, MasterEnchantInfo masterEnchantInfo)
     {
-        var (Error, result) = CheckPercent(playerItem, userId);
+        var (Error, result) = CalculateCanEnchant(masterEnchantInfo);
 
         if (Error != ErrorState.None)
         {
@@ -215,6 +185,8 @@ public class EnchantExecuteController : Controller
 
         if (result == 1)
         {
+            playerItem = CalculateIncreasementStatsValue(playerItem, masterItem, masterEnchantInfo);
+
             if (!await _enchantDB.DoEnchant(playerItem))
             {
                 return (ErrorState.NoneExistItem, -1);
@@ -231,13 +203,17 @@ public class EnchantExecuteController : Controller
         return (ErrorState.None, result);
     }
 
-    async Task<ErrorState> LogEnchant(PlayerItem playerItem, int userId, int result)
+    PlayerItem CalculateIncreasementStatsValue(PlayerItem playerItem, MasterItem masterItem, MasterEnchantInfo masterEnchantInfo)
     {
-        if (!await _enchantDB.EnchantLog(playerItem.PlayerItemId, userId, playerItem.EnchantCount, result))
+        if(masterItem.AttributeId == 1)
         {
-            _logger.ZLogError($"[{userId}] Failed Enchant Logging Player Item : {playerItem.PlayerItemId}");
+            playerItem.Attack += (int)Math.Ceiling((double)(playerItem.Attack + masterItem.Attack) * masterEnchantInfo.IncreasementValue / 100);
+        }
+        else if (masterItem.AttributeId == 2 || masterItem.AttributeId == 3)
+        {
+            playerItem.Defence += (int)Math.Ceiling((double)(playerItem.Defence + masterItem.Defence) * masterEnchantInfo.IncreasementValue / 100);
         }
 
-       return ErrorState.None;
+        return playerItem;
     }
 }
