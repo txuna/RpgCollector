@@ -39,7 +39,15 @@ public class AttendanceDB : IAttendanceDB
     {
         try
         {
-            await queryFactory.Query("player_attendance_info").Where("userId", userId).Where("date", day).DeleteAsync();
+            int effectedRow = await queryFactory.Query("player_attendance_info")
+                              .Where("userId", userId)
+                              .Where("date", day)
+                              .IncrementAsync("sequenceDayCount", -1);
+
+            if(effectedRow == 0)
+            {
+                return false;
+            }
             return true;
         }
         catch (Exception ex)

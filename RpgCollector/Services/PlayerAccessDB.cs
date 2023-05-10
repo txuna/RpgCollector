@@ -55,7 +55,12 @@ public class PlayerAccessDB : IPlayerAccessDB
     {
         try
         {
-            await queryFactory.Query("players").Where("userId", userId).DeleteAsync();
+            int effectedRow = await queryFactory.Query("players").Where("userId", userId).DeleteAsync();
+
+            if(effectedRow == 0)
+            {
+                return false;
+            }
             return true;
         }
         catch (Exception ex)
@@ -97,7 +102,12 @@ public class PlayerAccessDB : IPlayerAccessDB
     {
         try
         {
-            await queryFactory.Query("player_items").Where("playerItemId", playerItemId).DeleteAsync();
+            int effectedRow = await queryFactory.Query("player_items").Where("playerItemId", playerItemId).DeleteAsync();
+
+            if(effectedRow == 0)
+            {
+                return false;
+            }
             return true;
         }
         catch(Exception ex)
@@ -257,7 +267,7 @@ public class PlayerAccessDB : IPlayerAccessDB
     {
         try
         {
-            await queryFactory.Query("player_items").InsertAsync(new
+            int effectedRow = await queryFactory.Query("player_items").InsertAsync(new
             {
                 userId = userId,
                 itemId = itemId,
@@ -267,6 +277,11 @@ public class PlayerAccessDB : IPlayerAccessDB
                 magic = 0,
                 enchantCount = 0
             });
+
+            if(effectedRow == 0)
+            {
+                return false;
+            }
 
             return true;
         }
@@ -283,7 +298,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         {
             for (int i = 0; i < quantity; i++)
             {
-                await queryFactory.Query("player_items").InsertAsync(new
+                int effectedRow = await queryFactory.Query("player_items").InsertAsync(new
                 {
                     userId = userId,
                     itemId = itemId,
@@ -293,6 +308,11 @@ public class PlayerAccessDB : IPlayerAccessDB
                     magic = 0, 
                     defence = 0
                 });
+
+                if(effectedRow == 0)
+                {
+                    return false;
+                }
             }
             return true;
         }
@@ -366,7 +386,7 @@ public class PlayerAccessDB : IPlayerAccessDB
         {
             InitPlayerState initPlayerState = _masterDataDB.GetInitPlayerState();
 
-            await queryFactory.Query("players").InsertAsync(new
+            int effectedRow = await queryFactory.Query("players").InsertAsync(new
             {
                 userId = userId,
                 hp = initPlayerState.Hp,
@@ -377,6 +397,11 @@ public class PlayerAccessDB : IPlayerAccessDB
                 defence = initPlayerState.Defence,
                 magic = initPlayerState.Magic,
             });
+
+            if(effectedRow == 0)
+            {
+                return false;
+            }
 
             return true;
         }
