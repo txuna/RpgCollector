@@ -70,7 +70,11 @@ public class AccountDB : IAccountDB
     {
         try
         {
-            await queryFactory.Query("users").Where("userName", userName).DeleteAsync();
+            int effectedRow = await queryFactory.Query("users").Where("userName", userName).DeleteAsync();
+            if(effectedRow == 0)
+            {
+                return false;
+            }
             return true;
         }
         catch ( Exception ex )

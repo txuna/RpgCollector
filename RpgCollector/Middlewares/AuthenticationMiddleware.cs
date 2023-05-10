@@ -9,6 +9,7 @@ using System.Net.Http;
 using Microsoft.Extensions.Options;
 using RpgCollector.Utility;
 using RpgCollector.Models.AccountModel;
+using System.Runtime.InteropServices;
 
 namespace RpgCollector.Middlewares
 {
@@ -121,12 +122,13 @@ namespace RpgCollector.Middlewares
 
             try
             {
-                if(!await redisDB.KeyExistsAsync(userName))
+                string? redisString = await redisDB.StringGetAsync(userName);
+
+                if(redisString == null)
                 {
                     return false;
                 }
-                
-                string redisString = await redisDB.StringGetAsync(userName);
+
                 RedisUser redisUser = JsonSerializer.Deserialize<RedisUser>(redisString);
 
                 if (redisUser.AuthToken != authToken)
@@ -161,8 +163,17 @@ namespace RpgCollector.Middlewares
             string? requestClientVersion = httpContext.Request.Headers["Client-Version"];
             string? requestMasterDataVersion = httpContext.Request.Headers["MasterData-Version"];
 
-            string? redisClientVersion = await redisDB.StringGetAsync("ClientVersion");
-            string? redisMasterDataVersion = await redisDB.StringGetAsync("MasterDataVersion"); 
+            string? gameString = await redisDB.StringGetAsync("Version");
+
+            if (gameString == null)
+            {
+                return false;
+            }
+
+            GameVersion? gameVersion = JsonSerializer.Deserialize<GameVersion>(gameString);
+
+            string? redisClientVersion = gameVersion.ClientVersion;
+            string? redisMasterDataVersion = gameVersion.MasterDataVersion;
 
             if(requestClientVersion != redisClientVersion)
             {

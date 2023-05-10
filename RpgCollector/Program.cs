@@ -14,6 +14,7 @@ using System.Text.Json.Serialization;
 using RpgCollector.Models.NoticeModel;
 using ZLogger;
 using RpgCollector.Models.InitPlayerModel;
+using RpgCollector.Models.AccountModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -134,9 +135,12 @@ async Task<bool> LoadData()
             UploaderId = 1,
         }));
 
-        // Client Version과 MasterData Version을 Redis에 등록 
-        await redisDB.StringSetAsync("ClientVersion", "1.0.0");
-        await redisDB.StringSetAsync("MasterDataVersion", "1.0.0");
+        await redisDB.StringSetAsync("Version", JsonSerializer.Serialize(new GameVersion
+        {
+            ClientVersion = "1.0.0",
+            MasterDataVersion = "1.0.0",
+        }));
+
     }
     catch (Exception ex)
     {
