@@ -29,21 +29,6 @@ public class MailReadController : Controller
     public async Task<MailReadResponse> ReadMail(MailReadRequest readMailRequest)
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
-        ErrorState Error;
-
-        _logger.ZLogInformation($"[{userId}] Request /Mail/Read");
-
-        Error = await Verify(readMailRequest.MailId, userId);
-
-        if(Error != ErrorState.None)
-        {
-            _logger.ZLogInformation($"[{userId}] None Have Permission This Mail : {readMailRequest.MailId}");
-
-            return new MailReadResponse
-            {
-                Error = Error
-            };
-        }
 
         Mailbox? mail = await _mailboxAccessDB.GetMailFromUserId(readMailRequest.MailId, userId);
 
@@ -57,15 +42,13 @@ public class MailReadController : Controller
             };
         }
 
-        if(!await _mailboxAccessDB.ReadMail(readMailRequest.MailId))
+        if(!await _mailboxAccessDB.UpdateReadFlagInMail(readMailRequest.MailId))
         {
             return new MailReadResponse 
             { 
                 Error = ErrorState.FailedReadMail
             };
         }
-
-        MailItem? mailItem = await _mailboxAccessDB.GetMailItem(readMailRequest.MailId);
 
         _logger.ZLogInformation($"[{userId}] Success Read Mail {readMailRequest.MailId}");
 
@@ -76,28 +59,9 @@ public class MailReadController : Controller
             Title = mail.Title, 
             Content = mail.Content,
             SendDate = mail.SendDate,
-            HasItem = mail.HasItem,
-            MailItem = mailItem
+            ItemId = mail.ItemId,
+            Quantity = mail.Quantity,
+            HasReceived = mail.HasReceived,
         };
-    }
-
-    async Task<ErrorState> Verify(int mailId, int userId)
-    {
-        if (await _mailboxAccessDB.IsDeadLine(mailId))
-        {
-            return ErrorState.AlreadyMailDeadlineExpireDate;
-        }
-
-        if (await _mailboxAccessDB.IsDeletedMail(mailId))
-        {
-            return ErrorState.DeletedMail;
-        }
-
-        if(!await _mailboxAccessDB.IsMailOwner(mailId, userId))
-        {
-            return ErrorState.NoneOwnerThisMail;
-        }
-
-        return ErrorState.None;
     }
 }

@@ -5,19 +5,18 @@ extends CanvasLayer
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	open_mail_request(true, 1)
+	open_mail_request(1)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
 
-func open_mail_request(is_first:bool, page_number:int):
+func open_mail_request(page_number:int):
 	for node in mail_container.get_children():
 		node.queue_free()
 
 	var json = JSON.stringify({
-		"IsFirstOpen" : is_first, 
 		"PageNumber" : page_number
 	})
 	var http = HTTPRequest.new() 
@@ -35,7 +34,7 @@ func make_page_number(total_page_number):
 		btn.text = str(num+1)
 		btn.custom_minimum_size = Vector2(45, 45)
 		btn.add_theme_font_size_override("font_size", 24)
-		btn.pressed.connect(open_mail_request.bind(false, num+1))
+		btn.pressed.connect(open_mail_request.bind(num+1))
 		page_btn_list.add_child(btn)
 
 

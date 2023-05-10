@@ -9,7 +9,10 @@
         public string Content { get; set; }
         public string SendDate { get; set; }
         public int IsRead { get; set; }
-        public int HasItem { get; set; }
         public int IsDeleted { get; set; }
+        public int ItemId { get; set; }
+        public int Quantity { get; set; }
+        public int HasReceived { get; set; }
+        public string ExpireDate { get; set; }
     }
 }

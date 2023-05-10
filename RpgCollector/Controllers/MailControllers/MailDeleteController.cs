@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RpgCollector.Models.MailModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.RequestResponseModel.MailDeleteModel;
 using RpgCollector.Services;
@@ -25,14 +26,10 @@ public class MailDeleteController : Controller
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorState Error;
 
-        _logger.ZLogInformation($"[{userId}] Request /Mail/Delete");
-
-        Error = await Verify(mailDeleteRequest.MailId, userId); 
+        Error = await Verify(mailDeleteRequest.MailId, userId);
 
         if(Error != ErrorState.None)
         {
-            _logger.ZLogInformation($"[{userId}] None Have Permission Delete Mail : {mailDeleteRequest.MailId}");
-
             return new MailDeleteResponse
             {
                 Error = Error
@@ -59,17 +56,14 @@ public class MailDeleteController : Controller
 
     async Task<ErrorState> Verify(int mailId, int userId)
     {
-        if (await _mailboxAccessDB.IsDeadLine(mailId))
+        Mailbox? mailbox = await _mailboxAccessDB.GetMailFromUserId(mailId, userId);
+
+        if(mailbox == null)
         {
-            return ErrorState.AlreadyMailDeadlineExpireDate;
+            return ErrorState.FailedFetchMail;
         }
 
-        if (!await _mailboxAccessDB.IsMailOwner(mailId, userId))
-        {
-            return ErrorState.NoneOwnerThisMail;
-        }
-
-        if(await _mailboxAccessDB.IsDeletedMail(mailId))
+        if(mailbox.IsDeleted == 1)
         {
             return ErrorState.DeletedMail;
         }

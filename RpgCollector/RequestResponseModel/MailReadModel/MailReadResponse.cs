@@ -9,7 +9,8 @@ namespace RpgCollector.RequestResponseModel.MailReadModel
         public string Title { get; set; }
         public string Content { get; set; }
         public string SendDate { get; set; }
-        public int HasItem { get; set; }
-        public MailItem? MailItem { get; set; }
+        public int ItemId { get; set; }
+        public int Quantity { get; set; }
+        public int HasReceived { get; set; }
     }
 }

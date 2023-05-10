@@ -38,21 +38,25 @@ public class MailGetItemController : Controller
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorState Error;
 
-        _logger.ZLogInformation($"[{userId}] Request /Mail/Item");
+        Mailbox? mailbox = await _mailboxAccessDB.GetMailFromUserId(mailGetItemRequest.MailId, userId);
 
-        Error = await VerifyMail(mailGetItemRequest, userId);
-
-        if(Error != ErrorState.None)
+        if(mailbox == null)
         {
-            _logger.ZLogInformation($"[{userId}] None Have Permission This Mail {mailGetItemRequest.MailId}");
-
             return new MailGetItemResponse
             {
-                Error = Error
+                Error = ErrorState.FailedFetchMail
             };
         }
 
-        Error = await AddItemToPlayer(userId, mailGetItemRequest.MailId);
+        if(mailbox.ItemId == 0 || mailbox.HasReceived == 1)
+        {
+            return new MailGetItemResponse
+            {
+                Error = ErrorState.FailedFetchMailItem
+            };
+        }
+
+        Error = await AddItemToPlayer(userId, mailbox.ItemId, mailbox.Quantity, mailbox.MailId);
 
         if(Error != ErrorState.None)
         {
@@ -69,47 +73,16 @@ public class MailGetItemController : Controller
         };
     }
 
-    async Task<ErrorState> VerifyMail(MailGetItemRequest mailGetItemRequest, int userId)
+    async Task<ErrorState> AddItemToPlayer(int userId, int itemId, int quantity, int mailId)
     {
-        if (await _mailboxAccessDB.IsDeadLine(mailGetItemRequest.MailId))
-        {
-            return ErrorState.AlreadyMailDeadlineExpireDate;
-        }
-
-        if (await _mailboxAccessDB.IsDeletedMail(mailGetItemRequest.MailId))
-        {
-            return ErrorState.DeletedMail;
-        }
-
-        if (!await _mailboxAccessDB.HasMailItem(mailGetItemRequest.MailId))
-        {
-            return ErrorState.NoneHaveItemInMail;
-        }
-
-        if (!await _mailboxAccessDB.IsMailOwner(mailGetItemRequest.MailId, userId))
-        {
-            return ErrorState.NoneOwnerThisMail;
-        }
-        return ErrorState.None;
-    }
-
-    async Task<ErrorState> AddItemToPlayer(int userId, int mailId)
-    {
-        MailItem? mailItem = await _mailboxAccessDB.ReceiveMailItem(mailId);
-
-        if (mailItem == null)
-        {
-            return ErrorState.AlreadyReceivedItemFromMail;
-        }
-
         if(!await _mailboxAccessDB.setReceiveFlagInMailItem(mailId))
         {
             return ErrorState.CannotSetReceivedFlagInMail;
         }
 
-        if (!await _playerAccessDB.AddItemToPlayer(userId, mailItem.ItemId, mailItem.Quantity))
+        if (!await _playerAccessDB.AddItemToPlayer(userId, itemId, quantity))
         {
-            if (!await _mailboxAccessDB.UndoMailItem(mailItem.MailId))
+            if (!await _mailboxAccessDB.UndoMailItem(mailId))
             {
                 return ErrorState.FailedUndoMailItem;
             }

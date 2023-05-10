@@ -26,21 +26,14 @@ public class MailOpenController : Controller
         _logger = logger;
     }
 
-    /*
-    *  우편함을 처음 오픈하는것이라면 전채갯수/20해서 나온 TotalPageNumber 하고 날짜별로 정렬된 상위 20개만 전송 
-    *  그외에는 요청받은 PageNumber에 따라서 반환
-    */
     [Route("/Mail/Open")]
     [HttpPost]
     public async Task<MailOpenResponse> OpenMailbox(MailOpenRequest openMailboxRequest)
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId}] Request 'Open Mail'");
-
         /* userId가 receiverdId인 모든 메일 20개만 가지고옴 */
-        Mailbox[]? mails = await _mailboxAccessDB.GetPartialMails(userId, (bool)openMailboxRequest.IsFirstOpen, (int)openMailboxRequest.PageNumber);
-
+        Mailbox[]? mails = await _mailboxAccessDB.GetPartialMails(userId, (int)openMailboxRequest.PageNumber);
         if (mails == null)
         {
             _logger.ZLogInformation($"[{userId}] Invalid PageNumber");
@@ -69,8 +62,6 @@ public class MailOpenController : Controller
         {
             openMail[i] = new OpenMail();
             openMail[i].Title = mails[i].Title;
-            //openMail[i].SenderId = mails[i].SenderId;
-            //openMail[i].SendDate = mails[i].SendDate;
             openMail[i].MailId = mails[i].MailId;
         }
 

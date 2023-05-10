@@ -30,17 +30,17 @@ func setup(json:Dictionary):
 	date.text = json.sendDate
 	mail_id = json.mailId
 	
-	if json.hasItem == 0 or json.mailItem == null:
+	if json.itemId == 0:
 		get_item_btn.disabled = true
 		item_label.text = "아이템 포함되지 않은 메일입니다."
 		
 	else:
-		if json.mailItem.hasReceived == 1:
+		if json.hasReceived == 1:
 			get_item_btn.disabled = true
 			item_label.text = "이미 아이템을 수령한 메일입니다."
 		else:
-			item_id = json.mailItem.itemId 
-			quantity = json.mailItem.quantity
+			item_id = json.itemId
+			quantity = json.quantity
 			item_info_request(item_id)
 		
 		
