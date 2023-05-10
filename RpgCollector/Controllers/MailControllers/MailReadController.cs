@@ -59,11 +59,9 @@ public class MailReadController : Controller
 
         if(!await _mailboxAccessDB.ReadMail(readMailRequest.MailId))
         {
-            _logger.ZLogInformation($"[{userId}] Already Read Mail : {readMailRequest.MailId}");
-
             return new MailReadResponse 
             { 
-                Error = ErrorState.FailedFetchMail
+                Error = ErrorState.FailedReadMail
             };
         }
 

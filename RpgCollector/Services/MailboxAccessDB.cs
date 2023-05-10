@@ -27,6 +27,7 @@ public interface IMailboxAccessDB
     Task<bool> DeleteMail(int mailId);
     Task<bool> IsDeadLine(int mailId);
     Task<bool> setReceiveFlagInMailItem(int mailId);
+    Task<Mailbox[]?> GetMails(int receiverId, int start, int end);
 }
 
 public class MailboxAccessDB : IMailboxAccessDB
@@ -46,6 +47,25 @@ public class MailboxAccessDB : IMailboxAccessDB
         Open();
     }
 
+    public async Task<Mailbox[]?> GetMails(int receiverId, int start, int end)
+    {
+        try
+        {
+            IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
+                                                               .Where("receiverId", receiverId)
+                                                               .WhereNot("isDeleted", 1)
+                                                               .Where("sendDate", ">=", deadLine)
+                                                               .Skip(start)
+                                                               .Take(end).GetAsync<Mailbox>();
+            return mails.ToArray();
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return null;
+        }
+    }
+
     /* 유효기간 확인 */
     public async Task<Mailbox[]?> GetPartialMails(int receiverId, bool isFirst, int pageNumber)
     {
@@ -53,11 +73,13 @@ public class MailboxAccessDB : IMailboxAccessDB
         {
             if(isFirst)
             {
-                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
-                                                               .Where("receiverId", receiverId)
-                                                               .WhereNot("isDeleted", 1)
-                                                               .Where("sendDate", ">=", deadLine)
-                                                               .Take(20).GetAsync<Mailbox>();
+                Mailbox[]? mails = await GetMails(receiverId, 0, 20);
+                //IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
+                //                                               .Where("receiverId", receiverId)
+                //                                               .WhereNot("isDeleted", 1)
+                //                                               .Where("sendDate", ">=", deadLine)
+                //                                               .Take(20)
+                //                                               .GetAsync<Mailbox>();
                 return mails.ToArray();
             }
             else
@@ -67,11 +89,12 @@ public class MailboxAccessDB : IMailboxAccessDB
                     return null;
                 }
 
-                int mailCount = await queryFactory.Query("mailbox")
-                                                  .Where("receiverId", receiverId)
-                                                  .WhereNot("isDeleted", 1)
-                                                  .Where("sendDate", ">=", deadLine)
-                                                  .CountAsync<int>();
+                int mailCount = await GetTotalMailNumber(receiverId);
+                //int mailCount = await queryFactory.Query("mailbox")
+                //                                  .Where("receiverId", receiverId)
+                //                                  .WhereNot("isDeleted", 1)
+                //                                  .Where("sendDate", ">=", deadLine)
+                //                                  .CountAsync<int>();
 
                 if ((pageNumber - 1) * 20 > mailCount)
                 {
@@ -81,13 +104,14 @@ public class MailboxAccessDB : IMailboxAccessDB
                 int start = (pageNumber - 1) * 20;
                 int end = start + 20;
 
-                IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
-                                                               .Where("receiverId", receiverId)
-                                                               .WhereNot("isDeleted", 1)
-                                                               .Where("sendDate", ">=", deadLine)
-                                                               .Skip(start)
-                                                               .Take(end)
-                                                               .GetAsync<Mailbox>();
+                Mailbox[]? mails = await GetMails(receiverId, 0, 20);
+                //IEnumerable<Mailbox> mails = await queryFactory.Query("mailbox")
+                //                                               .Where("receiverId", receiverId)
+                //                                               .WhereNot("isDeleted", 1)
+                //                                               .Where("sendDate", ">=", deadLine)
+                //                                               .Skip(start)
+                //                                               .Take(end)
+                //                                               .GetAsync<Mailbox>();
                 return mails.ToArray();
             }
         }
