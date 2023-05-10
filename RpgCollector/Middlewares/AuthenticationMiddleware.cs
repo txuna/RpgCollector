@@ -59,7 +59,7 @@ namespace RpgCollector.Middlewares
             await _next(httpContext);
         }
 
-        public bool CheckExclusivePath(HttpContext httpContext)
+        bool CheckExclusivePath(HttpContext httpContext)
         {
             string rpath = httpContext.Request.Path;
 
@@ -73,7 +73,7 @@ namespace RpgCollector.Middlewares
             return false;
         }
 
-        public bool VerifyHeader(HttpContext httpContext)
+        bool VerifyHeader(HttpContext httpContext)
         {
             if (!httpContext.Request.Headers.ContainsKey("User-Name"))
             {
@@ -114,7 +114,7 @@ namespace RpgCollector.Middlewares
         /*
          * 전송받은 UserId와 AuthToken이 Redis에 저장되어 있는지 저장되어있다면 올바른 토큰인지 확인한다.  
          */
-        public async Task<bool> VerifyToken(HttpContext httpContext)
+        async Task<bool> VerifyToken(HttpContext httpContext)
         {
             string? authToken = httpContext.Request.Headers["Auth-Token"];
             string? userName = httpContext.Request.Headers["User-Name"];
@@ -135,18 +135,22 @@ namespace RpgCollector.Middlewares
                     return false;
                 }
 
-                httpContext.Items["User-Id"] = Convert.ToString(redisUser.UserId);
+                SetUserIdInHttpContext(httpContext, redisUser.UserId);
 
                 return true;
 
             }catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 return false;
             }
         }
 
-        public async Task<bool> VerifyVersion(HttpContext httpContext)
+        void SetUserIdInHttpContext(HttpContext httpContext, int userId)
+        {
+            httpContext.Items["User-Id"] = Convert.ToString(userId);
+        }
+
+        async Task<bool> VerifyVersion(HttpContext httpContext)
         {
             if (redisClient == null)
             {
