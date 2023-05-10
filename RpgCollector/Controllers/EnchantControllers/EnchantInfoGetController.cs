@@ -29,7 +29,7 @@ public class EnchantInfoGetController : Controller
     public async Task<EnchantInfoGetResponse> EnchantInfoGet(EnchantInfoGetRequest enchantInfoGetRequest)
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
-        ErrorState Error;
+        ErrorCode Error;
 
         PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(enchantInfoGetRequest.PlayerItemId, userId);
 
@@ -37,7 +37,7 @@ public class EnchantInfoGetController : Controller
         {
             return new EnchantInfoGetResponse
             {
-                Error = ErrorState.NoneExistItem
+                Error = ErrorCode.NoneExistItem
             };
         }
 
@@ -47,13 +47,13 @@ public class EnchantInfoGetController : Controller
         {
             return new EnchantInfoGetResponse
             {
-                Error = ErrorState.NoneExistItem
+                Error = ErrorCode.NoneExistItem
             };
         }
 
         Error = await Verify(playerItem, masterItem, userId);
 
-        if (Error != ErrorState.None)
+        if (Error != ErrorCode.None)
         {
             return new EnchantInfoGetResponse
             {
@@ -65,7 +65,7 @@ public class EnchantInfoGetController : Controller
 
         return new EnchantInfoGetResponse
         {
-            Error = ErrorState.None,
+            Error = ErrorCode.None,
             CurrentEnchantCount = playerItem.EnchantCount,
             NextEnchantCount = playerItem.EnchantCount + 1, 
             Percent = masterEnchantInfo.Percent, 
@@ -76,62 +76,62 @@ public class EnchantInfoGetController : Controller
         };
     }
 
-    async Task<ErrorState> Verify(PlayerItem playerItem, MasterItem masterItem, int userId)
+    async Task<ErrorCode> Verify(PlayerItem playerItem, MasterItem masterItem, int userId)
     {
-        ErrorState Error;
+        ErrorCode Error;
         Error = await VerifyItemPermission(playerItem.PlayerItemId, userId);
-        if (Error != ErrorState.None)
+        if (Error != ErrorCode.None)
         {
             return Error;
         }
 
         Error = VerifyItemType(masterItem.AttributeId);
-        if (Error != ErrorState.None)
+        if (Error != ErrorCode.None)
         {
             return Error;
         }
 
         Error = VerifyEnchatMaxCount(playerItem, masterItem);
-        if (Error != ErrorState.None)
+        if (Error != ErrorCode.None)
         {
             return Error;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    async Task<ErrorState> VerifyItemPermission(int playerItemId, int userId)
+    async Task<ErrorCode> VerifyItemPermission(int playerItemId, int userId)
     {
         if (!await _playerAccessDB.IsItemOwner(playerItemId, userId))
         {
-            return ErrorState.IsNotOwnerThisItem;
+            return ErrorCode.IsNotOwnerThisItem;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    ErrorState VerifyItemType(int attributeId)
+    ErrorCode VerifyItemType(int attributeId)
     {
         MasterItemAttribute? itemAttribute = _masterDataDB.GetMasterItemAttribute(attributeId);
 
         if (itemAttribute == null)
         {
-            return ErrorState.NoneExistItemType;
+            return ErrorCode.NoneExistItemType;
         }
         if (itemAttribute.TypeId != (int)TypeDefinition.EQUIPMENT)
         {
-            return ErrorState.CantNotEnchantThisType;
+            return ErrorCode.CantNotEnchantThisType;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    ErrorState VerifyEnchatMaxCount(PlayerItem playerItem, MasterItem masterItem)
+    ErrorCode VerifyEnchatMaxCount(PlayerItem playerItem, MasterItem masterItem)
     {
         if (playerItem.EnchantCount >= masterItem.MaxEnchantCount)
         {
-            return ErrorState.AlreadyMaxiumEnchantCount;
+            return ErrorCode.AlreadyMaxiumEnchantCount;
         }
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 }

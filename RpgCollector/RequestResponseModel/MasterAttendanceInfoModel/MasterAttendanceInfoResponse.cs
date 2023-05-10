@@ -4,7 +4,7 @@ namespace RpgCollector.RequestResponseModel.MasterAttendanceInfoModel
 {
     public class MasterAttendanceInfoResponse
     {
-        public ErrorState Error { get; set; }
+        public ErrorCode Error { get; set; }
         public MasterAttendanceReward[] AttendanceRewards { get; set; }
     }
 }

@@ -39,7 +39,7 @@ public class NoticeGetController : Controller
 
             return new NoticeGetResponse
             {
-                Error = ErrorState.FailedConnectRedis,
+                Error = ErrorCode.FailedConnectRedis,
             };
         }
 
@@ -47,7 +47,7 @@ public class NoticeGetController : Controller
 
         return new NoticeGetResponse
         {
-            Error = ErrorState.None,
+            Error = ErrorCode.None,
             NoticeList = result
         };
     }

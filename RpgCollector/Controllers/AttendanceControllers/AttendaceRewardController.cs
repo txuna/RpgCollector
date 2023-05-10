@@ -43,9 +43,9 @@ public class AttendaceRewardController : Controller
         string toDay = DateTime.Now.ToString("yyyy-MM-dd");
         string yesterDay = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
 
-        ErrorState Error = await IsTodayAttendance(userId, toDay);
+        ErrorCode Error = await IsTodayAttendance(userId, toDay);
 
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             _logger.ZLogInformation($"[{userId}] Today Already Attandace UserID");
 
@@ -57,7 +57,7 @@ public class AttendaceRewardController : Controller
 
         Error = await DoAttendance(userId, yesterDay, toDay);
 
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             _logger.ZLogError($"[{userId}] Failed Attandace");
 
@@ -71,18 +71,18 @@ public class AttendaceRewardController : Controller
 
         return new AttendanceResponse
         {
-            Error = ErrorState.None
+            Error = ErrorCode.None
         };
     }
 
-    async Task<ErrorState> IsTodayAttendance(int userId, string toDay)
+    async Task<ErrorCode> IsTodayAttendance(int userId, string toDay)
     {
         if(await _attendanceDB.IsAttendance(userId, toDay))
         {
-            return ErrorState.AlreadyAttendance;
+            return ErrorCode.AlreadyAttendance;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
     async Task<int> GetLastSequenceDayCount(int userId, string yesterDay)
@@ -107,46 +107,46 @@ public class AttendaceRewardController : Controller
         return false;
     }
 
-    async Task<ErrorState> DoAttendance(int userId, string yesterDay, string toDay)
+    async Task<ErrorCode> DoAttendance(int userId, string yesterDay, string toDay)
     {
         int sequenceDayCount = await GetLastSequenceDayCount(userId, yesterDay);
 
         if (!await _attendanceDB.DoAttendance(userId, sequenceDayCount))
         {
-            return ErrorState.FailedAttendance;
+            return ErrorCode.FailedAttendance;
         }
 
-        ErrorState Error = await SendAttendanceReward(userId, sequenceDayCount);
+        ErrorCode Error = await SendAttendanceReward(userId, sequenceDayCount);
         
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             Error = await UndoAttendance(userId, toDay);
             return Error;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    async Task<ErrorState> SendAttendanceReward(int userId, int sequenceDayCount)
+    async Task<ErrorCode> SendAttendanceReward(int userId, int sequenceDayCount)
     {
         MasterAttendanceReward? reward = _masterDataDB.GetMasterAttendanceReward(sequenceDayCount);
         if (reward == null)
         {
-            return ErrorState.FailedSendAttendanceReward;
+            return ErrorCode.FailedSendAttendanceReward;
         }
 
         await _mailboxAccessDB.SendMail(1, userId, "Attendance Reward", $"Thanks for your Sequence Attendance! {sequenceDayCount} Days!", reward.ItemId, reward.Quantity);
         
-        return ErrorState.None;
+        return ErrorCode.None;
     }
     
-    async Task<ErrorState> UndoAttendance(int userId, string toDay)
+    async Task<ErrorCode> UndoAttendance(int userId, string toDay)
     {
         if(!await _attendanceDB.UndoAttendance(userId, toDay))
         {
-            return ErrorState.FailedUndoAttendance;
+            return ErrorCode.FailedUndoAttendance;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 }

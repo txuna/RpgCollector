@@ -2,7 +2,7 @@
 {
     public class EnchantInfoGetResponse
     {
-        public ErrorState Error { get; set; }
+        public ErrorCode Error { get; set; }
         public int CurrentEnchantCount { get; set; }
         public int NextEnchantCount { get; set; }
         public int Percent { get; set; }

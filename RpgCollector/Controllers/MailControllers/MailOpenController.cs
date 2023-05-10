@@ -41,7 +41,7 @@ public class MailOpenController : Controller
 
             return new MailOpenResponse
             {
-                Error = ErrorState.InvalidPageNumber
+                Error = ErrorCode.InvalidPageNumber
             };
         }
 
@@ -49,7 +49,7 @@ public class MailOpenController : Controller
 
         return new MailOpenResponse
         {
-            Error = ErrorState.None,
+            Error = ErrorCode.None,
             Mails = ProcessingMail(mails),
             TotalPageNumber = (int)Math.Ceiling((double)totalPageNumber / 20)
         };

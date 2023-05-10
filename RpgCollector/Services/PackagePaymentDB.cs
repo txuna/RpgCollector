@@ -12,8 +12,8 @@ namespace RpgCollector.Services;
 public interface IPackagePaymentDB
 {
     Task<bool> VerifyReceipt(int receiptId);
-    Task<bool> BuyPackage(int receiptId, int packageId, int userId);
-    Task<bool> UndoBuyPackage(int receiptId);
+    Task<bool> ReportReceipt(int receiptId, int packageId, int userId);
+    Task<bool> UndoReportPackage(int receiptId);
 }
 
 public class PackagePaymentDB : IPackagePaymentDB
@@ -31,11 +31,17 @@ public class PackagePaymentDB : IPackagePaymentDB
         Open();
     }
 
-    public async Task<bool> UndoBuyPackage(int receiptId)
+    public async Task<bool> UndoReportPackage(int receiptId)
     {
         try
         {
-            await queryFactory.Query("player_payment_log").Where("receiptId", receiptId).DeleteAsync();
+            int effectedRow = await queryFactory.Query("player_payment_info")
+                                                .Where("receiptId", receiptId)
+                                                .DeleteAsync();
+            if(effectedRow == 0)
+            {
+                return false;
+            }
             return true;
         }
         catch (Exception ex)
@@ -45,16 +51,22 @@ public class PackagePaymentDB : IPackagePaymentDB
         }
     }
 
-    public async Task<bool> BuyPackage(int receiptId, int packageId, int userId)
+    public async Task<bool> ReportReceipt(int receiptId, int packageId, int userId)
     {
         try
         {
-            await queryFactory.Query("player_payment_log").InsertAsync(new
+            int effectedRow = await queryFactory.Query("player_payment_info").InsertAsync(new
             {
                 receiptId = receiptId,
                 userId = userId,
                 packageId = packageId, 
             });
+
+            if(effectedRow == 0)
+            {
+                return false;
+            }
+
             return true;
         }
         catch (Exception ex)
@@ -68,7 +80,8 @@ public class PackagePaymentDB : IPackagePaymentDB
     {
         try
         {
-            int count = await queryFactory.Query("player_payment_log").Where("receiptId", receiptId).CountAsync<int>();
+            int count = await queryFactory.Query("player_payment_info").Where("receiptId", receiptId).CountAsync<int>();
+
             if (count > 0)
             {
                 return false;

@@ -36,7 +36,7 @@ public class EnchantExecuteController : Controller
     public async Task<EnchantExecuteResponse> Enchant(EnchantExecuteRequest enchantExecuteRequest)
     {
         int playerItemId = enchantExecuteRequest.PlayerItemId;
-        ErrorState Error;
+        ErrorCode Error;
         int result;
 
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
@@ -47,7 +47,7 @@ public class EnchantExecuteController : Controller
         {
             return new EnchantExecuteResponse
             {
-                Error = ErrorState.FailedFetchPlayerItem
+                Error = ErrorCode.FailedFetchPlayerItem
             };
         }
 
@@ -57,7 +57,7 @@ public class EnchantExecuteController : Controller
         {
             return new EnchantExecuteResponse
             {
-                Error = ErrorState.NoneExistItem
+                Error = ErrorCode.NoneExistItem
             };
         }
 
@@ -65,7 +65,7 @@ public class EnchantExecuteController : Controller
 
         Error = await Verify(playerItem, masterItem, userId, masterEnchantInfo); 
 
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             return new EnchantExecuteResponse
             {
@@ -75,7 +75,7 @@ public class EnchantExecuteController : Controller
 
         (Error, result) = await ExecuteEnchant(playerItem, masterItem, masterEnchantInfo);
 
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             return new EnchantExecuteResponse
             {
@@ -87,7 +87,7 @@ public class EnchantExecuteController : Controller
         {
             return new EnchantExecuteResponse
             {
-                Error = ErrorState.FailedFetchMoney
+                Error = ErrorCode.FailedFetchMoney
             };
         }
         
@@ -98,87 +98,87 @@ public class EnchantExecuteController : Controller
         };
     }
 
-    async Task<ErrorState> Verify(PlayerItem playerItem, MasterItem masterItem, int userId, MasterEnchantInfo masterEnchantInfo)
+    async Task<ErrorCode> Verify(PlayerItem playerItem, MasterItem masterItem, int userId, MasterEnchantInfo masterEnchantInfo)
     {
-        ErrorState Error;
+        ErrorCode Error;
 
         Error = VerifyItemType(masterItem.AttributeId);
 
-        if (Error != ErrorState.None)
+        if (Error != ErrorCode.None)
         {
             return Error;
         }
 
         Error = VerifyEnchatMaxCount(playerItem, masterItem);
 
-        if (Error != ErrorState.None)
+        if (Error != ErrorCode.None)
         {
             return Error;
         }
 
         Error = await VerifyMoney(userId, masterEnchantInfo);
 
-        if (Error != ErrorState.None)
+        if (Error != ErrorCode.None)
         {
             return Error;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    async Task<ErrorState> VerifyMoney(int userId, MasterEnchantInfo masterEnchantInfo)
+    async Task<ErrorCode> VerifyMoney(int userId, MasterEnchantInfo masterEnchantInfo)
     {
         int playerMoney = await _playerAccessDB.GetPlayerMoney(userId);
 
         if (playerMoney < masterEnchantInfo.Price)
         {
-            return ErrorState.NotEnoughMoney;
+            return ErrorCode.NotEnoughMoney;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    ErrorState VerifyItemType(int attributeId)
+    ErrorCode VerifyItemType(int attributeId)
     {
         MasterItemAttribute? itemAttribute = _masterDataDB.GetMasterItemAttribute(attributeId);
 
         if (itemAttribute == null)
         {
-            return ErrorState.NoneExistItemType;
+            return ErrorCode.NoneExistItemType;
         }
 
         if (itemAttribute.TypeId != (int)TypeDefinition.EQUIPMENT)
         {
-            return ErrorState.CantNotEnchantThisType;
+            return ErrorCode.CantNotEnchantThisType;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    ErrorState VerifyEnchatMaxCount(PlayerItem playerItem, MasterItem masterItem)
+    ErrorCode VerifyEnchatMaxCount(PlayerItem playerItem, MasterItem masterItem)
     {
         if (playerItem.EnchantCount >= masterItem.MaxEnchantCount)
         {
-            return ErrorState.AlreadyMaxiumEnchantCount;
+            return ErrorCode.AlreadyMaxiumEnchantCount;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    (ErrorState, int) CalculateCanEnchant(MasterEnchantInfo masterEnchantInfo)
+    (ErrorCode, int) CalculateCanEnchant(MasterEnchantInfo masterEnchantInfo)
     {
         Random random = new Random();
         int randomValue = random.Next(101);
         int result = randomValue < masterEnchantInfo.Percent ? 1 : 0;
 
-        return (ErrorState.None, result);
+        return (ErrorCode.None, result);
     }
 
-    async Task<(ErrorState, int)> ExecuteEnchant(PlayerItem playerItem, MasterItem masterItem, MasterEnchantInfo masterEnchantInfo)
+    async Task<(ErrorCode, int)> ExecuteEnchant(PlayerItem playerItem, MasterItem masterItem, MasterEnchantInfo masterEnchantInfo)
     {
         var (Error, result) = CalculateCanEnchant(masterEnchantInfo);
 
-        if (Error != ErrorState.None)
+        if (Error != ErrorCode.None)
         {
             return (Error, -1);
         }
@@ -189,18 +189,18 @@ public class EnchantExecuteController : Controller
 
             if (!await _enchantDB.DoEnchant(playerItem))
             {
-                return (ErrorState.NoneExistItem, -1);
+                return (ErrorCode.NoneExistItem, -1);
             }
         }
         else
         {
             if (!await _playerAccessDB.RemovePlayerItem(playerItem.PlayerItemId))
             {
-                return (ErrorState.NoneExistItem, -1);
+                return (ErrorCode.NoneExistItem, -1);
             }
         }
 
-        return (ErrorState.None, result);
+        return (ErrorCode.None, result);
     }
 
     PlayerItem CalculateIncreasementStatsValue(PlayerItem playerItem, MasterItem masterItem, MasterEnchantInfo masterEnchantInfo)

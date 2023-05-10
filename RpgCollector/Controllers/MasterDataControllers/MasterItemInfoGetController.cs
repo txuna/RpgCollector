@@ -32,7 +32,7 @@ public class MasterItemInfoGetController : Controller
         {
             return new MasterItemGetInfoResponse
             {
-                Error = RequestResponseModel.ErrorState.NoneExistItem
+                Error = RequestResponseModel.ErrorCode.NoneExistItem
             };
         }
 
@@ -41,7 +41,7 @@ public class MasterItemInfoGetController : Controller
 
         return new MasterItemGetInfoResponse
         {
-            Error = RequestResponseModel.ErrorState.None,
+            Error = RequestResponseModel.ErrorCode.None,
             MasterItem = masterItem,
             AttributeName = masterItemAttribute.AttributeName,
             TypeName = masterItemType.TypeName

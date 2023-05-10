@@ -24,11 +24,11 @@ public class MailDeleteController : Controller
     public async Task<MailDeleteResponse> DeleteMail(MailDeleteRequest mailDeleteRequest)
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
-        ErrorState Error;
+        ErrorCode Error;
 
         Error = await Verify(mailDeleteRequest.MailId, userId);
 
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             return new MailDeleteResponse
             {
@@ -44,30 +44,30 @@ public class MailDeleteController : Controller
         };
     }
 
-    async Task<ErrorState> ExecuteDelete(int mailId)
+    async Task<ErrorCode> ExecuteDelete(int mailId)
     {
         if(!await _mailboxAccessDB.DeleteMail(mailId))
         {
-            return ErrorState.FailedDeleteMail;
+            return ErrorCode.FailedDeleteMail;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    async Task<ErrorState> Verify(int mailId, int userId)
+    async Task<ErrorCode> Verify(int mailId, int userId)
     {
         Mailbox? mailbox = await _mailboxAccessDB.GetMailFromUserId(mailId, userId);
 
         if(mailbox == null)
         {
-            return ErrorState.FailedFetchMail;
+            return ErrorCode.FailedFetchMail;
         }
 
         if(mailbox.IsDeleted == 1)
         {
-            return ErrorState.DeletedMail;
+            return ErrorCode.DeletedMail;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 }

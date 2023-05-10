@@ -36,7 +36,7 @@ public class PlayerItemDetailGetController : Controller
         {
             return new PlayerItemDetailGetResponse
             {
-                Error = RequestResponseModel.ErrorState.NoneExistItem
+                Error = RequestResponseModel.ErrorCode.NoneExistItem
             };
         }
 
@@ -46,7 +46,7 @@ public class PlayerItemDetailGetController : Controller
         {
             return new PlayerItemDetailGetResponse
             {
-                Error = RequestResponseModel.ErrorState.NoneExistItem
+                Error = RequestResponseModel.ErrorCode.NoneExistItem
             };
         }
 
@@ -55,7 +55,7 @@ public class PlayerItemDetailGetController : Controller
 
         return new PlayerItemDetailGetResponse
         {
-            Error = RequestResponseModel.ErrorState.None,
+            Error = RequestResponseModel.ErrorCode.None,
             ItemId = playerItem.ItemId,
             ItemName = masterItem.ItemName,
             BaseAttack = masterItem.Attack,

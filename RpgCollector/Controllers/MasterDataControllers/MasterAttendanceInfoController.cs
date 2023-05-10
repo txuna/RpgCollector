@@ -29,7 +29,7 @@ public class MasterAttendanceInfoController : Controller
 
         return new MasterAttendanceInfoResponse
         {
-            Error = RequestResponseModel.ErrorState.None,
+            Error = RequestResponseModel.ErrorCode.None,
             AttendanceRewards = masterAttendanceRewards,
         };
     }

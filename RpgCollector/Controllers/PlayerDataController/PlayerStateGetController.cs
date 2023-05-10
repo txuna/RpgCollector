@@ -35,7 +35,7 @@ public class PlayerStateGetController : Controller
         {
             return new PlayerStateGetResponse
             {
-                Error = ErrorState.NoneExistName
+                Error = ErrorCode.NoneExistName
             };
         }
 
@@ -43,7 +43,7 @@ public class PlayerStateGetController : Controller
 
         return new PlayerStateGetResponse
         {
-            Error = ErrorState.None,
+            Error = ErrorCode.None,
             State = playerState,
             MasterState = masterPlayerState
         };

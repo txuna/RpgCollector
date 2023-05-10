@@ -262,6 +262,9 @@ public class PlayerAccessDB : IPlayerAccessDB
                 userId = userId,
                 itemId = itemId,
                 quantity = quantity,
+                attack = 0, 
+                defence = 0, 
+                magic = 0,
                 enchantCount = 0
             });
 

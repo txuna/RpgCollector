@@ -62,7 +62,7 @@ public class NoticeMemoryDB : INoticeMemoryDB
 
             NoticeGetResponse noticeResponse = new NoticeGetResponse
             {
-                Error = ErrorState.None,
+                Error = ErrorCode.None,
                 NoticeList = noticesArray
             };
 

@@ -19,7 +19,7 @@ public class StageInfoGetController : Controller
     {
         return new StageInfoGetResponse
         {
-            Error = RequestResponseModel.ErrorState.None
+            Error = RequestResponseModel.ErrorCode.None
         };
     }
 }

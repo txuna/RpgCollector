@@ -42,7 +42,7 @@ public class LoginController : Controller
             _logger.ZLogInformation($"[{loginRequest.UserName}] None Exist UserName");
             return new LoginResponse
             {
-                Error = ErrorState.NoneExistName,
+                Error = ErrorCode.NoneExistName,
             };
         }
 
@@ -52,16 +52,16 @@ public class LoginController : Controller
 
             return new LoginResponse
             {
-                Error = ErrorState.InvalidPassword,
+                Error = ErrorCode.InvalidPassword,
             };
         }
        
         string authToken = HashManager.GenerateAuthToken();
         authToken = authToken.Replace("+", "d");
 
-        ErrorState Error = await StoreUserInMemory(user, authToken);
+        ErrorCode Error = await StoreUserInMemory(user, authToken);
         
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             _logger.ZLogInformation($"[{user.UserId} {loginRequest.UserName}] Failed Login");
 
@@ -75,20 +75,20 @@ public class LoginController : Controller
 
         return new LoginResponse
         {
-            Error = ErrorState.None, 
+            Error = ErrorCode.None, 
             UserName = user.UserName,
             AuthToken = authToken 
         };
     }
 
-    async Task<ErrorState> StoreUserInMemory(User user, string authToken)
+    async Task<ErrorCode> StoreUserInMemory(User user, string authToken)
     {
         if (!await _memoryDB.StoreRedisUser(user, authToken))
         {
-            return ErrorState.FailedConnectRedis;
+            return ErrorCode.FailedConnectRedis;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
     bool VerifyPassword(User user, string requestPassword)

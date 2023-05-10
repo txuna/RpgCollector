@@ -29,7 +29,7 @@ public class PackageShowController : Controller
 
         return new PackageShowResponse
         {
-            Error = RequestResponseModel.ErrorState.None,
+            Error = RequestResponseModel.ErrorCode.None,
             PackagePayment = masterPackagePayments,
         };
     }

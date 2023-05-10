@@ -2,6 +2,6 @@
 {
     public class MailGetItemResponse
     {
-        public ErrorState Error { get; set; }
+        public ErrorCode Error { get; set; }
     }
 }

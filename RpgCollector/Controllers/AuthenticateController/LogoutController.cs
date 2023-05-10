@@ -34,7 +34,7 @@ public class LogoutController : Controller
             _logger.ZLogError($"[{userId}] Failed Remove User in Redis");
             return new LogoutResponse
             {
-                Error = ErrorState.FailedConnectRedis
+                Error = ErrorCode.FailedConnectRedis
             };
         }
 
@@ -42,7 +42,7 @@ public class LogoutController : Controller
 
         return new LogoutResponse
         {
-            Error = ErrorState.None
+            Error = ErrorCode.None
         };
     }
 }

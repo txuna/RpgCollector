@@ -9,16 +9,16 @@ using RpgCollector.Models.PackageItemModel;
 namespace RpgCollector.Controllers.PackageControllers;
 
 [ApiController]
-public class PackageBuyController : Controller
+public class PackageGiveController : Controller
 {
     IPackagePaymentDB _packagePaymentDB; 
     IMailboxAccessDB _mailboxAccessDB;
-    ILogger<PackageBuyController> _logger;
+    ILogger<PackageGiveController> _logger;
     IMasterDataDB _masterDataDB;
 
-    public PackageBuyController(IPackagePaymentDB packagePaymentDB, 
+    public PackageGiveController(IPackagePaymentDB packagePaymentDB, 
                                 IMailboxAccessDB mailboxAccessDB, 
-                                ILogger<PackageBuyController> logger,
+                                ILogger<PackageGiveController> logger,
                                 IMasterDataDB masterDataDB) 
     {
         _packagePaymentDB = packagePaymentDB;
@@ -26,22 +26,16 @@ public class PackageBuyController : Controller
         _logger = logger;
         _masterDataDB = masterDataDB;
     }
-    /*
-     * 클라이언트가 어떤 패키지를 샀는지 확인 및 보낸 영수증 ID 중복 검증 
-     * 패키지가 존재하는지 확인 
-     * 구매가 정상적으로 이뤄진다면 메일로 발송
-     */
+
     [Route("/Package/Buy")]
     [HttpPost]
-    public async Task<PackageBuyResponse> BuyPackage(PackageBuyRequest packageBuyRequest)
+    public async Task<PackageBuyResponse> PaymentPackage(PackageBuyRequest packageBuyRequest)
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId} Request 'Buy Package'");
+        ErrorCode Error = await Verify(packageBuyRequest); 
 
-        ErrorState Error = await Verify(packageBuyRequest); 
-
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             _logger.ZLogInformation($"[{userId}] Invalid PackageId : {packageBuyRequest.PackageId} or ReceiptId : {packageBuyRequest.ReceiptId}");
 
@@ -51,9 +45,9 @@ public class PackageBuyController : Controller
             };
         }
 
-        Error = await Buy(packageBuyRequest, userId);
+        Error = await ReportReceipt(packageBuyRequest, userId);
 
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             _logger.ZLogInformation($"[{userId}] Cannot buy This PackageId : {packageBuyRequest.PackageId}");
 
@@ -65,13 +59,13 @@ public class PackageBuyController : Controller
 
         Error = await SendPackageToMail(packageBuyRequest, userId);
 
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             _logger.ZLogInformation($"[{userId}] Failed Send Mail This PackageId : {packageBuyRequest.PackageId} To Player");
 
-            Error = await UndoBuy(packageBuyRequest); 
+            Error = await UndoReportPackage(packageBuyRequest); 
             
-            if(Error != ErrorState.None)
+            if(Error != ErrorCode.None)
             {
                 _logger.ZLogInformation($"[{userId}] Failed Undo Player Payment ReceiptId : {packageBuyRequest.ReceiptId}");
             }
@@ -85,38 +79,38 @@ public class PackageBuyController : Controller
         };
     }
 
-    async Task<ErrorState> Buy(PackageBuyRequest packageBuyRequest, int userId)
+    async Task<ErrorCode> ReportReceipt(PackageBuyRequest packageBuyRequest, int userId)
     {
-        if(!await _packagePaymentDB.BuyPackage(packageBuyRequest.ReceiptId, packageBuyRequest.PackageId, userId))
+        if(!await _packagePaymentDB.ReportReceipt(packageBuyRequest.ReceiptId, packageBuyRequest.PackageId, userId))
         {
-            return ErrorState.FailedBuyPackage;
+            return ErrorCode.FailedBuyPackage;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    async Task<ErrorState> Verify(PackageBuyRequest packageBuyRequest)
+    async Task<ErrorCode> Verify(PackageBuyRequest packageBuyRequest)
     {
         if (!await _packagePaymentDB.VerifyReceipt(packageBuyRequest.ReceiptId))
         {
-            return ErrorState.InvalidReceipt;
+            return ErrorCode.InvalidReceipt;
         }
         
         if(_masterDataDB.GetMasterPackage(packageBuyRequest.PackageId).Length == 0)
         {
-            return ErrorState.InvalidPackage;
+            return ErrorCode.InvalidPackage;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    async Task<ErrorState> SendPackageToMail(PackageBuyRequest packageBuyRequest, int userId)
+    async Task<ErrorCode> SendPackageToMail(PackageBuyRequest packageBuyRequest, int userId)
     {
         MasterPackage[] masterPackages = _masterDataDB.GetMasterPackage(packageBuyRequest.PackageId);
 
         if (masterPackages.Length == 0)
         {
-            return ErrorState.NoneExistPackgeId;
+            return ErrorCode.NoneExistPackgeId;
         }
 
         foreach (MasterPackage item in masterPackages)
@@ -128,20 +122,20 @@ public class PackageBuyController : Controller
                                                 item.ItemId,
                                                 item.Quantity))
             {
-                return ErrorState.FailedSendMail;
+                return ErrorCode.FailedSendMail;
             }
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 
-    async Task<ErrorState> UndoBuy(PackageBuyRequest packageBuyRequest)
+    async Task<ErrorCode> UndoReportPackage(PackageBuyRequest packageBuyRequest)
     {
-        if(!await _packagePaymentDB.UndoBuyPackage(packageBuyRequest.ReceiptId))
+        if(!await _packagePaymentDB.UndoReportPackage(packageBuyRequest.ReceiptId))
         {
-            return ErrorState.FailedUndoPaymentLog;
+            return ErrorCode.FailedUndoPaymentLog;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 }

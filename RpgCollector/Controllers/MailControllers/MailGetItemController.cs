@@ -36,7 +36,7 @@ public class MailGetItemController : Controller
     public async Task<MailGetItemResponse> GetItem(MailGetItemRequest mailGetItemRequest)
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
-        ErrorState Error;
+        ErrorCode Error;
 
         Mailbox? mailbox = await _mailboxAccessDB.GetMailFromUserId(mailGetItemRequest.MailId, userId);
 
@@ -44,7 +44,7 @@ public class MailGetItemController : Controller
         {
             return new MailGetItemResponse
             {
-                Error = ErrorState.FailedFetchMail
+                Error = ErrorCode.FailedFetchMail
             };
         }
 
@@ -52,13 +52,13 @@ public class MailGetItemController : Controller
         {
             return new MailGetItemResponse
             {
-                Error = ErrorState.FailedFetchMailItem
+                Error = ErrorCode.FailedFetchMailItem
             };
         }
 
         Error = await AddItemToPlayer(userId, mailbox.ItemId, mailbox.Quantity, mailbox.MailId);
 
-        if(Error != ErrorState.None)
+        if(Error != ErrorCode.None)
         {
             _logger.ZLogInformation($"[{userId}] Failed Received Mail Item");
         }
@@ -73,26 +73,23 @@ public class MailGetItemController : Controller
         };
     }
 
-    async Task<ErrorState> AddItemToPlayer(int userId, int itemId, int quantity, int mailId)
+    async Task<ErrorCode> AddItemToPlayer(int userId, int itemId, int quantity, int mailId)
     {
         if(!await _mailboxAccessDB.setReceiveFlagInMailItem(mailId))
         {
-            Console.WriteLine("a");
-            return ErrorState.CannotSetReceivedFlagInMail;
+            return ErrorCode.CannotSetReceivedFlagInMail;
         }
 
         if (!await _playerAccessDB.AddItemToPlayer(userId, itemId, quantity))
         {
-            Console.WriteLine("b");
             if (!await _mailboxAccessDB.UndoMailItem(mailId))
             {
-                Console.WriteLine("c");
-                return ErrorState.FailedUndoMailItem;
+                return ErrorCode.FailedUndoMailItem;
             }
 
-            return ErrorState.FailedAddItemToPlayer;
+            return ErrorCode.FailedAddItemToPlayer;
         }
 
-        return ErrorState.None;
+        return ErrorCode.None;
     }
 }

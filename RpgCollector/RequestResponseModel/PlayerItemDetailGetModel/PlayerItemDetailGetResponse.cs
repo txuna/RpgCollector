@@ -5,7 +5,7 @@ namespace RpgCollector.RequestResponseModel.PlayerItemDetailGetModel
 {
     public class PlayerItemDetailGetResponse
     {
-        public ErrorState Error { get; set; }
+        public ErrorCode Error { get; set; }
         // EnchantCount의 가치만큼 해당 값 수정
         public int ItemId { get; set; }
         public string ItemName { get; set; }

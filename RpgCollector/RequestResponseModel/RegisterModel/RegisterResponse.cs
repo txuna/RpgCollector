@@ -4,6 +4,6 @@ namespace RpgCollector.RequestResponseModel.RegisterModel
 {
     public class RegisterResponse
     {
-        public ErrorState Error {  get; set; }
+        public ErrorCode Error {  get; set; }
     }
 }

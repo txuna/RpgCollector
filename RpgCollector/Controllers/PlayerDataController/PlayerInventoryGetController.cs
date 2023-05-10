@@ -30,7 +30,7 @@ public class PlayerInventoryGetController : Controller
 
         return new PlayerInventoryGetResponse
         {
-            Error = RequestResponseModel.ErrorState.None,
+            Error = RequestResponseModel.ErrorCode.None,
             Items = items
         };
     }

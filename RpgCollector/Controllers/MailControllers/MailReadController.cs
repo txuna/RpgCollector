@@ -38,7 +38,7 @@ public class MailReadController : Controller
 
             return new MailReadResponse
             {
-                Error = ErrorState.NoneExistMail
+                Error = ErrorCode.NoneExistMail
             };
         }
 
@@ -46,7 +46,7 @@ public class MailReadController : Controller
         {
             return new MailReadResponse 
             { 
-                Error = ErrorState.FailedReadMail
+                Error = ErrorCode.FailedReadMail
             };
         }
 
@@ -54,7 +54,7 @@ public class MailReadController : Controller
 
         return new MailReadResponse
         {
-            Error = ErrorState.None,
+            Error = ErrorCode.None,
             MailId = mail.MailId, 
             Title = mail.Title, 
             Content = mail.Content,

@@ -2,7 +2,7 @@
 {
     public class AttendanceGetLogResponse
     {
-        public ErrorState Error { get; set; }
+        public ErrorCode Error { get; set; }
         public int SequenceDayCount { get; set; }
     }
 }

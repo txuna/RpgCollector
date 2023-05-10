@@ -1,6 +1,6 @@
 ﻿namespace RpgCollector.RequestResponseModel
 {
-    public enum ErrorState
+    public enum ErrorCode
     {
         /* Common 0 ~ 100 */
         None = 0,

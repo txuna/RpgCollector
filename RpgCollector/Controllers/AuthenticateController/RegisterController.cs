@@ -36,7 +36,7 @@ public class RegisterController : Controller
 
             return new RegisterResponse
             {
-                Error = ErrorState.AlreadyExistUser
+                Error = ErrorCode.AlreadyExistUser
             };
         }
 
@@ -44,7 +44,7 @@ public class RegisterController : Controller
         {
             _logger.ZLogError($"[{userId}]Can not Create Player");
 
-            ErrorState Error = await UndoCreatePlayer(registerRequest.UserName, userId);
+            ErrorCode Error = await UndoCreatePlayer(registerRequest.UserName, userId);
 
             return new RegisterResponse
             {
@@ -56,7 +56,7 @@ public class RegisterController : Controller
 
         return new RegisterResponse
         {
-            Error = ErrorState.None
+            Error = ErrorCode.None
         };
     }
 
@@ -74,22 +74,22 @@ public class RegisterController : Controller
         return true;
     }
 
-    async Task<ErrorState> UndoCreatePlayer(string userName, int userId)
+    async Task<ErrorCode> UndoCreatePlayer(string userName, int userId)
     {
         if (!await _accountDB.UndoRegisterUser(userName))
         {
             _logger.ZLogError($"[{userId}] Can not undo register account");
 
-            return ErrorState.FailedUndoRegisterUser;
+            return ErrorCode.FailedUndoRegisterUser;
         }
 
         if (!await _playerAccessDB.UndoCreatePlayer(userId))
         {
             _logger.ZLogError($"[{userId}] Can not undo create player");
 
-            return ErrorState.FailedUndoRegisterUser;
+            return ErrorCode.FailedUndoRegisterUser;
         }
 
-        return ErrorState.FailedCreatePlayer;
+        return ErrorCode.FailedCreatePlayer;
     }
 }

@@ -2,6 +2,6 @@
 {
     public class PackageBuyResponse
     {
-        public ErrorState Error { get; set; }
+        public ErrorCode Error { get; set; }
     }
 }

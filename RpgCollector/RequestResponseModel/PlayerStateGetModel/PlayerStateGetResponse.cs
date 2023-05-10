@@ -5,7 +5,7 @@ namespace RpgCollector.RequestResponseModel.PlayerStateGetModel
 {
     public class PlayerStateGetResponse
     {
-        public ErrorState Error { get; set; }
+        public ErrorCode Error { get; set; }
         public PlayerState State { get; set; }
         public MasterPlayerState MasterState { get; set; }
     }

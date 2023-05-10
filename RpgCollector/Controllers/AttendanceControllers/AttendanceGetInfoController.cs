@@ -29,7 +29,7 @@ public class AttendanceGetInfoController : Controller
 
         return new AttendanceGetLogResponse
         {
-            Error = RequestResponseModel.ErrorState.None,
+            Error = RequestResponseModel.ErrorCode.None,
             SequenceDayCount = count,
         };
     }

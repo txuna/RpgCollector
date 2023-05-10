@@ -9,7 +9,7 @@ namespace RpgCollector.RequestResponseModel.MailOpenModel
     }
     public class MailOpenResponse
     {
-        public ErrorState Error { get; set; }
+        public ErrorCode Error { get; set; }
         public int TotalPageNumber { get; set; }
         public OpenMail[] Mails { get; set; }
     }
