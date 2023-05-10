@@ -14,10 +14,10 @@ public interface IAttendanceDB
 {
     Task<bool> IsAttendance(int userId, string day);
     Task<bool> DoAttendance(int userId, int sequenceDayCount);
-    Task<PlayerAttendanceLog?> GetLastAttendanceLog(int userId);
+    Task<int> GetUserSequenceDayCount(int userId);
     Task<MasterAttendanceReward?> GetAttendanceReward(int day);
     Task<bool> UndoAttendance(int userId, string day);
-    Task<PlayerAttendanceLog?> GetLastSequenceDayCount(int userId);
+    Task<PlayerAttendanceInfo?> GetUserAttendanceInfo(int userId);
 }
 
 public class AttendanceDB : IAttendanceDB
@@ -35,28 +35,11 @@ public class AttendanceDB : IAttendanceDB
         Open();
     }
 
-    public async Task<PlayerAttendanceLog?> GetLastSequenceDayCount(int userId)
-    {
-        try
-        {
-            PlayerAttendanceLog log = await queryFactory.Query("player_attendance_log")
-                                                        .Where("userId", userId)
-                                                        .OrderByDesc("date")
-                                                        .FirstAsync<PlayerAttendanceLog>();
-            return log;
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return null;
-        }
-    }
-
     public async Task<bool> UndoAttendance(int userId, string day)
     {
         try
         {
-            await queryFactory.Query("player_attendance_log").Where("userId", userId).Where("date", day).DeleteAsync();
+            await queryFactory.Query("player_attendance_info").Where("userId", userId).Where("date", day).DeleteAsync();
             return true;
         }
         catch (Exception ex)
@@ -82,17 +65,15 @@ public class AttendanceDB : IAttendanceDB
         }
     }
 
-    // 가장 최근 출석날짜와  sequence를 가지고옴
-    // 최근 날짜가 
-    public async Task<PlayerAttendanceLog?> GetLastAttendanceLog(int userId)
+    public async Task<PlayerAttendanceInfo?> GetUserAttendanceInfo(int userId)
     {
         try
         {
-            PlayerAttendanceLog playerAttendanceLog = await queryFactory.Query("player_attendance_log")
-                                                                        .Where("userId", userId)
-                                                                        .OrderByDesc("date")
-                                                                        .FirstAsync<PlayerAttendanceLog>();
-            return playerAttendanceLog;
+            PlayerAttendanceInfo info = await queryFactory.Query("player_attendance_info")
+                                                          .Where("userId", userId)
+                                                          .FirstAsync<PlayerAttendanceInfo>();
+
+            return info;
         }
         catch (Exception ex)
         {
@@ -101,15 +82,76 @@ public class AttendanceDB : IAttendanceDB
         }
     }
 
+    public async Task<int> GetUserSequenceDayCount(int userId)
+    {
+        try
+        {
+            int sequenceDayCount = await queryFactory.Query("player_attendance_info")
+                                                                        .Where("userId", userId)
+                                                                        .Select("sequenceDayCount")
+                                                                        .FirstAsync<int>();
+            return sequenceDayCount;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return 0;
+        }
+    }
+
+    public async Task<bool> ExistUser(int userId)
+    {
+        try
+        {
+            PlayerAttendanceInfo info = await queryFactory.Query("player_attendance_info")
+                                                          .Where("userId", userId)
+                                                          .FirstAsync<PlayerAttendanceInfo>();
+
+           if(info == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
+    }
+
     public async Task<bool> DoAttendance(int userId, int sequenceDayCount)
     {
         try
         {
-            await queryFactory.Query("player_attendance_log").InsertAsync(new
+            int effectedRow;
+            if (await ExistUser(userId))
             {
-                userId = userId,
-                sequenceDayCount = sequenceDayCount
-            });
+                effectedRow = await queryFactory.Query("player_attendance_info")
+                                                .Where("userId", userId)
+                                                .UpdateAsync(new
+                                                {
+                                                    sequenceDayCount = sequenceDayCount,
+                                                    date = DateTime.Now,
+                                                });
+            }
+            else
+            {
+                effectedRow = await queryFactory.Query("player_attendance_info")
+                                                .Where("userId", userId)
+                                                .InsertAsync(new
+                                                {
+                                                    userId = userId,
+                                                    sequenceDayCount = 1,
+                                                });
+            }
+            
+            if(effectedRow == 0)
+            {
+                return false;
+            }
+
             return true;
         }
         catch (Exception ex)
@@ -123,7 +165,10 @@ public class AttendanceDB : IAttendanceDB
     {
         try
         {
-            int count = await queryFactory.Query("player_attendance_log").Where("date", day).Where("userId", userId).CountAsync<int>();
+            int count = await queryFactory.Query("player_attendance_info")
+                                          .Where("date", day)
+                                          .Where("userId", userId)
+                                          .CountAsync<int>();
             if(count > 0)
             {
                 return true;

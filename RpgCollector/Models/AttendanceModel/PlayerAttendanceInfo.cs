@@ -1,6 +1,6 @@
 ﻿namespace RpgCollector.Models.AttendanceData
 {
-    public class PlayerAttendanceLog
+    public class PlayerAttendanceInfo
     {
         public int Id { get; set; }
         public int UserId { get; set; }

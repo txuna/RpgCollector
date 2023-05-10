@@ -43,8 +43,6 @@ public class AttendaceRewardController : Controller
         string toDay = DateTime.Now.ToString("yyyy-MM-dd");
         string yesterDay = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
 
-        _logger.ZLogInformation($"[{userId}] Request /Attendance");
-
         ErrorState Error = await IsTodayAttendance(userId, toDay);
 
         if(Error != ErrorState.None)
@@ -83,6 +81,7 @@ public class AttendaceRewardController : Controller
         {
             return ErrorState.AlreadyAttendance;
         }
+
         return ErrorState.None;
     }
 
@@ -93,14 +92,9 @@ public class AttendaceRewardController : Controller
             return 1;
         }
 
-        PlayerAttendanceLog? lastLog = await _attendanceDB.GetLastAttendanceLog(userId);
+        int sequenceDayCount = await _attendanceDB.GetUserSequenceDayCount(userId);
 
-        if(lastLog == null)
-        {
-            return 1;
-        }
-
-        return (lastLog.SequenceDayCount + 1) % 31;
+        return (sequenceDayCount + 1) % 31;
     }
 
     async Task<bool> IsYesterdayAttendance(int userId, string yesterDay)

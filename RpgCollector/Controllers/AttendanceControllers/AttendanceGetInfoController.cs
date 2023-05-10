@@ -7,12 +7,12 @@ using ZLogger;
 namespace RpgCollector.Controllers.AttendanceControllers;
 
 [ApiController]
-public class AttendanceGetLogController : Controller
+public class AttendanceGetInfoController : Controller
 {
-    ILogger<AttendanceGetLogController> _logger;
+    ILogger<AttendanceGetInfoController> _logger;
     IAttendanceDB _attendanceDB; 
-    public AttendanceGetLogController(IAttendanceDB attendanceDB, 
-                                      ILogger<AttendanceGetLogController> logger)
+    public AttendanceGetInfoController(IAttendanceDB attendanceDB, 
+                                      ILogger<AttendanceGetInfoController> logger)
     {
         _attendanceDB = attendanceDB;
         _logger = logger;
@@ -23,20 +23,9 @@ public class AttendanceGetLogController : Controller
     public async Task<AttendanceGetLogResponse> GetAttendanceLog()
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
-        int count;
 
-        _logger.ZLogInformation($"[{userId}] Request /Attendance/Log");
+        int count = await _attendanceDB.GetUserSequenceDayCount(userId);
 
-        PlayerAttendanceLog? playerAttendanceLog = await _attendanceDB.GetLastSequenceDayCount(userId);
-
-        if (playerAttendanceLog == null)
-        {
-            count = 0;
-        }
-        else
-        {
-            count = playerAttendanceLog.SequenceDayCount;
-        }
 
         return new AttendanceGetLogResponse
         {
