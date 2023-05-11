@@ -776,3 +776,4 @@ ex) verify (3개로 나누지 말기)  하나로 할 수 있으면 하기
 [미해결]16. 로깅은 구조화된 로깅으로   
 [해결]17. playerItem 있고 masterItem 있을 경우 특정 위에서 실패하면 안가지고와도 되게 불필요한 디비 쿼리 자제   
 [해결]18. clientVersion, masterDataVersion 클래스로 감싸기    
+[해결]19. Redis CloudStructure 사용하기
