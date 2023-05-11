@@ -64,6 +64,14 @@ offset_bottom = 606.0
 theme_override_font_sizes/font_size = 36
 text = "공지"
 
+[node name="StageBtn" type="Button" parent="ColorRect/Control"]
+layout_mode = 0
+offset_top = 629.0
+offset_right = 152.0
+offset_bottom = 710.0
+theme_override_font_sizes/font_size = 36
+text = "던전"
+
 [node name="Hud" parent="ColorRect" instance=ExtResource("2_j7hda")]
 
 [connection signal="pressed" from="ColorRect/Control/MailboxBtn" to="." method="_on_mailbox_btn_pressed"]
@@ -72,3 +80,4 @@ text = "공지"
 [connection signal="pressed" from="ColorRect/Control/PaymentBtn" to="." method="_on_payment_btn_pressed"]
 [connection signal="pressed" from="ColorRect/Control/EnchantBtn" to="." method="_on_enchant_btn_pressed"]
 [connection signal="pressed" from="ColorRect/Control/NoticeBtn" to="." method="_on_notice_btn_pressed"]
+[connection signal="pressed" from="ColorRect/Control/StageBtn" to="." method="_on_stage_btn_pressed"]

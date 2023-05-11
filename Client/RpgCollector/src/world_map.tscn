@@ -1,0 +1,150 @@
+[gd_scene load_steps=8 format=3 uid="uid://dca6xoyr55bfo"]
+
+[ext_resource type="Script" path="res://src/world_map.gd" id="1_77sso"]
+[ext_resource type="Texture2D" uid="uid://cryylulirjn2d" path="res://assets/popup_background.png" id="1_bv8sw"]
+[ext_resource type="Texture2D" uid="uid://cj0avjaofdsd1" path="res://assets/close_btn_normal.png" id="2_tnoky"]
+[ext_resource type="Texture2D" uid="uid://bbr1ydo557c7a" path="res://assets/close_btn_pressed.png" id="3_j45hv"]
+[ext_resource type="Texture2D" uid="uid://dv5tkmulr6jta" path="res://assets/stage_list/stage1.png" id="4_t15qb"]
+[ext_resource type="FontFile" uid="uid://db0kb10m0mhw3" path="res://assets/font/HSGyeoulNoonkott2.0-Regular.ttf" id="5_iwg8b"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tfm7f"]
+
+[node name="WorldMap" type="CanvasLayer"]
+script = ExtResource("1_77sso")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = -5.0
+offset_top = -20.0
+offset_right = 1221.0
+offset_bottom = 827.0
+texture = ExtResource("1_bv8sw")
+
+[node name="TextureButton" type="TextureButton" parent="TextureRect"]
+layout_mode = 0
+offset_left = 1035.0
+offset_top = 103.0
+offset_right = 1067.0
+offset_bottom = 135.0
+texture_normal = ExtResource("2_tnoky")
+texture_pressed = ExtResource("3_j45hv")
+texture_hover = ExtResource("3_j45hv")
+
+[node name="Label" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 98.0
+offset_right = 1047.0
+offset_bottom = 231.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("5_iwg8b")
+theme_override_font_sizes/font_size = 76
+text = "World Map"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="TextureRect"]
+layout_mode = 0
+offset_left = 139.0
+offset_top = 200.0
+offset_right = 395.0
+offset_bottom = 456.0
+texture = ExtResource("4_t15qb")
+
+[node name="Button" type="Button" parent="TextureRect/TextureRect"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = -8.0
+offset_right = 273.0
+offset_bottom = 258.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_iwg8b")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tfm7f")
+text = "리스항구"
+
+[node name="TextureRect2" type="TextureRect" parent="TextureRect"]
+layout_mode = 0
+offset_left = 195.0
+offset_top = 449.0
+offset_right = 451.0
+offset_bottom = 705.0
+texture = ExtResource("4_t15qb")
+
+[node name="Button" type="Button" parent="TextureRect/TextureRect2"]
+layout_mode = 0
+offset_left = -1.0
+offset_top = -11.0
+offset_right = 267.0
+offset_bottom = 255.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_iwg8b")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tfm7f")
+text = "헤네시스"
+
+[node name="TextureRect3" type="TextureRect" parent="TextureRect"]
+layout_mode = 0
+offset_left = 447.0
+offset_top = 276.0
+offset_right = 703.0
+offset_bottom = 532.0
+texture = ExtResource("4_t15qb")
+
+[node name="Button" type="Button" parent="TextureRect/TextureRect3"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = -22.0
+offset_right = 270.0
+offset_bottom = 244.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_iwg8b")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tfm7f")
+text = "엘리니아"
+
+[node name="TextureRect4" type="TextureRect" parent="TextureRect"]
+layout_mode = 0
+offset_left = 586.0
+offset_top = 496.0
+offset_right = 842.0
+offset_bottom = 752.0
+texture = ExtResource("4_t15qb")
+
+[node name="Button" type="Button" parent="TextureRect/TextureRect4"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = -8.0
+offset_right = 273.0
+offset_bottom = 258.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_iwg8b")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tfm7f")
+text = "커닝시티"
+
+[node name="TextureRect5" type="TextureRect" parent="TextureRect"]
+layout_mode = 0
+offset_left = 795.0
+offset_top = 267.0
+offset_right = 1051.0
+offset_bottom = 523.0
+texture = ExtResource("4_t15qb")
+
+[node name="Button" type="Button" parent="TextureRect/TextureRect5"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = -8.0
+offset_right = 273.0
+offset_bottom = 258.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_iwg8b")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tfm7f")
+text = "페리온"
+
+[connection signal="pressed" from="TextureRect/TextureButton" to="." method="_on_texture_button_pressed"]

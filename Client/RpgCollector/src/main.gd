@@ -63,3 +63,12 @@ func _on_payment_btn_pressed():
 	var payment_instance = load("res://src/ui/package.tscn").instantiate() 
 	payment_instance.name = "payment"
 	add_child(payment_instance)
+
+
+func _on_stage_btn_pressed():
+	if get_node_or_null("world_map") != null:
+		return 
+		
+	var world_map_instance = load("res://src/world_map.tscn").instantiate()
+	world_map_instance.name = "world_map"
+	add_child(world_map_instance)
