@@ -14,21 +14,6 @@ CREATE TABLE `mailbox` (
 ) ENGINE=InnoDB AUTO_INCREMENT=151 DEFAULT CHARSET=utf8mb3
 ```
 
-### mail_item
-```
-CREATE TABLE `mail_item` (
-  `mailId` int NOT NULL,
-  `itemId` int NOT NULL,
-  `quantity` int NOT NULL,
-  `hasReceived` int NOT NULL,
-  PRIMARY KEY (`mailId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
-```
-
-
-
-
-
 
 
 

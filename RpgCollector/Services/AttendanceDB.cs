@@ -15,7 +15,6 @@ public interface IAttendanceDB
     Task<bool> IsAttendance(int userId, string day);
     Task<bool> DoAttendance(int userId, int sequenceDayCount);
     Task<int> GetUserSequenceDayCount(int userId);
-    Task<MasterAttendanceReward?> GetAttendanceReward(int day);
     Task<bool> UndoAttendance(int userId, string day);
     Task<PlayerAttendanceInfo?> GetUserAttendanceInfo(int userId);
 }
@@ -54,22 +53,6 @@ public class AttendanceDB : IAttendanceDB
         {
             _logger.ZLogError(ex.Message);
             return false;
-        }
-    }
-
-    public async Task<MasterAttendanceReward?> GetAttendanceReward(int day)
-    {
-        try
-        {
-            MasterAttendanceReward reward = await queryFactory.Query("master_attendance_reward")
-                                                              .Where("dayId", day)
-                                                              .FirstAsync<MasterAttendanceReward>();
-            return reward;
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return null;
         }
     }
 

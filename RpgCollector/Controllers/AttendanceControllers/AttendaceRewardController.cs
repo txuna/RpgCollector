@@ -43,23 +43,35 @@ public class AttendaceRewardController : Controller
         string toDay = DateTime.Now.ToString("yyyy-MM-dd");
         string yesterDay = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
 
-        ErrorCode Error = await IsTodayAttendance(userId, toDay);
+        int sequenceDayCount = 1;
 
-        if(Error != ErrorCode.None)
+        PlayerAttendanceInfo? playerAttendanceInfo = await GetUserAttendance(userId);
+
+        if (playerAttendanceInfo != null)
         {
-            _logger.ZLogInformation($"[{userId}] Today Already Attandace UserID");
-
-            return new AttendanceResponse
+            if (IsAttendanceDay(playerAttendanceInfo, toDay) == true)
             {
-                Error = Error
-            };
+                _logger.ZLogInformation($"[{userId}] Today Already Attandace UserID");
+
+                return new AttendanceResponse
+                {
+                    Error = ErrorCode.AlreadyAttendance
+                };
+            }
+
+            if (IsAttendanceDay(playerAttendanceInfo, yesterDay) == true)
+            {
+                sequenceDayCount = playerAttendanceInfo.SequenceDayCount + 1;
+            }
         }
 
-        Error = await DoAttendance(userId, yesterDay, toDay);
+        ErrorCode Error = await DoAttendance(userId, sequenceDayCount % 31);
 
         if(Error != ErrorCode.None)
         {
             _logger.ZLogError($"[{userId}] Failed Attandace");
+
+            Error = await UndoAttendance(userId, toDay);
 
             return new AttendanceResponse
             {
@@ -75,43 +87,27 @@ public class AttendaceRewardController : Controller
         };
     }
 
-    async Task<ErrorCode> IsTodayAttendance(int userId, string toDay)
+    bool IsAttendanceDay(PlayerAttendanceInfo info, string day)
     {
-        if(await _attendanceDB.IsAttendance(userId, toDay))
+        if(info.Date.ToString("yyyy-MM-dd") == day)
         {
-            return ErrorCode.AlreadyAttendance;
-        }
-
-        return ErrorCode.None;
-    }
-
-    async Task<int> GetLastSequenceDayCount(int userId, string yesterDay)
-    {
-        if(!await IsYesterdayAttendance(userId, yesterDay))
-        {
-            return 1;
-        }
-
-        int sequenceDayCount = await _attendanceDB.GetUserSequenceDayCount(userId);
-
-        return (sequenceDayCount + 1) % 31;
-    }
-
-    async Task<bool> IsYesterdayAttendance(int userId, string yesterDay)
-    {
-        if(await _attendanceDB.IsAttendance(userId, yesterDay))
-        {
-            return true;
+            return true; 
         }
 
         return false;
     }
 
-    async Task<ErrorCode> DoAttendance(int userId, string yesterDay, string toDay)
+    async Task<PlayerAttendanceInfo?> GetUserAttendance(int userId)
     {
-        int sequenceDayCount = await GetLastSequenceDayCount(userId, yesterDay);
+        PlayerAttendanceInfo? info = await _attendanceDB.GetUserAttendanceInfo(userId);
+        return info;
+    }
 
-        if (!await _attendanceDB.DoAttendance(userId, sequenceDayCount))
+    async Task<ErrorCode> DoAttendance(int userId, int sequenceDayCount)
+    {
+        sequenceDayCount = sequenceDayCount == 0 ? 1 : sequenceDayCount;
+
+        if (await _attendanceDB.DoAttendance(userId, sequenceDayCount) == false)
         {
             return ErrorCode.FailedAttendance;
         }
@@ -120,8 +116,7 @@ public class AttendaceRewardController : Controller
         
         if(Error != ErrorCode.None)
         {
-            Error = await UndoAttendance(userId, toDay);
-            return Error;
+            return ErrorCode.FailedSendAttendanceReward;
         }
 
         return ErrorCode.None;
@@ -142,7 +137,7 @@ public class AttendaceRewardController : Controller
     
     async Task<ErrorCode> UndoAttendance(int userId, string toDay)
     {
-        if(!await _attendanceDB.UndoAttendance(userId, toDay))
+        if(await _attendanceDB.UndoAttendance(userId, toDay) == false)
         {
             return ErrorCode.FailedUndoAttendance;
         }

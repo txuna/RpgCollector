@@ -11,11 +11,10 @@ CREATE TABLE `master_attendance_reward` (
 
 ### Player Attendance Log
 ```
-CREATE TABLE `player_attendance_log` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `player_attendance_info` (
   `userId` int NOT NULL,
   `date` date NOT NULL DEFAULT (curdate()),
   `sequenceDayCount` int NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3
 ```

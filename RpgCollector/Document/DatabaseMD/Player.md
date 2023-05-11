@@ -23,6 +23,9 @@ CREATE TABLE `player_items` (
   `itemId` int NOT NULL,
   `quantity` int NOT NULL,
   `enchantCount` int NOT NULL,
+  `attack` int NOT NULL,
+  `defence` int NOT NULL,
+  `magic` int NOT NULL,
   PRIMARY KEY (`playerItemId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 ```

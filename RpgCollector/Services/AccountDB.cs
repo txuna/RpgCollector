@@ -63,6 +63,7 @@ public class AccountDB : IAccountDB
             _logger.ZLogError(ex.Message);
             return null;
         }
+
         return user;
     }
 
