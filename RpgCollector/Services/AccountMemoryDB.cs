@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using CloudStructures;
+using CloudStructures.Structures;
+using Microsoft.Extensions.Options;
 using RpgCollector.Models;
 using RpgCollector.Models.AccountModel;
 using RpgCollector.Utility;
@@ -12,22 +14,18 @@ public interface IAccountMemoryDB
 {
     Task<bool> RemoveUser(string userName);
     Task<bool> StoreRedisUser(User user, string authToken);
-    Task<int> GetUserId(string userName);
 }
 
 public class AccountMemoryDB : IAccountMemoryDB
 {
-    private ConnectionMultiplexer? redisClient;
-    private IDatabase redisDB;
-    IOptions<DbConfig> _dbConfig;
-    ConnectionMultiplexer _redisClient;
+    RedisConnection _redisConn;
     ILogger<AccountMemoryDB> _logger;
 
     public AccountMemoryDB(IOptions<DbConfig> dbConfig, ILogger<AccountMemoryDB> logger) 
     {
-        _dbConfig = dbConfig;
+        var config = new RedisConfig("default", dbConfig.Value.RedisDb);
+        _redisConn = new RedisConnection(config);
         _logger = logger;
-        Open();
     }
 
     public async Task<bool> StoreRedisUser(User user, string authToken)
@@ -41,8 +39,11 @@ public class AccountMemoryDB : IAccountMemoryDB
             };
 
             TimeSpan expiration = TimeSpan.FromMinutes(60);
-            await redisDB.StringSetAsync(user.UserName, JsonSerializer.Serialize(redisUser), expiration);
-
+            var redis = new RedisString<RedisUser>(_redisConn, user.UserName, expiration);
+            if(await redis.SetAsync(redisUser, expiration) == false)
+            {
+                return false;
+            }
             return true;
         }
         catch (Exception ex)
@@ -52,62 +53,18 @@ public class AccountMemoryDB : IAccountMemoryDB
         }
     }
 
-    public async Task<int> GetUserId(string userName)
-    {
-        try
-        {
-            string stringUser = await redisDB.StringGetAsync(userName);
-            RedisUser redisUser = JsonSerializer.Deserialize<RedisUser>(stringUser);
-
-            return redisUser.UserId;
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return -1;
-        }
-    }
-
     public async Task<bool> RemoveUser(string userName)
     {
         try
         {
-            await redisDB.KeyDeleteAsync(userName);
+            var redis = new RedisString<RedisUser>(_redisConn, userName, null);
+            var redisResult = await redis.DeleteAsync();
+            return redisResult;
         }
         catch (Exception ex)
         {
             _logger.ZLogError(ex.Message);
             return false;
-        }
-        return true;
-    }
-
-    void Dispose()
-    {
-        try
-        {
-            redisClient.Dispose();
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-        }
-    }
-
-    void Open()
-    {
-        ConfigurationOptions option = new ConfigurationOptions
-        {
-            EndPoints = { _dbConfig.Value.RedisDb }
-        };
-        try
-        {
-            redisClient = ConnectionMultiplexer.Connect(option);
-            redisDB = redisClient.GetDatabase();
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
         }
     }
 }

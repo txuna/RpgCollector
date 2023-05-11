@@ -10,6 +10,8 @@ using Microsoft.Extensions.Options;
 using RpgCollector.Utility;
 using RpgCollector.Models.AccountModel;
 using System.Runtime.InteropServices;
+using CloudStructures;
+using CloudStructures.Structures;
 
 namespace RpgCollector.Middlewares
 {
@@ -17,20 +19,19 @@ namespace RpgCollector.Middlewares
     {
         private readonly RequestDelegate _next;
         private readonly string[] exclusivePaths = new[] { "/Login", "/Register" };
-        ConnectionMultiplexer? redisClient;
         private string _redisAddress;
-        IDatabase redisDB;
+        private RedisConnection _redisConn; 
 
         public AuthenticationMiddleware(RequestDelegate next, string redisAddress)
         {
             
             _next = next;
-            _redisAddress = redisAddress;
+            var config = new RedisConfig("default", redisAddress);
+            _redisConn = new RedisConnection(config);
         }
 
         public async Task Invoke(HttpContext httpContext)
         {
-            Open();
             
             if (!await VerifyVersion(httpContext))
             {
@@ -118,25 +119,23 @@ namespace RpgCollector.Middlewares
         {
             string? authToken = httpContext.Request.Headers["Auth-Token"];
             string? userName = httpContext.Request.Headers["User-Name"];
-            redisDB = redisClient.GetDatabase();
 
             try
             {
-                string? redisString = await redisDB.StringGetAsync(userName);
+                var redis = new RedisString<RedisUser>(_redisConn, userName, null);
+                var user = await redis.GetAsync();
 
-                if(redisString == null)
+                if (!user.HasValue)
                 {
                     return false;
                 }
 
-                RedisUser redisUser = JsonSerializer.Deserialize<RedisUser>(redisString);
-
-                if (redisUser.AuthToken != authToken)
+                if (user.Value.AuthToken != authToken)
                 {
                     return false;
                 }
 
-                SetUserIdInHttpContext(httpContext, redisUser.UserId);
+                SetUserIdInHttpContext(httpContext, user.Value.UserId);
 
                 return true;
 
@@ -153,27 +152,19 @@ namespace RpgCollector.Middlewares
 
         async Task<bool> VerifyVersion(HttpContext httpContext)
         {
-            if (redisClient == null)
-            {
-                return false;
-            }
-
-            IDatabase? redisDB = redisClient.GetDatabase();
-            
             string? requestClientVersion = httpContext.Request.Headers["Client-Version"];
             string? requestMasterDataVersion = httpContext.Request.Headers["MasterData-Version"];
 
-            string? gameString = await redisDB.StringGetAsync("Version");
+            var redis = new RedisString<GameVersion>(_redisConn, "Version", null);
+            var gameVersion = await redis.GetAsync();
 
-            if (gameString == null)
+            if (!gameVersion.HasValue)
             {
                 return false;
             }
 
-            GameVersion? gameVersion = JsonSerializer.Deserialize<GameVersion>(gameString);
-
-            string? redisClientVersion = gameVersion.ClientVersion;
-            string? redisMasterDataVersion = gameVersion.MasterDataVersion;
+            string? redisClientVersion = gameVersion.Value.ClientVersion;
+            string? redisMasterDataVersion = gameVersion.Value.MasterDataVersion;
 
             if(requestClientVersion != redisClientVersion)
             {
@@ -186,23 +177,6 @@ namespace RpgCollector.Middlewares
             }
 
             return true;
-        }
-
-        void Open()
-        {
-            ConfigurationOptions option = new ConfigurationOptions
-            {
-                EndPoints = { _redisAddress }
-            };
-            try
-            {
-                redisClient = ConnectionMultiplexer.Connect(option);
-                redisDB = redisClient.GetDatabase();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
         }
     }
 

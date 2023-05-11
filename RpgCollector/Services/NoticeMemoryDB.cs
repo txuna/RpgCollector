@@ -7,6 +7,8 @@ using StackExchange.Redis;
 using System.Text.Json;
 using ZLogger;
 using RpgCollector.Models.NoticeModel;
+using CloudStructures;
+using CloudStructures.Structures;
 
 namespace RpgCollector.Services;
 
@@ -17,86 +19,28 @@ public interface INoticeMemoryDB
 
 public class NoticeMemoryDB : INoticeMemoryDB
 {
-
-    private ConnectionMultiplexer? redisClient;
-    private IDatabase redisDB;
-    IOptions<DbConfig> _dbConfig;
+    RedisConnection redisConn;
     ILogger<NoticeMemoryDB> _logger;
 
     public NoticeMemoryDB(IOptions<DbConfig> dbConfig, ILogger<NoticeMemoryDB> logger) 
     {
-        _dbConfig = dbConfig;
+        var config = new RedisConfig("default", dbConfig.Value.RedisDb);
+        redisConn = new RedisConnection(config);
         _logger = logger;
-        Open();
     }
 
     public async Task<Notice[]?> GetAllNotice()
     {
-        if (redisClient == null)
+        try
         {
+            var redis = new RedisList<Notice>(redisConn, "Notice", null);
+            Notice[] notices = await redis.RangeAsync(0, -1);
+            return notices;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
             return null;
-        }
-
-        IDatabase redisDB = redisClient.GetDatabase();
-
-        // Redis에 공지사항이 저장되어 있다면
-        if (await redisDB.KeyExistsAsync("Notices"))
-        {
-            RedisValue[] noticesRedis;
-            try
-            {
-                noticesRedis = await redisDB.ListRangeAsync("Notices");
-            }
-            catch (Exception ex)
-            {
-                _logger.ZLogError(ex.Message);
-                return null;
-            }
-
-            Notice[] noticesArray = new Notice[noticesRedis.Length];
-
-            for (int i = 0; i < noticesRedis.Length; i++)
-            {
-                noticesArray[i] = JsonSerializer.Deserialize<Notice>(noticesRedis[i]);
-            }
-
-            NoticeGetResponse noticeResponse = new NoticeGetResponse
-            {
-                Error = ErrorCode.None,
-                NoticeList = noticesArray
-            };
-
-            return noticesArray;
-        }
-        return null;
-    }
-
-    void Dispose()
-    {
-        try
-        {
-            redisClient.Dispose();
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-        }
-    }
-
-    void Open()
-    {
-        ConfigurationOptions option = new ConfigurationOptions
-        {
-            EndPoints = { _dbConfig.Value.RedisDb }
-        };
-        try
-        {
-            redisClient = ConnectionMultiplexer.Connect(option);
-            redisDB = redisClient.GetDatabase();
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
         }
     }
 }

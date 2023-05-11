@@ -29,7 +29,6 @@ public class NoticeGetController : Controller
     public async Task<NoticeGetResponse> Notice()
     {
         Notice[]? result = await _memoryDB.GetAllNotice();
-        int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
         if (result == null)
         {

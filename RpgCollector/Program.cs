@@ -15,6 +15,8 @@ using RpgCollector.Models.NoticeModel;
 using ZLogger;
 using RpgCollector.Models.InitPlayerModel;
 using RpgCollector.Models.AccountModel;
+using CloudStructures;
+using CloudStructures.Structures;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,14 +29,17 @@ IConfiguration configuration = builder.Configuration;
 
 builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)));
 builder.Services.AddTransient<IAccountDB, AccountDB>(); 
-builder.Services.AddTransient<IAccountMemoryDB, AccountMemoryDB>();   
+//builder.Services.AddTransient<IAccountMemoryDB, AccountMemoryDB>();   
 builder.Services.AddTransient<INoticeMemoryDB, NoticeMemoryDB>();
 builder.Services.AddTransient<IPlayerAccessDB, PlayerAccessDB>();
 builder.Services.AddTransient<IMailboxAccessDB, MailboxAccessDB>();
 builder.Services.AddTransient<IPackagePaymentDB, PackagePaymentDB>();
 builder.Services.AddTransient<IEnchantDB, EnchantDB>();
 builder.Services.AddTransient<IAttendanceDB, AttendanceDB>();
+
 builder.Services.AddSingleton<IMasterDataDB, MasterDataDB>();
+builder.Services.AddSingleton<IAccountMemoryDB, AccountMemoryDB>();
+
 
 SettingLogger();
 
@@ -101,54 +106,78 @@ void SettingLogger()
 async Task<bool> LoadData()
 {
     string redisDBAddress = configuration.GetSection("DbConfig")["RedisDB"];
-
-    ConnectionMultiplexer? redisClient;
-    IDatabase redisDB;
-
-    ConfigurationOptions option = new ConfigurationOptions
-    {
-        EndPoints = { redisDBAddress }
-    };
+    var config = new RedisConfig("default", redisDBAddress);
+    var _redisConn = new RedisConnection(config);
 
     try
     {
-        redisClient = ConnectionMultiplexer.Connect(option);
-        redisDB = redisClient.GetDatabase();
-
         // Redis에 공지사항을 저장한다. + 이미 Notices 키가 있다면 날림
-        if (await redisDB.KeyExistsAsync("Notices"))
+        if(await LoadNotice(_redisConn) == false)
         {
-            await redisDB.KeyDeleteAsync("Notices");
+            return false;
         }
-        await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(new Notice
+
+        if(await LoadVersion(_redisConn) == false)
+        {
+            return false;
+        }
+
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+        return false;
+    }
+
+    return true;
+}
+
+async Task<bool> LoadNotice(RedisConnection redisConn)
+{
+    try
+    {
+        var redis = new RedisList<Notice>(redisConn, "Notice", null);
+        await redis.DeleteAsync();
+        await redis.RightPushAsync(new Notice
         {
             NoticeId = 1,
             Title = "[긴급점검]",
-            Content = "비정상 데이터 수신으로 인하여 서버가 잠시 중단될 예정입니다.", 
+            Content = "비정상 데이터 수신으로 인하여 서버가 잠시 중단될 예정입니다.",
             UploaderId = 1,
-        }));
-        await redisDB.ListRightPushAsync("Notices", JsonSerializer.Serialize(new Notice
+        });
+
+        await redis.RightPushAsync(new Notice
         {
             NoticeId = 2,
             Title = "[출석보상 이벤트 안내]",
             Content = "2023년도 다시 돌아온 출석보상 이벤트안내입니다.",
             UploaderId = 1,
-        }));
+        });
 
-        await redisDB.StringSetAsync("Version", JsonSerializer.Serialize(new GameVersion
-        {
-            ClientVersion = "1.0.0",
-            MasterDataVersion = "1.0.0",
-        }));
-
+        return true;
     }
-    catch (Exception ex)
+    catch(Exception ex)
     {
-        Console.WriteLine("EE");
         Console.WriteLine(ex.Message);
         return false;
     }
-    redisClient.Dispose();
+}
 
-    return true;
+async Task<bool> LoadVersion(RedisConnection redisConn)
+{
+    try
+    {
+        var gameVersion = new GameVersion { ClientVersion = "1.0.0" , MasterDataVersion = "1.0.0"};
+        var redis = new RedisString<GameVersion>(redisConn, "Version", null);
+        if(await redis.SetAsync(gameVersion, null) == false)
+        {
+            return false;
+        }
+        return true;
+    }
+    catch(Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+        return false;
+    }
 }
