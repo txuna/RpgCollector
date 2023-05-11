@@ -46,7 +46,7 @@ public class MailDeleteController : Controller
 
     async Task<ErrorCode> ExecuteDelete(int mailId)
     {
-        if(!await _mailboxAccessDB.DeleteMail(mailId))
+        if(await _mailboxAccessDB.DeleteMail(mailId) == false)
         {
             return ErrorCode.FailedDeleteMail;
         }

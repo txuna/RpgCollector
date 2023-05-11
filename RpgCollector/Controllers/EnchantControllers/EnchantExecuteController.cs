@@ -187,14 +187,14 @@ public class EnchantExecuteController : Controller
         {
             playerItem = CalculateIncreasementStatsValue(playerItem, masterItem, masterEnchantInfo);
 
-            if (!await _enchantDB.DoEnchant(playerItem))
+            if (await _enchantDB.DoEnchant(playerItem) == false)
             {
                 return (ErrorCode.NoneExistItem, -1);
             }
         }
         else
         {
-            if (!await _playerAccessDB.RemovePlayerItem(playerItem.PlayerItemId))
+            if (await _playerAccessDB.RemovePlayerItem(playerItem.PlayerItemId) == false)
             {
                 return (ErrorCode.NoneExistItem, -1);
             }

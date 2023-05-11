@@ -42,7 +42,7 @@ public class MailReadController : Controller
             };
         }
 
-        if(!await _mailboxAccessDB.UpdateReadFlagInMail(readMailRequest.MailId))
+        if(await _mailboxAccessDB.UpdateReadFlagInMail(readMailRequest.MailId) == false)
         {
             return new MailReadResponse 
             { 

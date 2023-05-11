@@ -31,8 +31,6 @@ public class NoticeGetController : Controller
         Notice[]? result = await _memoryDB.GetAllNotice();
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId}] Request 'Get Notice'");
-
         if (result == null)
         {
             _logger.ZLogError("Failed Fetch Notice In Redis");

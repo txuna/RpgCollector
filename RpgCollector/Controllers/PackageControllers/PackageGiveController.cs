@@ -81,7 +81,7 @@ public class PackageGiveController : Controller
 
     async Task<ErrorCode> ReportReceipt(PackageBuyRequest packageBuyRequest, int userId)
     {
-        if(!await _packagePaymentDB.ReportReceipt(packageBuyRequest.ReceiptId, packageBuyRequest.PackageId, userId))
+        if(await _packagePaymentDB.ReportReceipt(packageBuyRequest.ReceiptId, packageBuyRequest.PackageId, userId) == false)
         {
             return ErrorCode.FailedBuyPackage;
         }
@@ -91,7 +91,7 @@ public class PackageGiveController : Controller
 
     async Task<ErrorCode> Verify(PackageBuyRequest packageBuyRequest)
     {
-        if (!await _packagePaymentDB.VerifyReceipt(packageBuyRequest.ReceiptId))
+        if (await _packagePaymentDB.VerifyReceipt(packageBuyRequest.ReceiptId) == false)
         {
             return ErrorCode.InvalidReceipt;
         }
@@ -113,17 +113,23 @@ public class PackageGiveController : Controller
             return ErrorCode.NoneExistPackgeId;
         }
 
+        object[][] values = new object[masterPackages.Length][];
+
+        int index = 0;
         foreach (MasterPackage item in masterPackages)
         {
-            if (!await _mailboxAccessDB.SendMail(1,
-                                                userId,
-                                                "Packge Item!",
-                                                "A package item has arrived. Thanks for your purchase",
-                                                item.ItemId,
-                                                item.Quantity))
-            {
-                return ErrorCode.FailedSendMail;
-            }
+            values[index] = new object[] { 1, 
+                                           userId,
+                                           "Packge Item!",
+                                           "A package item has arrived. Thanks for your purchase",
+                                            0, 0, item.ItemId, item.Quantity, 0, DateTime.Now.AddDays(30)
+            };
+            index += 1;
+        }
+
+        if(await _mailboxAccessDB.SendMultipleMail(values) == false)
+        {
+            return ErrorCode.FailedAddMailItemToPlayer;
         }
 
         return ErrorCode.None;
@@ -131,7 +137,7 @@ public class PackageGiveController : Controller
 
     async Task<ErrorCode> UndoReportPackage(PackageBuyRequest packageBuyRequest)
     {
-        if(!await _packagePaymentDB.UndoReportPackage(packageBuyRequest.ReceiptId))
+        if(await _packagePaymentDB.UndoReportPackage(packageBuyRequest.ReceiptId) == false)
         {
             return ErrorCode.FailedUndoPaymentLog;
         }

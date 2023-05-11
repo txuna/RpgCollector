@@ -23,8 +23,6 @@ public class PackageShowController : Controller
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId}] Request /Package/Show ");
-
         MasterPackagePayment[] masterPackagePayments = _masterDataDB.GetPackagePayment();
 
         return new PackageShowResponse

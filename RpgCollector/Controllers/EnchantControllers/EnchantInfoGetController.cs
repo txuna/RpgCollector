@@ -51,7 +51,7 @@ public class EnchantInfoGetController : Controller
             };
         }
 
-        Error = await Verify(playerItem, masterItem, userId);
+        Error = Verify(playerItem, masterItem);
 
         if (Error != ErrorCode.None)
         {
@@ -76,35 +76,22 @@ public class EnchantInfoGetController : Controller
         };
     }
 
-    async Task<ErrorCode> Verify(PlayerItem playerItem, MasterItem masterItem, int userId)
+    ErrorCode Verify(PlayerItem playerItem, MasterItem masterItem)
     {
         ErrorCode Error;
-        Error = await VerifyItemPermission(playerItem.PlayerItemId, userId);
-        if (Error != ErrorCode.None)
-        {
-            return Error;
-        }
 
         Error = VerifyItemType(masterItem.AttributeId);
+
         if (Error != ErrorCode.None)
         {
             return Error;
         }
 
         Error = VerifyEnchatMaxCount(playerItem, masterItem);
+
         if (Error != ErrorCode.None)
         {
             return Error;
-        }
-
-        return ErrorCode.None;
-    }
-
-    async Task<ErrorCode> VerifyItemPermission(int playerItemId, int userId)
-    {
-        if (!await _playerAccessDB.IsItemOwner(playerItemId, userId))
-        {
-            return ErrorCode.IsNotOwnerThisItem;
         }
 
         return ErrorCode.None;

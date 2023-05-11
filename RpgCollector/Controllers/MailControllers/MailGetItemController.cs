@@ -26,11 +26,7 @@ public class MailGetItemController : Controller
         _playerAccessDB = playerAccessDB;
         _logger = logger;
     }
-/*
-* 사용자가 전송한 mailId를 기반으로 아이템을 동봉하고 있는지 확인 + 이미 수령했는지 확인 및 아이템 제공
-* 또한 해당 메일의 소유권자인지 확인
-* 사용자의 인벤토리 업데이트
-*/
+
     [Route("/Mail/Item")]
     [HttpPost]
     public async Task<MailGetItemResponse> GetItem(MailGetItemRequest mailGetItemRequest)
@@ -75,14 +71,14 @@ public class MailGetItemController : Controller
 
     async Task<ErrorCode> AddItemToPlayer(int userId, int itemId, int quantity, int mailId)
     {
-        if(!await _mailboxAccessDB.setReceiveFlagInMailItem(mailId))
+        if(await _mailboxAccessDB.setReceiveFlagInMailItem(mailId) == false)
         {
             return ErrorCode.CannotSetReceivedFlagInMail;
         }
 
-        if (!await _playerAccessDB.AddItemToPlayer(userId, itemId, quantity))
+        if (await _playerAccessDB.AddItemToPlayer(userId, itemId, quantity) == false)
         {
-            if (!await _mailboxAccessDB.UndoMailItem(mailId))
+            if (await _mailboxAccessDB.UndoMailItem(mailId) == false)
             {
                 return ErrorCode.FailedUndoMailItem;
             }

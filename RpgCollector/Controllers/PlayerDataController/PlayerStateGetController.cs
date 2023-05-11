@@ -27,8 +27,6 @@ public class PlayerStateGetController : Controller
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId}] Request /Player/State");
-
         PlayerState? playerState = await _playerAccessDB.GetPlayerFromUserId(userId);
 
         if(playerState == null)

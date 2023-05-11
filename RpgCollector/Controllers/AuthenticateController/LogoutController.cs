@@ -29,7 +29,7 @@ public class LogoutController : Controller
 
         _logger.ZLogInformation($"[{userId}] Request /Logout");
 
-        if (!await _accountMemoryDB.RemoveUser(userName))
+        if (await _accountMemoryDB.RemoveUser(userName) == false)
         {
             _logger.ZLogError($"[{userId}] Failed Remove User in Redis");
             return new LogoutResponse

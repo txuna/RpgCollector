@@ -17,7 +17,8 @@ public interface IMailboxAccessDB
     Task<Mailbox?> GetMailFromUserId(int mailId, int userId);
     Task<bool> UpdateReadFlagInMail(int mailId);
     Task<bool> SendMail(int senderId, int receiverId, string title, string content); 
-    Task<bool> SendMail(int senderId, int receiverId, string title, string content, int itemId, int quantity); 
+    Task<bool> SendMail(int senderId, int receiverId, string title, string content, int itemId, int quantity);
+    Task<bool> SendMultipleMail(object[][] values);
     Task<bool> UndoMailItem(int mailId);
     Task<bool> IsMailOwner(int mailId, int userId);
     Task<Mailbox[]?> GetPartialMails(int userId, int pageNumber);
@@ -202,6 +203,27 @@ public class MailboxAccessDB : IMailboxAccessDB
             }
 
             return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> SendMultipleMail(object[][] values)
+    {
+        try
+        {
+            var cols = new[] { "senderId", "receiverId", "title", "content", "isRead", "isDeleted", "itemId", "quantity", "hasReceived", "expireDate"};
+            int effectedRow = await queryFactory.Query("mailbox").InsertAsync(cols, values);
+
+            if (effectedRow < values.Length)
+            {
+                return false;
+            }
+
+            return true;
         }
         catch (Exception ex)
         {

@@ -40,7 +40,7 @@ public class RegisterController : Controller
             };
         }
 
-        if (!await CreatePlayer(userId))
+        if (await CreatePlayer(userId) == false)
         {
             _logger.ZLogError($"[{userId}]Can not Create Player");
 
@@ -62,11 +62,11 @@ public class RegisterController : Controller
 
     async Task<bool> CreatePlayer(int userId)
     {
-        if (!await _playerAccessDB.SetInitPlayerState(userId))
+        if (await _playerAccessDB.SetInitPlayerState(userId) == false)
         {
             return false;
         }
-        if (!await _playerAccessDB.SetInitPlayerItems(userId))
+        if (await _playerAccessDB.SetInitPlayerItems(userId) == false)
         {
             return false;
         }
@@ -76,14 +76,14 @@ public class RegisterController : Controller
 
     async Task<ErrorCode> UndoCreatePlayer(string userName, int userId)
     {
-        if (!await _accountDB.UndoRegisterUser(userName))
+        if (await _accountDB.UndoRegisterUser(userName) == false)
         {
             _logger.ZLogError($"[{userId}] Can not undo register account");
 
             return ErrorCode.FailedUndoRegisterUser;
         }
 
-        if (!await _playerAccessDB.UndoCreatePlayer(userId))
+        if (await _playerAccessDB.UndoCreatePlayer(userId) == false)
         {
             _logger.ZLogError($"[{userId}] Can not undo create player");
 
