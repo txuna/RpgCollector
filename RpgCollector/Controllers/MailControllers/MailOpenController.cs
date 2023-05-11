@@ -33,7 +33,7 @@ public class MailOpenController : Controller
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
         /* userId가 receiverdId인 모든 메일 20개만 가지고옴 */
-        Mailbox[]? mails = await _mailboxAccessDB.GetPartialMails(userId, (int)openMailboxRequest.PageNumber);
+        Mailbox[]? mails = await _mailboxAccessDB.GetMailsFromPage(userId, (int)openMailboxRequest.PageNumber);
 
         if (mails == null)
         {

@@ -187,10 +187,7 @@ public class NoticeGetResponse
 **Database** 
 
 ```csharp
-Redis Account DB - GET
-
-GameDB 
-1. mailbox - GET 
+mailbox - GET 
 ```
 
 **Path** 
@@ -204,9 +201,6 @@ POST /Mail/Open
 ```csharp
 public class MailOpenRequest
 {
-    [Required]
-    public bool? IsFirstOpen { get; set; }
-
     [Required]
     public int? PageNumber { get; set; }
 }
@@ -237,10 +231,7 @@ public class MailOpenResponse
 **Database** 
 
 ```csharp
-Redis Account DB - GET
-
-GameDB 
-1. mailbox - GET / UPDATE
+mailbox - GET / UPDATE
 ```
 
 **Path**
@@ -264,13 +255,14 @@ public class MailReadRequest
 ```csharp
 public class MailReadResponse
 {
-    public ErrorState Error { get; set; }
+    public ErrorCode Error { get; set; }
     public int MailId { get; set; }
     public string Title { get; set; }
     public string Content { get; set; }
     public string SendDate { get; set; }
-    public int HasItem { get; set; }
-    public MailItem? MailItem { get; set; }
+    public int ItemId { get; set; }
+    public int Quantity { get; set; }
+    public int HasReceived { get; set; }
 }
 ```
 
@@ -286,11 +278,7 @@ public class MailReadResponse
 **Database**
 
 ```csharp
-Redis Account DB - GET
-
-GameDB
-mailbox - GET
-mail_item - GET / UPDATE
+mailbox - GET / UPDATE
 player_items - INSERT
 ```
 
@@ -327,9 +315,6 @@ public class MailGetItemResponse
 **Database** 
 
 ```csharp
-Redis Account DB - GET
-
-GameDB 
 mailbox - GET / UPDATE
 ```
 
@@ -371,14 +356,10 @@ public class MailDeleteResponse
 **Database** 
 
 ```csharp
-Redis Account DB - GET
-
-GameDB
 mailbox - INSERT
-mail_item - INSERT
 master_attendance_reward - GET
 master_item_info - GET
-player_attendance_log - GET / INSERT
+player_attendance_info - GET / INSERT
 ```
 
 **Path** 
@@ -412,20 +393,15 @@ public class AttendanceResponse
 3. 해당 플레이어 아이템의 ItemId를 기반으로 Master Item을 가지와 해당 아이템의 타입이 강화를 진행할 수 있는 타입인지 확인한다. 
 4. 플레이어의 아이템에 포함된 현재 강화 단계와 Master Item의 최대 강화횟수와 비교하여 미만이라면 강화를 진행한다. 
 5. 위의 모든 조건이 만족되면 강화를 진행한다. 강화시 강화정보 마스터 데이터를 참조하여 현재 강화단계별 퍼센트를 확인한다. 
-6. 만약 강화에 실패한다면 해당 아이템은 삭제처리 한다. 
-7. 위의 단계가 진행된다면 강화로그를 남긴다. 
+6. 만약 강화에 실패한다면 해당 아이템은 삭제처리 한다.  
 
 **Database**
 
 ```csharp
-Redis Account DB - GET
-
-GameDB 
 master_item_info - GET
 master_item_attribute - GET 
 master_enchant_info - GET
 player_items - GET / UPDATE / DELETE
-player_enchant_log - INSERT
 players - GET / UPDATE
 ```
 
@@ -466,13 +442,9 @@ public class EnchantExecuteResponse
 **Database** 
 
 ```csharp
-Redis Account DB - GET
-
-GameDB 
 master_package_info - GET 
-player_payment_log - GET / INSERT
+player_payment_info - GET / INSERT
 mailbox - INSERT
-mail_item - INSERT 
 ```
 
 **Path** 
@@ -568,7 +540,7 @@ public class MasterAttendanceInfoResponse
 
 **Database** 
 ```csharp
-player_attendance_log- GET
+player_attendance_info- GET
 ```
 
 **Path** 
@@ -647,10 +619,15 @@ public class PlayerItemDetailGetRequest
 ```csharp
 public class PlayerItemDetailGetResponse
 {
-    public ErrorState Error { get; set; }
-    // EnchantCount의 가치만큼 해당 값 수정
-    public MasterItem ItemPrototype { get; set; }
-    public AdditionalState PlusState { get; set; }
+    public ErrorCode Error { get; set; }
+    public int ItemId { get; set; }
+    public string ItemName { get; set; }
+    public int BaseAttack { get; set; }
+    public int BaseMagic { get; set; }
+    public int BaseDefence { get; set; }
+    public int PlusAttack { get; set; }
+    public int PlusDefence { get; set; }
+    public int PlusMagic { get; set; }
     public int EnchantCount { get; set; }
     public string AttributeName { get; set; }
     public string TypeName { get; set; }
@@ -691,8 +668,8 @@ public class PackageShowResponse
 
 **Database** 
 ```csharp
+master_item_info - GET
 master_enchant_info - GET
-Redis Account DB - GET
 player_items - GET
 ```
 
@@ -732,7 +709,6 @@ public class EnchantInfoGetResponse
 ```csharp
 master_player_state - GET
 player - GET
-Redis Account DB - GET
 ```
 
 **Path** 
@@ -779,3 +755,24 @@ public class PlayerStateGetResponse
 [보류]16. Register시 try - catch 잘생각해보기 - 유저있는지 없는지 확인하는데 Error발산 좀 그럼    
 -> Insert시 에러발생 말고 다른 메소드 있는지 찾아보기   
 -> INSERT IGNORE INTO 를 사용하려고 만들어진 rawSQL을 수정해서 다시 컴파일하고 실행하려는 방법을 찾던 도중 실패   
+
+### 3차 피드백 
+[해결] 1. mailbox - mail_item 하나로 합치기    
+[해결]2. enchant 이력이라는게 log를 남기라는 것이 아닌 count 이력임  테이블 삭제    
+[해결]3. 패키지 구매가 아닌 구글플레이에서 사서 주는것이기에 이름 변경    
+[해결]4. ReadMail -> 이름 변경 UpdateReadFlag    
+[해결]5. log라는 이름 다 바꾸기 log가 아닌 Content임    
+[해결]6. 디비 접근 최소화하기  
+ex) verify (3개로 나누지 말기)  하나로 할 수 있으면 하기   
+[해결]7. 디비 쿼리 결과값 (영향받은 row 값 확인하기) 다 확인하기    
+[미해결]8. 헤더 재고하기    
+[해결]9. 아이템에 attack, defence, magic 컬럼 추가하기   
+[해결]10. 메일 유효기간 넣기   
+[해결]11. GetPartial -> 너무 구체적임    
+[해결]12. 출석디비 최신값만 이력은 저장 X    
+[해결]13. mail 열때 isFirst 필요 없음    
+[해결]14. ErrorState -> ErrorCode로 변경   
+[해결]15. ! -> == true 로 확인    
+[미해결]16. 로깅은 구조화된 로깅으로   
+[해결]17. playerItem 있고 masterItem 있을 경우 특정 위에서 실패하면 안가지고와도 되게 불필요한 디비 쿼리 자제   
+[해결]18. clientVersion, masterDataVersion 클래스로 감싸기    

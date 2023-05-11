@@ -21,7 +21,7 @@ public interface IMailboxAccessDB
     Task<bool> SendMultipleMail(object[][] values);
     Task<bool> UndoMailItem(int mailId);
     Task<bool> IsMailOwner(int mailId, int userId);
-    Task<Mailbox[]?> GetPartialMails(int userId, int pageNumber);
+    Task<Mailbox[]?> GetMailsFromPage(int userId, int pageNumber);
     Task<bool> IsDeletedMail(int mailId);
     Task<bool> DeleteMail(int mailId);
     Task<bool> IsDeadLine(int mailId);
@@ -65,7 +65,7 @@ public class MailboxAccessDB : IMailboxAccessDB
         }
     }
 
-    public async Task<Mailbox[]?> GetPartialMails(int receiverId, int pageNumber)
+    public async Task<Mailbox[]?> GetMailsFromPage(int receiverId, int pageNumber)
     {
         try
         {
