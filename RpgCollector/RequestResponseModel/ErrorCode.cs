@@ -69,5 +69,9 @@
         FailedAttendance = 602,
         FailedSendAttendanceReward = 603,
         FailedUndoAttendance = 604,
+
+
+        /* DungeonStage 701 ~ 800 */
+        FailedFetchStageInfo = 701,
     }
 }

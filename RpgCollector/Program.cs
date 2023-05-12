@@ -29,13 +29,13 @@ IConfiguration configuration = builder.Configuration;
 
 builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)));
 builder.Services.AddTransient<IAccountDB, AccountDB>(); 
-//builder.Services.AddTransient<IAccountMemoryDB, AccountMemoryDB>();   
 builder.Services.AddTransient<INoticeMemoryDB, NoticeMemoryDB>();
 builder.Services.AddTransient<IPlayerAccessDB, PlayerAccessDB>();
 builder.Services.AddTransient<IMailboxAccessDB, MailboxAccessDB>();
 builder.Services.AddTransient<IPackagePaymentDB, PackagePaymentDB>();
 builder.Services.AddTransient<IEnchantDB, EnchantDB>();
 builder.Services.AddTransient<IAttendanceDB, AttendanceDB>();
+builder.Services.AddTransient<IDungeonStageDB, DungeonStageDB>();
 
 builder.Services.AddSingleton<IMasterDataDB, MasterDataDB>();
 builder.Services.AddSingleton<IAccountMemoryDB, AccountMemoryDB>();

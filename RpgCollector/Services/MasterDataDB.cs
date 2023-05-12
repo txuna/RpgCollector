@@ -26,6 +26,8 @@ public interface IMasterDataDB
     public MasterPackage[] GetMasterPackage(int packageId);
     public MasterPlayerState? GetMasterPlayerState(int level);
     public MasterPackagePayment[] GetPackagePayment();
+    public MasterStageInfo[] GetMasterStageInfoList();
+    public MasterStageInfo GetMasterStageInfo(int stageId);
 }
 
 public class MasterDataDB : IMasterDataDB
@@ -40,6 +42,7 @@ public class MasterDataDB : IMasterDataDB
     MasterItemType[] masterItemType;
     MasterPackage[] masterPackage;
     MasterPackagePayment[] masterPackagePayment;
+    MasterStageInfo[] masterStageInfo;
 
     IOptions<DbConfig> _dbConfig;
     IDbConnection dbConnection;
@@ -71,23 +74,23 @@ public class MasterDataDB : IMasterDataDB
     }
     public MasterAttendanceReward? GetMasterAttendanceReward(int dayCount)
     {
-        return masterAttendanceReward.FirstOrDefault(e => e.DayId == dayCount);
+        return masterAttendanceReward.First(e => e.DayId == dayCount);
     }
     public MasterEnchantInfo? GetMasterEnchantInfo(int enchantCount)
     {
-        return masterEnchantInfo.FirstOrDefault(e => e.EnchantCount == enchantCount);
+        return masterEnchantInfo.First(e => e.EnchantCount == enchantCount);
     }
     public MasterItem? GetMasterItem(int itemId)
     {
-        return masterItem.FirstOrDefault(e => e.ItemId == itemId);
+        return masterItem.First(e => e.ItemId == itemId);
     }
     public MasterItemAttribute? GetMasterItemAttribute(int attributeId)
     {
-        return masterItemAttribute.FirstOrDefault( e => e.AttributeId == attributeId);
+        return masterItemAttribute.First( e => e.AttributeId == attributeId);
     }
     public MasterItemType? GetMasterItemType(int typeId)
     {
-        return masterItemType.FirstOrDefault( e=> e.TypeId == typeId);  
+        return masterItemType.First( e=> e.TypeId == typeId);  
     }
     public MasterPackage[] GetMasterPackage(int packageId)
     {
@@ -96,7 +99,17 @@ public class MasterDataDB : IMasterDataDB
 
     public MasterPlayerState? GetMasterPlayerState(int level)
     {
-        return masterPlayerState.FirstOrDefault( e => e.Level == level);
+        return masterPlayerState.First( e => e.Level == level);
+    }
+
+    public MasterStageInfo[] GetMasterStageInfoList()
+    {
+        return masterStageInfo;
+    }
+
+    public MasterStageInfo GetMasterStageInfo(int stageId)
+    {
+        return masterStageInfo.First( e=> e.StageId == stageId);
     }
 
     void Load()
@@ -132,6 +145,9 @@ public class MasterDataDB : IMasterDataDB
 
             //인앱결제 상품 정보 불러오기 
             masterPackagePayment = (queryFactory.Query("master_package_payment").Get<MasterPackagePayment>()).ToArray();
+
+            //스테이지 정보 가지고 오기
+            masterStageInfo = (queryFactory.Query("master_stage_info").Get<MasterStageInfo>()).ToArray();
         }
         catch (Exception ex)
         {
