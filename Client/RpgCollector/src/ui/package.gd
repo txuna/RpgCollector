@@ -13,7 +13,12 @@ func _process(delta):
 
 
 func get_package_list_request():
-	var json = JSON.stringify({})
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version
+	})
 	var http = HTTPRequest.new() 
 	add_child(http)
 	http.request_completed.connect(_on_get_package_list_response)
@@ -69,6 +74,10 @@ func load_package(packages):
 
 func buy_package_request(package_id):
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 		"ReceiptId" : Global.get_random_receipt_id(),
 		"PackageId" : package_id
 	})

@@ -13,6 +13,10 @@ func _process(delta):
 
 func load_stage_request():
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 	})
 	var http = HTTPRequest.new() 
 	add_child(http)
@@ -53,6 +57,10 @@ func enter_stage(stage_id):
 	
 func enter_stage_request(stage_id):
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 		"StageId" : stage_id
 	})
 	var http = HTTPRequest.new() 

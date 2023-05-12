@@ -23,6 +23,10 @@ func _on_open_detail_popup(player_item_id):
 
 func get_player_item_info_request(player_item_id):
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 		"PlayerItemId" : player_item_id
 	})
 	var http = HTTPRequest.new() 

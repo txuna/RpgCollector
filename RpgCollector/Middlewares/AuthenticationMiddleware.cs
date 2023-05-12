@@ -12,180 +12,189 @@ using RpgCollector.Models.AccountModel;
 using System.Runtime.InteropServices;
 using CloudStructures;
 using CloudStructures.Structures;
+using Newtonsoft.Json;
+using RpgCollector.RequestResponseModel;
 
-namespace RpgCollector.Middlewares
+namespace RpgCollector.Middlewares;
+
+public class AuthenticationMiddleware
 {
-    public class AuthenticationMiddleware
+    private readonly RequestDelegate _next;
+    private readonly string[] exclusivePaths = new[] { "/Login", "/Register" };
+    private readonly Services.IAccountMemoryDB _memoryDB;
+
+    string userName;
+    string authToken;
+    string clientVersion;
+    string masterVersion;
+
+    public AuthenticationMiddleware(RequestDelegate next, string redisAddress, Services.IAccountMemoryDB memoryDB)
     {
-        private readonly RequestDelegate _next;
-        private readonly string[] exclusivePaths = new[] { "/Login", "/Register" };
-        private string _redisAddress;
-        private RedisConnection _redisConn; 
+        
+        _next = next;
+        _memoryDB = memoryDB;
+    }
 
-        public AuthenticationMiddleware(RequestDelegate next, string redisAddress)
-        {
-            
-            _next = next;
-            var config = new RedisConfig("default", redisAddress);
-            _redisConn = new RedisConnection(config);
-        }
+    public async Task Invoke(HttpContext httpContext)
+    {
 
-        public async Task Invoke(HttpContext httpContext)
+        httpContext.Request.EnableBuffering();
+
+        using(var reader = new StreamReader(httpContext.Request.Body, Encoding.UTF8, true, 4096, true))
         {
-            
-            if (!await VerifyVersion(httpContext))
+            var bodyStr = await reader.ReadToEndAsync();
+
+            if(await IsNullBodyDataThenSendError(httpContext, bodyStr))
             {
-                httpContext.Response.StatusCode = 401;
-                await httpContext.Response.WriteAsync("Invalid Data Version");
                 return;
             }
 
+            var document = JsonDocument.Parse(bodyStr);
+            if (IsInvalidJsonFormatThenSendError(httpContext, 
+                                                document, 
+                                                out userName, 
+                                                out authToken, 
+                                                out clientVersion, 
+                                                out masterVersion))
+            {
+                return;
+            }
+
+            GameVersion? gameVersion = await _memoryDB.GetGameVersion();
+            if(gameVersion == null)
+            {
+                return;
+            }
+
+            // 버전 검사 
+            if (VerifyVersion(gameVersion) == false)
+            {
+                return;
+            }
+
+
             if (!CheckExclusivePath(httpContext))
             {
-                if (!VerifyHeader(httpContext))
+                RedisUser? user = await _memoryDB.GetUser(userName);
+                if (user == null)
                 {
-                    httpContext.Response.StatusCode = 401;
-                    await httpContext.Response.WriteAsync("Invalid Header");
+                    return;
+                }
+                // 토큰 검사
+                if (VerifyAccount(user) == false)
+                {
                     return;
                 }
 
-                if (!await VerifyToken(httpContext))
-                {
-                    httpContext.Response.StatusCode = 401;
-                    await httpContext.Response.WriteAsync("Invalid Token");
-                    return;
-                }
+                SetUserIdInHttpContext(httpContext, user.UserId);
             }
-
-            await _next(httpContext);
         }
 
-        bool CheckExclusivePath(HttpContext httpContext)
-        {
-            string rpath = httpContext.Request.Path;
+        httpContext.Request.Body.Position = 0;
 
-            foreach (var path in exclusivePaths)
+        await _next(httpContext);
+    }
+
+    private bool VerifyVersion(GameVersion gameVersion)
+    {
+        if(gameVersion.ClientVersion != clientVersion)
+        {
+            return false;
+        }
+        if(gameVersion.MasterVersion != masterVersion)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private bool VerifyAccount(RedisUser _redisUser)
+    {
+        if(_redisUser.AuthToken != authToken)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private bool CheckExclusivePath(HttpContext httpContext)
+    {
+        string rpath = httpContext.Request.Path;
+
+        foreach (var path in exclusivePaths)
+        {
+            if (rpath.Contains(path))
             {
-                if (rpath.Contains(path))
-                {
-                    return true;
-                }
+                return true;
             }
+        }
+        return false;
+    }
+
+    void SetUserIdInHttpContext(HttpContext httpContext, int userId)
+    {
+        httpContext.Items["User-Id"] = Convert.ToString(userId);
+    }
+
+    async Task<bool> IsNullBodyDataThenSendError(HttpContext context, string bodyStr)
+    {
+        if (string.IsNullOrEmpty(bodyStr) == false)
+        {
             return false;
         }
 
-        bool VerifyHeader(HttpContext httpContext)
+        var errorJsonResponse = JsonConvert.SerializeObject(new MiddlewareResponse
         {
-            if (!httpContext.Request.Headers.ContainsKey("User-Name"))
-            {
-                return false; 
-            }
+            result = ErrorCode.InValidRequestHttpBody
+        });
+        var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
+        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
 
-            if (!httpContext.Request.Headers.ContainsKey("Auth-Token"))
-            {
-                return false; 
-            }
+        return true;
+    }
 
-            if (!httpContext.Request.Headers.ContainsKey("Client-Version"))
-            {
-                return false;
-            }
+    bool IsInvalidJsonFormatThenSendError(HttpContext context, 
+                                          JsonDocument document, 
+                                          out string userName,
+                                          out string authToken,
+                                          out string clientVersion, 
+                                          out string masterVersion)
+    {
+        try
+        {
+            userName = document.RootElement.GetProperty("UserName").GetString();
+            authToken = document.RootElement.GetProperty("AuthToken").GetString();
+            clientVersion = document.RootElement.GetProperty("ClientVersion").GetString();
+            masterVersion = document.RootElement.GetProperty("MasterVersion").GetString();
 
-            if (!httpContext.Request.Headers.ContainsKey("MasterData-Version"))
-            {
-                return false;
-            }
-
-            string requestClientVersion = httpContext.Request.Headers["Client-Version"];
-            string requestMasterDataVersion = httpContext.Request.Headers["MasterData-Version"];
-            string? authToken = httpContext.Request.Headers["Auth-Token"];
-            string? userName = httpContext.Request.Headers["User-Name"];
-
-            if (string.IsNullOrEmpty(userName) 
-                || string.IsNullOrEmpty(authToken) 
-                || string.IsNullOrEmpty(requestClientVersion) 
-                || string.IsNullOrEmpty(requestMasterDataVersion))
-            {
-                return false; 
-            }
-
-            return true;
+            return false;
         }
-
-        /*
-         * 전송받은 UserId와 AuthToken이 Redis에 저장되어 있는지 저장되어있다면 올바른 토큰인지 확인한다.  
-         */
-        async Task<bool> VerifyToken(HttpContext httpContext)
+        catch
         {
-            string? authToken = httpContext.Request.Headers["Auth-Token"];
-            string? userName = httpContext.Request.Headers["User-Name"];
+            userName = ""; authToken = ""; clientVersion = ""; masterVersion = "";
 
-            try
+            var errorJsonResponse = JsonConvert.SerializeObject(new MiddlewareResponse
             {
-                var redis = new RedisString<RedisUser>(_redisConn, userName, null);
-                var user = await redis.GetAsync();
+                result = ErrorCode.AuthTokenFailWrongKeyword
+            });
 
-                if (!user.HasValue)
-                {
-                    return false;
-                }
-
-                if (user.Value.AuthToken != authToken)
-                {
-                    return false;
-                }
-
-                SetUserIdInHttpContext(httpContext, user.Value.UserId);
-
-                return true;
-
-            }catch (Exception ex)
-            {
-                return false;
-            }
-        }
-
-        void SetUserIdInHttpContext(HttpContext httpContext, int userId)
-        {
-            httpContext.Items["User-Id"] = Convert.ToString(userId);
-        }
-
-        async Task<bool> VerifyVersion(HttpContext httpContext)
-        {
-            string? requestClientVersion = httpContext.Request.Headers["Client-Version"];
-            string? requestMasterDataVersion = httpContext.Request.Headers["MasterData-Version"];
-
-            var redis = new RedisString<GameVersion>(_redisConn, "Version", null);
-            var gameVersion = await redis.GetAsync();
-
-            if (!gameVersion.HasValue)
-            {
-                return false;
-            }
-
-            string? redisClientVersion = gameVersion.Value.ClientVersion;
-            string? redisMasterDataVersion = gameVersion.Value.MasterDataVersion;
-
-            if(requestClientVersion != redisClientVersion)
-            {
-                return false; 
-            }
-
-            if(requestMasterDataVersion != redisMasterDataVersion)
-            {
-                return false;
-            }
+            var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
+            context.Response.Body.Write(bytes, 0, bytes.Length);
 
             return true;
         }
     }
+}
+public class MiddlewareResponse
+{
+    public ErrorCode result { get; set; }
+}
 
-    // Extension method used to add the middleware to the HTTP request pipeline.
-    public static class AuthenticationMiddlewareExtensions
+// Extension method used to add the middleware to the HTTP request pipeline.
+public static class AuthenticationMiddlewareExtensions
+{
+    public static IApplicationBuilder UseAuthenticationMiddleware(this IApplicationBuilder builder, string redisAddress)
     {
-        public static IApplicationBuilder UseAuthenticationMiddleware(this IApplicationBuilder builder, string redisAddress)
-        {
-            return builder.UseMiddleware<AuthenticationMiddleware>(redisAddress);
-        }
+        return builder.UseMiddleware<AuthenticationMiddleware>(redisAddress);
     }
 }

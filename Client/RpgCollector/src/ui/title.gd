@@ -19,7 +19,10 @@ func _on_login_btn_pressed():
 		
 	var json = JSON.stringify({
 		"UserName" : username.text, 
-		"Password" : password.text
+		"Password" : password.text, 
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version
 	})
 	var http = HTTPRequest.new()
 	add_child(http)
@@ -33,7 +36,10 @@ func _on_register_btn_pressed():
 		
 	var json = JSON.stringify({
 		"UserName" : username.text, 
-		"Password" : password.text
+		"Password" : password.text,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version
 	})
 	var http = HTTPRequest.new() 
 	add_child(http)
@@ -66,8 +72,8 @@ func _on_http_login_response(result, response_code, headers, body):
 
 	var json = JSON.parse_string(body.get_string_from_utf8())	
 	if json.error == 0:
-		Global.add_username_in_header(json.userName)
-		Global.add_auth_token_in_header(json.authToken)
+		Global.user_name = json.userName
+		Global.auth_token = json.authToken
 		get_tree().change_scene_to_file("res://src/main.tscn")
 	
 	else:

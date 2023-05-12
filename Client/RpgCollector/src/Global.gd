@@ -4,11 +4,11 @@ const BASE_URL = "http://localhost:5271/"
 const POST = HTTPClient.METHOD_POST
 
 var user_name = ""
-var auth_token = ""
+var auth_token = "."
+var client_version = "1.0.0"
+var master_version = "1.0.0"
 
-var headers = ["Content-Type: application/json", 
-				"Client-Version: 1.0.0", 
-				"MasterData-Version: 1.0.0"]
+var headers = ["Content-Type: application/json"]
 				
 const ERROR_MSG = {
 	'0' : "정상",

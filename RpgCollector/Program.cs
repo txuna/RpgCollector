@@ -17,6 +17,7 @@ using RpgCollector.Models.InitPlayerModel;
 using RpgCollector.Models.AccountModel;
 using CloudStructures;
 using CloudStructures.Structures;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,10 @@ builder.Services.AddTransient<IDungeonStageDB, DungeonStageDB>();
 builder.Services.AddSingleton<IMasterDataDB, MasterDataDB>();
 builder.Services.AddSingleton<IAccountMemoryDB, AccountMemoryDB>();
 
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.AllowSynchronousIO = true;
+});
 
 SettingLogger();
 
@@ -167,7 +172,7 @@ async Task<bool> LoadVersion(RedisConnection redisConn)
 {
     try
     {
-        var gameVersion = new GameVersion { ClientVersion = "1.0.0" , MasterDataVersion = "1.0.0"};
+        var gameVersion = new GameVersion { ClientVersion = "1.0.0" , MasterVersion = "1.0.0"};
         var redis = new RedisString<GameVersion>(redisConn, "Version", null);
         if(await redis.SetAsync(gameVersion, null) == false)
         {

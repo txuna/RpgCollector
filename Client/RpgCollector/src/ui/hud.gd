@@ -20,7 +20,15 @@ func _process(delta):
 
 
 func player_state_request():
-	var json = JSON.stringify({})
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version
+	})
+	
+	print(Global.auth_token)
+	print(json)
 	var http = HTTPRequest.new() 
 	add_child(http)
 	http.request_completed.connect(_on_player_state_response)

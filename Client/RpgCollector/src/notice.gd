@@ -14,6 +14,10 @@ func _process(delta):
 
 func get_notice_request():
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 	})
 	var http = HTTPRequest.new() 
 	add_child(http)

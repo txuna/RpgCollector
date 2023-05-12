@@ -13,6 +13,8 @@
         NonePermission = 8,
         FailedUpdateMoney = 9,
         FailedFetchPlayerItem = 10,
+        InValidRequestHttpBody = 11,
+        AuthTokenFailWrongKeyword = 12,
 
         /* Account 101 ~ 200 */
         InvalidPassword = 101,

@@ -16,7 +16,12 @@ func get_attendance_reward_request():
 	for node in reward_container.get_children():
 		node.queue_free()
 		
-	var json = JSON.stringify({})
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
+	})
 	var http = HTTPRequest.new() 
 	add_child(http)
 	http.request_completed.connect(_on_attendance_reward_response)
@@ -63,7 +68,12 @@ func create_reward(rewards):
 
 # 제일 마지막 연속출석을 가지고 옴 - 6이라면 6칸 체크, 
 func get_last_attendance_log_request():
-	var json = JSON.stringify({})
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
+	})
 	var http = HTTPRequest.new() 
 	add_child(http)
 	http.request_completed.connect(_on_last_attendance_log_response)
@@ -97,7 +107,12 @@ func do_check_daycount(count):
 		
 
 func do_attendance_request():
-	var json = JSON.stringify({})
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
+	})
 	var http = HTTPRequest.new() 
 	add_child(http)
 	http.request_completed.connect(_on_do_attendance_response)

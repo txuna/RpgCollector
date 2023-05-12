@@ -33,7 +33,12 @@ func _on_button_pressed():
 
 
 func load_inventory_request():
-	var json = JSON.stringify({})
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
+	})
 	var http = HTTPRequest.new() 
 	add_child(http)
 	http.request_completed.connect(_on_load_inventory_response)
@@ -97,6 +102,10 @@ func _on_open_detail(event: InputEvent, player_item_id):
 	
 func get_enchant_info_request(player_item_id):
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 		'PlayerItemId' : player_item_id
 	})
 	var http = HTTPRequest.new() 
@@ -159,6 +168,10 @@ func do_enchant_request():
 		return 
 		
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 		'PlayerItemId' : enchant_item_id
 	})
 	var http = HTTPRequest.new() 

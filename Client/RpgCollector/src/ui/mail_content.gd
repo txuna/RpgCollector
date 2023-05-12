@@ -46,6 +46,10 @@ func setup(json:Dictionary):
 		
 func item_info_request(item_id):
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 		"ItemId" : item_id
 	})
 	var http = HTTPRequest.new()

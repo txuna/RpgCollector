@@ -17,6 +17,10 @@ func open_mail_request(page_number:int):
 		node.queue_free()
 
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 		"PageNumber" : page_number
 	})
 	var http = HTTPRequest.new() 
@@ -68,6 +72,10 @@ func add_mail(title:String, mail_id:int):
 	
 func _on_read_mail(mail_id:int):
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 		"MailId" : mail_id
 	})
 	var http = HTTPRequest.new()
@@ -96,6 +104,10 @@ func _on_http_read_mail_response(result, response_code, headers, body):
 	
 func _on_get_item(mail_id):
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 		"MailId" : mail_id
 	})
 	var http = HTTPRequest.new()
@@ -106,6 +118,10 @@ func _on_get_item(mail_id):
 	
 func _on_delete_mail(mail_id):
 	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
 		"MailId" : mail_id
 	})
 	var http = HTTPRequest.new()
