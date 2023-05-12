@@ -48,6 +48,13 @@ public class LoginRequest
     [Required]
     [LoginUserPassword]
     public string Password { get; set; }
+
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -101,6 +108,13 @@ public class RegisterRequest
     [Required]
     [RegisterUserPassword]
     public string Password { get; set; }
+
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -134,6 +148,14 @@ POST /Logout
 ```csharp
 public class LogoutRequest
 {
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -167,7 +189,16 @@ POST /Notice
 ```csharp
 public class NoticeGetRequest
 {
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
+
 ```
 
 **Response**
@@ -203,6 +234,14 @@ public class MailOpenRequest
 {
     [Required]
     public int? PageNumber { get; set; }
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -247,6 +286,14 @@ public class MailReadRequest
 {
     [Required]
     public int MailId { get; set; }
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -295,6 +342,14 @@ public class MailGetItemRequest
 {
     [Required]
     public int MailId { get; set; }
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -331,6 +386,14 @@ public class MailDeleteRequest
 {
     [Required]
     public int MailId { get; set; }
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -373,6 +436,14 @@ POST /Attendance
 ```csharp
 public class AttendanceRequest
 {
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -418,6 +489,14 @@ public class EnchantExecuteRequest
 {
     [Required]
     public int PlayerItemId { get; set; }
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -462,6 +541,14 @@ public class PackageBuyRequest
     public int ReceiptId { get; set; }
     [Required]
     public int PackageId { get; set; }
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -492,6 +579,14 @@ POST /Master/Item
 public class MasterItemGetInfoRequest
 {
     public int ItemId { get; set; }
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -523,6 +618,14 @@ POST /Master/Attendance
 ```csharp 
 public class MasterAttendanceInfoRequest
 {
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -552,6 +655,14 @@ POST /Attendance/Log
 ```csharp 
 public class AtendanceGetLogRequest
 {
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -581,6 +692,14 @@ POST /Inventory
 ```csharp 
 public class PlayerInventoryGetRequest
 {
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -612,6 +731,14 @@ POST /Inventory/Item
 public class PlayerItemDetailGetRequest
 {
     public int PlayerItemId { get; set; }
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -651,6 +778,14 @@ POST /Package/Show
 ```csharp 
 public class PackageShowRequest
 {
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -684,6 +819,14 @@ public class EnchantInfoGetRequest
 {
     [Required]
     public int PlayerItemId { get; set; }
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
@@ -720,7 +863,14 @@ POST /Player/State
 ```csharp 
 public class PlayerStateGetRequest
 {
-
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
 }
 ```
 
