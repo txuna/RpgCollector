@@ -765,7 +765,7 @@ public class PlayerStateGetResponse
 [해결]6. 디비 접근 최소화하기  
 ex) verify (3개로 나누지 말기)  하나로 할 수 있으면 하기   
 [해결]7. 디비 쿼리 결과값 (영향받은 row 값 확인하기) 다 확인하기    
-[미해결]8. 헤더 재고하기    
+[해결]8. 헤더 재고하기    
 [해결]9. 아이템에 attack, defence, magic 컬럼 추가하기   
 [해결]10. 메일 유효기간 넣기   
 [해결]11. GetPartial -> 너무 구체적임    
