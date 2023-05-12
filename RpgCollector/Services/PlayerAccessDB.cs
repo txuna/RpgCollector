@@ -5,6 +5,7 @@ using RpgCollector.Models;
 using RpgCollector.Models.InitPlayerModel;
 using RpgCollector.Models.MasterModel;
 using RpgCollector.Models.PlayerModel;
+using RpgCollector.Models.StageModel;
 using RpgCollector.Utility;
 using SqlKata.Compilers;
 using SqlKata.Execution;
@@ -15,6 +16,7 @@ namespace RpgCollector.Services;
 
 public interface IPlayerAccessDB
 {
+    Task<bool> SetInitPlayerStageInfo(int userId);
     Task<PlayerState?> GetPlayerFromUserId(int userId);
     Task<bool> AddItemToPlayer(int userId, int itemId, int quantity);
     Task<bool> AddMoneyToPlayer(int userId, int money);
@@ -378,6 +380,29 @@ public class PlayerAccessDB : IPlayerAccessDB
         }
 
         return true;
+    }
+
+    public async Task<bool> SetInitPlayerStageInfo(int userId)
+    {
+        try
+        {
+            int effectedRow = await queryFactory.Query("player_stage_info").InsertAsync(new
+            {
+                userId = userId,
+                curStageId = 1
+            });
+
+            if(effectedRow == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
     }
 
     public async Task<bool> SetInitPlayerState(int userId)

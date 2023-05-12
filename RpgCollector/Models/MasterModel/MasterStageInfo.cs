@@ -4,6 +4,5 @@
     {
         public int StageId { get; set; }
         public string StageName { get; set; }
-        public int PreconditionStageId { get; set; }
     }
 }

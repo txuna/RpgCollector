@@ -24,9 +24,7 @@ public class PlayerInventoryGetController : Controller
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId}] Request /Inventory");
-
-        PlayerItem[] items = await _playerAccessDB.GetPlayerAllItems(userId);
+        PlayerItem[]? items = await _playerAccessDB.GetPlayerAllItems(userId);
 
         return new PlayerInventoryGetResponse
         {

@@ -6,6 +6,7 @@ using RpgCollector.Models.EnchantModel;
 using RpgCollector.Models.InitPlayerModel;
 using RpgCollector.Models.MasterModel;
 using RpgCollector.Models.PackageItemModel;
+using RpgCollector.RequestResponseModel.StageChoiceModel;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;
@@ -28,8 +29,8 @@ public interface IMasterDataDB
     public MasterPackagePayment[] GetPackagePayment();
     public MasterStageInfo[] GetMasterStageInfoList();
     public MasterStageInfo GetMasterStageInfo(int stageId);
-    MasterStageNpc[] GetMasterStageNpcs(int stageId);
-    MasterStageItem[] GetMasterStageItems(int stageId);
+    StageNpc[] GetMasterStageNpcs(int stageId);
+    StageItem[] GetMasterStageItems(int stageId);
 }
 
 public class MasterDataDB : IMasterDataDB
@@ -61,14 +62,34 @@ public class MasterDataDB : IMasterDataDB
         Open();
         Load();
     }
-    public MasterStageItem[] GetMasterStageItems(int stageId)
+    public StageItem[] GetMasterStageItems(int stageId)
     {
-        return masterStageItem.Where(e => e.StageId == stageId).ToArray();
+        MasterStageItem[] items = masterStageItem.Where(e => e.StageId == stageId).ToArray();
+        StageItem[] stageItem = new StageItem[items.Length];
+        for (int i = 0; i < items.Length; i++)
+        {
+            stageItem[i] = new StageItem
+            {
+                ItemId = items[i].ItemId,
+                Quantity = items[i].Quantity
+            };
+        }
+        return stageItem;
     }
 
-    public MasterStageNpc[] GetMasterStageNpcs(int stageId)
+    public StageNpc[] GetMasterStageNpcs(int stageId)
     {
-        return masterStageNpc.Where(e => e.StageId == stageId).ToArray();
+        MasterStageNpc[] npcs = masterStageNpc.Where(e => e.StageId == stageId).ToArray();
+        StageNpc[] stageNpc = new StageNpc[npcs.Length];
+        for (int i = 0; i < npcs.Length; i++)
+        {
+            stageNpc[i] = new StageNpc
+            {
+                NpcId = npcs[i].NpcId, 
+                Count = npcs[i].Count
+            };
+        }
+        return stageNpc;
     }
     public MasterPackagePayment[] GetPackagePayment()
     {
@@ -165,6 +186,7 @@ public class MasterDataDB : IMasterDataDB
 
             //스테이지별 NPC 불러오기 
             masterStageNpc = (queryFactory.Query("master_stage_npc").Get<MasterStageNpc>()).ToArray();
+
             //스테이지별 아이템 불러오기 
             masterStageItem = (queryFactory.Query("master_stage_item").Get<MasterStageItem>()).ToArray();
         }

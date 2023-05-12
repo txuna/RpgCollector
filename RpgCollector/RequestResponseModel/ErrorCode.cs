@@ -77,5 +77,7 @@
         FailedFetchStageInfo = 701,
         NeedClearPreconditionStage = 702,
         RedisErrorCannotEnterStage = 703,
+        FailedLoadStageNpc = 704, 
+        FaiedLoadStageItem = 705,
     }
 }

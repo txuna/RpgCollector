@@ -31,22 +31,23 @@ func _on_load_stage_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
-		load_map(json.stages)
+		load_map(json.curStageId)
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)
 	
 
-func load_map(stages):
+func load_map(cur_stage_id):
 	var map_array = map_list.get_children()
-	for i in range(stages.size()):
-		if stages[i].isOpen == true:
-			map_array[i].get_node("Button").pressed.connect(enter_stage.bind(stages[i].stageId))
-			
+	var index = 1
+	for node in map_list.get_children():
+		if index <= cur_stage_id:
+			node.get_node("Button").pressed.connect(enter_stage.bind(index))
 		else:
-			map_array[i].get_node("Button").disabled = true
+			node.get_node("Button").disabled = true
 		
+		index+=1
 
 ##############################################################################	
 	

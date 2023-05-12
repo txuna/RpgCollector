@@ -28,12 +28,8 @@ public class RegisterController : Controller
     {
         int userId = await _accountDB.RegisterUser(registerRequest.UserName, registerRequest.Password);
 
-        _logger.ZLogInformation($"[{userId}] Request 'Regist'");
-
         if (userId == -1)
         {
-            _logger.ZLogInformation($"[{userId}] Already Exist UserName");
-
             return new RegisterResponse
             {
                 Error = ErrorCode.AlreadyExistUser
@@ -67,6 +63,10 @@ public class RegisterController : Controller
             return false;
         }
         if (await _playerAccessDB.SetInitPlayerItems(userId) == false)
+        {
+            return false;
+        }
+        if(await _playerAccessDB.SetInitPlayerStageInfo(userId) == false)
         {
             return false;
         }

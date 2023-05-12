@@ -10,9 +10,8 @@ using ZLogger;
 namespace RpgCollector.Services;
 
 public interface IDungeonStageDB
-{
-    Task<PlayerStageInfo[]?> GetAllPlyerStageInfo(int userId);
-    Task<PlayerStageInfo?> GetPlayerStageInfo(int userId, int stageId);
+{ 
+    Task<PlayerStageInfo?> LoadPlayerStageInfo(int userId);
 }
 
 public class DungeonStageDB : IDungeonStageDB
@@ -30,33 +29,15 @@ public class DungeonStageDB : IDungeonStageDB
         Open();
     }
 
-    public async Task<PlayerStageInfo?> GetPlayerStageInfo(int userId, int stageId)
+    public async Task<PlayerStageInfo?> LoadPlayerStageInfo(int userId)
     {
         try
         {
-            PlayerStageInfo info = await queryFactory.Query("player_stage_clear_info")
-                                                     .Where("stageId", stageId)
+            PlayerStageInfo info = await queryFactory.Query("player_stage_info")
                                                      .Where("userId", userId)
                                                      .FirstAsync<PlayerStageInfo>();
 
             return info;
-        }
-        catch(Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return null;
-        }
-    }
-
-    public async Task<PlayerStageInfo[]?> GetAllPlyerStageInfo(int userId)
-    {
-        try
-        {
-            IEnumerable<PlayerStageInfo> info = await queryFactory.Query("player_stage_clear_info")
-                                                                  .Where("userId", userId)
-                                                                  .GetAsync<PlayerStageInfo>();
-
-            return info.ToArray();
         }
         catch(Exception ex)
         {

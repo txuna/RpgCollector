@@ -34,6 +34,7 @@ public class StageChoiceController : Controller
     public async Task<StageChoiceResponse> ChoiceStage(StageChoiceRequest stageChoiceRequest)
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
+        string authToken = Convert.ToString(HttpContext.Items["Auth-Token"]);
         string userName = stageChoiceRequest.UserName;
 
         if(await Verify(stageChoiceRequest.StageId, userId) == false)
@@ -44,10 +45,24 @@ public class StageChoiceController : Controller
             };
         }
 
-        MasterStageItem[] masterStageItem = LoadStageItem(stageChoiceRequest.StageId);
-        MasterStageNpc[] masterStageNpc = LoadStageNpc(stageChoiceRequest.StageId);
+        StageItem[] stageItem = LoadStageItem(stageChoiceRequest.StageId);
+        if(stageItem == null)
+        {
+            return new StageChoiceResponse
+            {
+                Error = ErrorCode.FaiedLoadStageItem
+            };
+        }
+        StageNpc[] stageNpc = LoadStageNpc(stageChoiceRequest.StageId);
+        if(stageNpc == null)
+        {
+            return new StageChoiceResponse
+            {
+                Error = ErrorCode.FailedLoadStageNpc
+            };
+        }
 
-        if(await ChangeUserState(userName, UserState.Playing) == false)
+        if(await ChangeUserState(userName, authToken, userId, UserState.Playing) == false)
         {
             return new StageChoiceResponse
             {
@@ -58,20 +73,19 @@ public class StageChoiceController : Controller
         return new StageChoiceResponse
         {
             Error = ErrorCode.None,
-            masterStageItem = masterStageItem,
-            masterStageNpc = masterStageNpc
+            Items = stageItem,
+            Npcs = stageNpc
         };
     }
 
-    async Task<bool> ChangeUserState(string userName, UserState userState)
+    async Task<bool> ChangeUserState(string userName, string authToken, int userId, UserState userState)
     {
-        RedisUser? user = await _accountMemoryDB.GetUser(userName);
-        if (user == null)
+        RedisUser user = new RedisUser
         {
-            return false;
-        }
-
-        user.State = userState;
+            UserId = userId,
+            AuthToken = authToken,
+            State = userState
+        };
 
         if(await _accountMemoryDB.StoreRedisUser(userName, user) == false)
         {
@@ -83,14 +97,13 @@ public class StageChoiceController : Controller
 
     async Task<bool> Verify(int stageId, int userId)
     {
-        MasterStageInfo masterStageInfo = _masterDataDB.GetMasterStageInfo(stageId);
-        if(masterStageInfo.PreconditionStageId == 0)
+        PlayerStageInfo? info = await _dungeonStageDB.LoadPlayerStageInfo(userId);
+        if (info == null)
         {
-            return true;
+            return false;
         }
 
-        PlayerStageInfo? playerStageInfo = await _dungeonStageDB.GetPlayerStageInfo(userId, masterStageInfo.PreconditionStageId);
-        if(playerStageInfo == null)
+        if(info.CurStageId < stageId)
         {
             return false;
         }
@@ -98,12 +111,12 @@ public class StageChoiceController : Controller
         return true;
     }
 
-    MasterStageNpc[] LoadStageNpc(int stageId)
+    StageNpc[] LoadStageNpc(int stageId)
     {
         return _masterDataDB.GetMasterStageNpcs(stageId);
     }
 
-    MasterStageItem[] LoadStageItem(int stageId)
+    StageItem[] LoadStageItem(int stageId)
     {
         return _masterDataDB.GetMasterStageItems(stageId);
     }

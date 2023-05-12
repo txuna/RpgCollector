@@ -37,8 +37,8 @@ builder.Services.AddTransient<IPackagePaymentDB, PackagePaymentDB>();
 builder.Services.AddTransient<IEnchantDB, EnchantDB>();
 builder.Services.AddTransient<IAttendanceDB, AttendanceDB>();
 builder.Services.AddTransient<IDungeonStageDB, DungeonStageDB>();
-builder.Services.AddTransient<IStageMemoryDB, StageMemoryDB>();
 
+builder.Services.AddSingleton<IStageMemoryDB, StageMemoryDB>();
 builder.Services.AddSingleton<IMasterDataDB, MasterDataDB>();
 builder.Services.AddSingleton<IAccountMemoryDB, AccountMemoryDB>();
 
