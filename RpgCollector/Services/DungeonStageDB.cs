@@ -11,7 +11,8 @@ namespace RpgCollector.Services;
 
 public interface IDungeonStageDB
 {
-    Task<PlayerStageInfo[]?> GetPlyerStageInfo(int userId);
+    Task<PlayerStageInfo[]?> GetAllPlyerStageInfo(int userId);
+    Task<PlayerStageInfo?> GetPlayerStageInfo(int userId, int stageId);
 }
 
 public class DungeonStageDB : IDungeonStageDB
@@ -29,7 +30,25 @@ public class DungeonStageDB : IDungeonStageDB
         Open();
     }
 
-    public async Task<PlayerStageInfo[]?> GetPlyerStageInfo(int userId)
+    public async Task<PlayerStageInfo?> GetPlayerStageInfo(int userId, int stageId)
+    {
+        try
+        {
+            PlayerStageInfo info = await queryFactory.Query("player_stage_clear_info")
+                                                     .Where("stageId", stageId)
+                                                     .Where("userId", userId)
+                                                     .FirstAsync<PlayerStageInfo>();
+
+            return info;
+        }
+        catch(Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<PlayerStageInfo[]?> GetAllPlyerStageInfo(int userId)
     {
         try
         {

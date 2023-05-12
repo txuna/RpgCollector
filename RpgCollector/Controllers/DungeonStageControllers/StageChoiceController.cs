@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models.MasterModel;
+using RpgCollector.Models.StageModel;
+using RpgCollector.RequestResponseModel;
 using RpgCollector.RequestResponseModel.StageChoiceModel;
 using RpgCollector.Services;
 
@@ -24,9 +26,34 @@ public class StageChoiceController : Controller
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
+        if(await Verify(stageChoiceRequest.StageId, userId) == false)
+        {
+            return new StageChoiceResponse
+            {
+                Error = ErrorCode.NeedClearPreconditionStage
+            };
+        }
+
         return new StageChoiceResponse
         {
-            Error = RequestResponseModel.ErrorCode.None
+            Error = ErrorCode.None
         };
+    }
+
+    async Task<bool> Verify(int stageId, int userId)
+    {
+        MasterStageInfo masterStageInfo = _masterDataDB.GetMasterStageInfo(stageId);
+        if(masterStageInfo.PreconditionStageId == 0)
+        {
+            return true;
+        }
+
+        PlayerStageInfo? playerStageInfo = await _dungeonStageDB.GetPlayerStageInfo(userId, masterStageInfo.PreconditionStageId);
+        if(playerStageInfo == null)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

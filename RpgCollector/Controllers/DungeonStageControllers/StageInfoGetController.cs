@@ -29,7 +29,7 @@ public class StageInfoGetController : Controller
     public async Task<StageInfoGetResponse> StageInfoGet(StageInfoGetRequest stageInfoGetRequest)
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
-        Stage[] stage = await ProcessingStage(userId);
+        Stage[]? stage = await LoadPlayerStageInfo(userId);
 
         if(stage == null)
         {
@@ -37,7 +37,6 @@ public class StageInfoGetController : Controller
             {
                 Error = ErrorCode.FailedFetchStageInfo
             };
-
         }
 
         return new StageInfoGetResponse
@@ -47,10 +46,10 @@ public class StageInfoGetController : Controller
         };
     }
 
-    async Task<Stage[]?> ProcessingStage(int userId)
+    async Task<Stage[]?> LoadPlayerStageInfo(int userId)
     {
         MasterStageInfo[] masterStageInfo = _masterDataDB.GetMasterStageInfoList();
-        PlayerStageInfo[]? playerStageInfo = await _dungeonStageDB.GetPlyerStageInfo(userId);
+        PlayerStageInfo[]? playerStageInfo = await _dungeonStageDB.GetAllPlyerStageInfo(userId);
 
         if(playerStageInfo == null)
         {

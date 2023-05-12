@@ -48,16 +48,17 @@ func load_map(stages):
 	
 
 func enter_stage(stage_id):
-	print(stage_id)
+	enter_stage_request(stage_id)
 
 	
-func enter_stage_request():
+func enter_stage_request(stage_id):
 	var json = JSON.stringify({
+		"StageId" : stage_id
 	})
 	var http = HTTPRequest.new() 
 	add_child(http)
 	http.request_completed.connect(_on_enter_stage_response)
-	http.request(Global.BASE_URL + "/Stage/Choice", Global.headers, Global.POST, json)
+	http.request(Global.BASE_URL + "Stage/Choice", Global.headers, Global.POST, json)
 	
 	
 func _on_enter_stage_response(result, response_code, headers, body):
@@ -67,7 +68,7 @@ func _on_enter_stage_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
-		pass
+		print(json)
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
