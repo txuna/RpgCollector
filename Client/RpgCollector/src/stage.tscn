@@ -1,0 +1,40 @@
+[gd_scene load_steps=5 format=3 uid="uid://dugwtiix35yu2"]
+
+[ext_resource type="Script" path="res://Stage.gd" id="1_nvnh8"]
+[ext_resource type="Texture2D" uid="uid://cryylulirjn2d" path="res://assets/popup_background.png" id="2_xulki"]
+[ext_resource type="Texture2D" uid="uid://cj0avjaofdsd1" path="res://assets/close_btn_normal.png" id="3_00sdx"]
+[ext_resource type="Texture2D" uid="uid://bbr1ydo557c7a" path="res://assets/close_btn_pressed.png" id="4_emv5t"]
+
+[node name="Stage" type="CanvasLayer"]
+script = ExtResource("1_nvnh8")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = 281.0
+offset_top = 37.0
+offset_right = 957.0
+offset_bottom = 733.0
+texture = ExtResource("2_xulki")
+
+[node name="TextureButton" type="TextureButton" parent="TextureRect"]
+layout_mode = 0
+offset_left = 555.0
+offset_top = 85.0
+offset_right = 587.0
+offset_bottom = 117.0
+texture_normal = ExtResource("3_00sdx")
+texture_pressed = ExtResource("4_emv5t")
+texture_hover = ExtResource("4_emv5t")
+
+[node name="Label" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 85.0
+offset_right = 591.0
+offset_bottom = 137.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 36
+text = "리스항구"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="TextureRect/TextureButton" to="." method="_on_texture_button_pressed"]

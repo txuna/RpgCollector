@@ -28,6 +28,8 @@ public interface IMasterDataDB
     public MasterPackagePayment[] GetPackagePayment();
     public MasterStageInfo[] GetMasterStageInfoList();
     public MasterStageInfo GetMasterStageInfo(int stageId);
+    MasterStageNpc[] GetMasterStageNpcs(int stageId);
+    MasterStageItem[] GetMasterStageItems(int stageId);
 }
 
 public class MasterDataDB : IMasterDataDB
@@ -44,6 +46,9 @@ public class MasterDataDB : IMasterDataDB
     MasterPackagePayment[] masterPackagePayment;
     MasterStageInfo[] masterStageInfo;
 
+    MasterStageNpc[] masterStageNpc;
+    MasterStageItem[] masterStageItem;
+
     IOptions<DbConfig> _dbConfig;
     IDbConnection dbConnection;
     MySqlCompiler compiler;
@@ -55,6 +60,15 @@ public class MasterDataDB : IMasterDataDB
         _logger = logger;
         Open();
         Load();
+    }
+    public MasterStageItem[] GetMasterStageItems(int stageId)
+    {
+        return masterStageItem.Where(e => e.StageId == stageId).ToArray();
+    }
+
+    public MasterStageNpc[] GetMasterStageNpcs(int stageId)
+    {
+        return masterStageNpc.Where(e => e.StageId == stageId).ToArray();
     }
     public MasterPackagePayment[] GetPackagePayment()
     {
@@ -148,6 +162,11 @@ public class MasterDataDB : IMasterDataDB
 
             //스테이지 정보 가지고 오기
             masterStageInfo = (queryFactory.Query("master_stage_info").Get<MasterStageInfo>()).ToArray();
+
+            //스테이지별 NPC 불러오기 
+            masterStageNpc = (queryFactory.Query("master_stage_npc").Get<MasterStageNpc>()).ToArray();
+            //스테이지별 아이템 불러오기 
+            masterStageItem = (queryFactory.Query("master_stage_item").Get<MasterStageItem>()).ToArray();
         }
         catch (Exception ex)
         {

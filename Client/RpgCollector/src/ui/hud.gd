@@ -26,9 +26,7 @@ func player_state_request():
 		"ClientVersion" : Global.client_version,
 		"MasterVersion" : Global.master_version
 	})
-	
-	print(Global.auth_token)
-	print(json)
+
 	var http = HTTPRequest.new() 
 	add_child(http)
 	http.request_completed.connect(_on_player_state_response)

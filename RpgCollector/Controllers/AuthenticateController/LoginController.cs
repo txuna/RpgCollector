@@ -77,13 +77,13 @@ public class LoginController : Controller
         {
             Error = ErrorCode.None, 
             UserName = user.UserName,
-            AuthToken = authToken 
+            AuthToken = authToken
         };
     }
 
     async Task<ErrorCode> StoreUserInMemory(User user, string authToken)
     {
-        if (await _memoryDB.StoreRedisUser(user, authToken) == false)
+        if (await _memoryDB.StoreUser(user, authToken) == false)
         {
             return ErrorCode.FailedConnectRedis;
         }

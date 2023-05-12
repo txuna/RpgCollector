@@ -13,9 +13,10 @@ namespace RpgCollector.Services;
 public interface IAccountMemoryDB
 {
     Task<bool> RemoveUser(string userName);
-    Task<bool> StoreRedisUser(User user, string authToken);
+    Task<bool> StoreUser(User user, string authToken);
     Task<RedisUser?> GetUser(string userName);
     Task<GameVersion?> GetGameVersion();
+    Task<bool> StoreRedisUser(string userName, RedisUser redisUser);
 }
 
 public class AccountMemoryDB : IAccountMemoryDB
@@ -67,7 +68,8 @@ public class AccountMemoryDB : IAccountMemoryDB
             RedisUser redisUser = new RedisUser
             {
                 UserId = user.Value.UserId,
-                AuthToken = user.Value.AuthToken
+                AuthToken = user.Value.AuthToken,
+                State = UserState.Login
             };
             return redisUser;
         }
@@ -78,7 +80,27 @@ public class AccountMemoryDB : IAccountMemoryDB
         }
     }
 
-    public async Task<bool> StoreRedisUser(User user, string authToken)
+    public async Task<bool> StoreRedisUser(string userName, RedisUser redisUser)
+    {
+        try
+        {
+            TimeSpan expiration = TimeSpan.FromMinutes(60);
+            var redis = new RedisString<RedisUser>(_redisConn, userName, expiration);
+
+            if (await redis.SetAsync(redisUser, expiration) == false)
+            {
+                return false;
+            }
+            return true; 
+        }
+        catch(Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> StoreUser(User user, string authToken)
     {
         try
         {
