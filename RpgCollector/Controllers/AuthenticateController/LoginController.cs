@@ -57,7 +57,6 @@ public class LoginController : Controller
         }
        
         string authToken = HashManager.GenerateAuthToken();
-        authToken = authToken.Replace("+", "d");
 
         ErrorCode Error = await StoreUserInMemory(user, authToken);
         

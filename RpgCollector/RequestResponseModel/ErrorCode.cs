@@ -76,5 +76,6 @@
         /* DungeonStage 701 ~ 800 */
         FailedFetchStageInfo = 701,
         NeedClearPreconditionStage = 702,
+        RedisErrorCannotEnterStage = 703,
     }
 }

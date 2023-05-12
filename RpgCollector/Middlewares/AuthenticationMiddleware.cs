@@ -66,7 +66,6 @@ public class AuthenticationMiddleware
                 return;
             }
 
-            // 버전 검사 
             if (VerifyVersion(gameVersion) == false)
             {
                 return;
@@ -80,7 +79,7 @@ public class AuthenticationMiddleware
                 {
                     return;
                 }
-                // 토큰 검사
+
                 if (VerifyAccount(user) == false)
                 {
                     return;
