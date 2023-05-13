@@ -84,5 +84,6 @@
         NotPlayingStage = 707, 
         NoneExistNpcInStage = 708,
         FailedProcessHuntingNpc = 709,
+        FailedProcessFarmingItem = 710,
     }
 }
