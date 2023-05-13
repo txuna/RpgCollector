@@ -6,13 +6,14 @@
 ![main](./Images/main.png)
 ![mailbox](./Images/mailbox.png)
 ![mail_read](./Images/read_mail.png)
-![mail_item](./Images/get_item.png)
 ![attendance](./Images/attendance.png)
 ![notices](./Images/notice.png)
 ![inventory](./Images/inventory.png)
 ![detail](./Images/detail.png)
 ![package](./Images/payment.png)
 ![enchant](./Images/enchant.png)
+![worlds](./Images/worlds.png)
+![stage](./Images/stage.png)
 
 ## API 목록
 ### Login API

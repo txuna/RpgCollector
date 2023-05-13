@@ -28,19 +28,19 @@ var package_texture = {
 
 var stage_info = {
 	'1' : {
-		'name' : '리스항구'
+		'name' : '넓은 들판'
 	},
 	'2' : {
-		'name' : '헤네시스'
+		'name' : '울창한 숲'
 	},
 	'3' : {
-		'name' : '엘리니아'
+		'name' : '호수 근처'
 	},
 	'4' : {
-		'name' : "커닝시티"
+		'name' : "깊은 호숫가"
 	},
 	'5' : {
-		'name' : '페리온'
+		'name' : '숲의 끝'
 	}
 }
 

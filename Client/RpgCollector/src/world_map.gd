@@ -45,8 +45,10 @@ func load_map(cur_stage_id):
 	var index = 1
 	for node in map_list.get_children():
 		if index <= cur_stage_id:
+			node.get_node("Button").text = MasterData.stage_info[str(index)].name
 			node.get_node("Button").pressed.connect(enter_stage.bind(index))
 		else:
+			node.get_node("Button").text = MasterData.stage_info[str(index)].name
 			node.get_node("Button").disabled = true
 		
 		index+=1
