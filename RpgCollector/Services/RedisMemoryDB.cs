@@ -18,6 +18,7 @@ public interface IRedisMemoryDB
     Task<RedisUser?> GetUser(string userName);
     Task<GameVersion?> GetGameVersion();
     Task<bool> StoreRedisPlayerStageInfo(RedisPlayerStageInfo playerStageInfo, string userName);
+    Task<bool> RemoveRedisPlayerStageInfo(string userName);
 }
 
 public class RedisMemoryDB : IRedisMemoryDB
@@ -31,6 +32,25 @@ public class RedisMemoryDB : IRedisMemoryDB
         var config = new RedisConfig("default", dbConfig.Value.RedisDb);
         _redisConn = new RedisConnection(config);
         _logger = logger;
+    }
+
+    public async Task<bool> RemoveRedisPlayerStageInfo(string userName)
+    {
+        try
+        {
+            var redis = new RedisString<RedisPlayerStageInfo>(_redisConn, userName+stageKey, null); // 키 확인
+            var redisResult = await redis.DeleteAsync();
+            if(redisResult == false)
+            {
+                return true;
+            }
+            return redisResult;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
     }
 
     public async Task<bool> StoreRedisPlayerStageInfo(RedisPlayerStageInfo playerStageInfo, string userName)
