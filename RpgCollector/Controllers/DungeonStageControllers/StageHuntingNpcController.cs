@@ -37,7 +37,6 @@ namespace RpgCollector.Controllers.DungeonStageControllers
                 };
             }
 
-            //요청 보낸 NPC가 던전에서 생성되는 유효한 NPC인지 확인
             RedisPlayerStageInfo? redisPlayerStageInfo = await LoadStagePlayerInfo(userName);
             if(redisPlayerStageInfo == null)
             {

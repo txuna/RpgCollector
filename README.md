@@ -886,6 +886,173 @@ public class PlayerStateGetResponse
 }
 ```
 
+### Player State Get API
+1. 현재 플레이어가 진행할 수 있는 스테이지를 반환함
+
+**Database** 
+```csharp
+player_stage_info - GET
+```
+
+**Path** 
+```csharp
+POST /Stage/Info
+```
+
+**Request**
+```csharp 
+public class StageInfoGetRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class StageInfoGetResponse
+{
+    public ErrorCode Error { get; set; }
+    public int CurStageId { get; set; }
+}
+```
+
+### Player State Get API
+1. 플레이어가 선택한 스테이지에 대한 검증
+
+**Database** 
+```csharp
+Redis DB - GET / INSERT
+player_stage_info - GET
+master_stage_npc - GET
+master_stage_item - GET
+```
+
+**Path** 
+```csharp
+POST /Stage/Choice
+```
+
+**Request**
+```csharp 
+public class StageChoiceRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+    [Required]
+    public int StageId { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class StageItem
+{
+    public int ItemId { get; set; }
+}
+
+public class StageNpc
+{
+    public int NpcId { get; set; }
+    public int Count { get; set; }
+}
+
+public class StageChoiceResponse
+{
+    public ErrorCode Error { get; set; }
+    public StageItem[] Items { get; set; }
+    public StageNpc[] Npcs { get; set; }
+}
+```
+
+### Player State Get API
+1. 현재 플레이어가 진행할 수 있는 스테이지를 반환함
+
+**Database** 
+```csharp
+player_stage_info - GET
+```
+
+**Path** 
+```csharp
+POST /Stage/Info
+```
+
+**Request**
+```csharp 
+public class StageInfoGetRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class StageInfoGetResponse
+{
+    public ErrorCode Error { get; set; }
+    public int CurStageId { get; set; }
+}
+```
+
+### Player State Get API
+1. 클라이언트가 NPC을 잡았다고 보내는 API
+
+**Database** 
+```csharp
+Redis DB - GET / INSERT
+```
+
+**Path** 
+```csharp
+POST /Stage/Hunting/Npc
+```
+
+**Request**
+```csharp 
+public class StageHuntingNpcRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+    [Required]
+    public int NpcId { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class StageHuntingNpcResponse
+{
+    public int NpcId { get; set; }
+    public ErrorCode Error { get; set; }
+}
+```
+
 ### 2차 피드백  
 2차 피드백  
 [해결]1. 중복로그인 체크하지 말고 -> 새로운값으로 토큰 발급하고 갱신  + TTL 추가   
