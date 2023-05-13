@@ -75,6 +75,7 @@ public class LoginResponse
 2. 유효한 요청이라면 AccountDB에 저장 및 GameDB에 players테이블에 userId를 참조하는 행 삽입 
 3. GameDB의 init_player_items와 init_player_state의 테이블을 참고하여 초기 데이터 로드
 4. 플레이어의 정보는 players 테이블에 저장, player item은 player_items에 저장 
+5. 플레이어 기본 스테이지 정보 설정
 5. 플레이어 생성 실패시 accountDB에서 해당 유저 정보 롤백(삭제)
 
 **Database**
@@ -88,6 +89,7 @@ GameDB
 2. init_player_state - GET 
 3. player_items - INSERT
 4. players - INSERT
+5. player_stage_info - INSERT
 ```
 
 **Path** 

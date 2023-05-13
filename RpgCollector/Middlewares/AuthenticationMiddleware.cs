@@ -87,6 +87,7 @@ public class AuthenticationMiddleware
 
                 SetUserIdInHttpContext(httpContext, user.UserId);
                 SetAuthTokenInHttpContext(httpContext, user.AuthToken);
+                SetUserNameInHttpContext(httpContext, userName);
             }
         }
 
@@ -139,6 +140,11 @@ public class AuthenticationMiddleware
     void SetAuthTokenInHttpContext(HttpContext httpContext, string authToken)
     {
         httpContext.Items["Auth-Token"] = authToken;
+    }
+
+    void SetUserNameInHttpContext(HttpContext httpContext, string userName)
+    {
+        httpContext.Items["User-Name"] = userName;
     }
 
     async Task<bool> IsNullBodyDataThenSendError(HttpContext context, string bodyStr)

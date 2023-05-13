@@ -19,6 +19,7 @@ public interface IRedisMemoryDB
     Task<GameVersion?> GetGameVersion();
     Task<bool> StoreRedisPlayerStageInfo(RedisPlayerStageInfo playerStageInfo, string userName);
     Task<bool> RemoveRedisPlayerStageInfo(string userName);
+    Task<RedisPlayerStageInfo?> GetRedisPlayerStageInfo(string userName);
 }
 
 public class RedisMemoryDB : IRedisMemoryDB
@@ -32,6 +33,35 @@ public class RedisMemoryDB : IRedisMemoryDB
         var config = new RedisConfig("default", dbConfig.Value.RedisDb);
         _redisConn = new RedisConnection(config);
         _logger = logger;
+    }
+
+    public async Task<RedisPlayerStageInfo?> GetRedisPlayerStageInfo(string userName)
+    {
+        try
+        {
+            var redis = new RedisString<RedisPlayerStageInfo>(_redisConn, userName+stageKey, null);
+            var info = await redis.GetAsync();
+            if (!info.HasValue)
+            {
+                return null;
+            }
+
+            RedisPlayerStageInfo playerStageInfo = new RedisPlayerStageInfo
+            {
+                UserId = info.Value.UserId,
+                StageId = info.Value.StageId,
+                FarmingItems = info.Value.FarmingItems,
+                Npcs = info.Value.Npcs,
+                RewardExp = info.Value.RewardExp,
+            };
+
+            return playerStageInfo;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return null;
+        }
     }
 
     public async Task<bool> RemoveRedisPlayerStageInfo(string userName)

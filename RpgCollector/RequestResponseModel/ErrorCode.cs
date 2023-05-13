@@ -80,5 +80,8 @@
         FailedLoadStageNpc = 704, 
         FaiedLoadStageItem = 705,
         AlreadyPlayStage = 706,
+        NotPlayingStage = 707, 
+        NoneExistNpcInStage = 708,
+        FailedProcessHuntingNpc = 709,
     }
 }

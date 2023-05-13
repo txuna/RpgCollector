@@ -19,11 +19,9 @@ public class MasterAttendanceInfoController : Controller
 
     [Route("/Master/Attendance")]
     [HttpPost]
-    public async Task<MasterAttendanceInfoResponse> GetAttendanceInfo(MasterAttendanceInfoRequest masterAttendanceInfoRequest)
+    public MasterAttendanceInfoResponse GetAttendanceInfo(MasterAttendanceInfoRequest masterAttendanceInfoRequest)
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
-
-        _logger.ZLogInformation($"[{userId}] Request /Master/Attendance");
 
         MasterAttendanceReward[] masterAttendanceRewards = _masterDataDB.GetAllMasterAttendanceReward();
 
