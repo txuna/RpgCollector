@@ -21,14 +21,14 @@ public class AuthenticationMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly string[] exclusivePaths = new[] { "/Login", "/Register" };
-    private readonly Services.IAccountMemoryDB _memoryDB;
+    private readonly Services.IRedisMemoryDB _memoryDB;
 
     string userName;
     string authToken;
     string clientVersion;
     string masterVersion;
 
-    public AuthenticationMiddleware(RequestDelegate next, string redisAddress, Services.IAccountMemoryDB memoryDB)
+    public AuthenticationMiddleware(RequestDelegate next, string redisAddress, Services.IRedisMemoryDB memoryDB)
     {
         
         _next = next;

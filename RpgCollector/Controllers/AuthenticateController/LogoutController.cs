@@ -11,10 +11,10 @@ namespace RpgCollector.Controllers.AuthenticateController;
 [ApiController]
 public class LogoutController : Controller
 {
-    IAccountMemoryDB _accountMemoryDB;
+    IRedisMemoryDB _accountMemoryDB;
     ILogger<LogoutController> _logger;
 
-    public LogoutController(IAccountMemoryDB accountMemoryDB, ILogger<LogoutController> logger)
+    public LogoutController(IRedisMemoryDB accountMemoryDB, ILogger<LogoutController> logger)
     {
         _accountMemoryDB = accountMemoryDB;
         _logger = logger;

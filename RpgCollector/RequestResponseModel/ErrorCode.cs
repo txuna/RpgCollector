@@ -79,5 +79,6 @@
         RedisErrorCannotEnterStage = 703,
         FailedLoadStageNpc = 704, 
         FaiedLoadStageItem = 705,
+        AlreadyPlayStage = 706,
     }
 }

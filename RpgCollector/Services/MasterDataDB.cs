@@ -29,8 +29,8 @@ public interface IMasterDataDB
     public MasterPackagePayment[] GetPackagePayment();
     public MasterStageInfo[] GetMasterStageInfoList();
     public MasterStageInfo GetMasterStageInfo(int stageId);
-    StageNpc[] GetMasterStageNpcs(int stageId);
-    StageItem[] GetMasterStageItems(int stageId);
+    MasterStageNpc[] GetMasterStageNpcs(int stageId);
+    MasterStageItem[] GetMasterStageItems(int stageId);
 }
 
 public class MasterDataDB : IMasterDataDB
@@ -62,35 +62,43 @@ public class MasterDataDB : IMasterDataDB
         Open();
         Load();
     }
-    public StageItem[] GetMasterStageItems(int stageId)
+    public MasterStageItem[] GetMasterStageItems(int stageId)
     {
-        MasterStageItem[] items = masterStageItem.Where(e => e.StageId == stageId).ToArray();
-        StageItem[] stageItem = new StageItem[items.Length];
-        for (int i = 0; i < items.Length; i++)
-        {
-            stageItem[i] = new StageItem
-            {
-                ItemId = items[i].ItemId,
-                Quantity = items[i].Quantity
-            };
-        }
-        return stageItem;
+        return masterStageItem.Where(e => e.StageId == stageId).ToArray();
     }
 
-    public StageNpc[] GetMasterStageNpcs(int stageId)
+    public MasterStageNpc[] GetMasterStageNpcs(int stageId)
     {
-        MasterStageNpc[] npcs = masterStageNpc.Where(e => e.StageId == stageId).ToArray();
-        StageNpc[] stageNpc = new StageNpc[npcs.Length];
-        for (int i = 0; i < npcs.Length; i++)
-        {
-            stageNpc[i] = new StageNpc
-            {
-                NpcId = npcs[i].NpcId, 
-                Count = npcs[i].Count
-            };
-        }
-        return stageNpc;
+        return masterStageNpc.Where(e => e.StageId == stageId).ToArray();
     }
+    //public StageItem[] GetMasterStageItems(int stageId)
+    //{
+    //    MasterStageItem[] items = masterStageItem.Where(e => e.StageId == stageId).ToArray();
+    //    StageItem[] stageItem = new StageItem[items.Length];
+    //    for (int i = 0; i < items.Length; i++)
+    //    {
+    //        stageItem[i] = new StageItem
+    //        {
+    //            ItemId = items[i].ItemId,
+    //        };
+    //    }
+    //    return stageItem;
+    //}
+
+    //public StageNpc[] GetMasterStageNpcs(int stageId)
+    //{
+    //    MasterStageNpc[] npcs = masterStageNpc.Where(e => e.StageId == stageId).ToArray();
+    //    StageNpc[] stageNpc = new StageNpc[npcs.Length];
+    //    for (int i = 0; i < npcs.Length; i++)
+    //    {
+    //        stageNpc[i] = new StageNpc
+    //        {
+    //            NpcId = npcs[i].NpcId, 
+    //            Count = npcs[i].Count
+    //        };
+    //    }
+    //    return stageNpc;
+    //}
     public MasterPackagePayment[] GetPackagePayment()
     {
         return masterPackagePayment;

@@ -5,7 +5,6 @@ namespace RpgCollector.RequestResponseModel.StageChoiceModel
     public class StageItem
     {
         public int ItemId { get; set; }
-        public int Quantity { get; set; }
     }
 
     public class StageNpc

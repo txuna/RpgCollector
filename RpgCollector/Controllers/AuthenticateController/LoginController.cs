@@ -14,10 +14,10 @@ namespace RpgCollector.Controllers.AuthenticateController;
 public class LoginController : Controller
 {
     IAccountDB _accountDB;
-    IAccountMemoryDB _memoryDB;
+    IRedisMemoryDB _memoryDB;
     ILogger<LoginController> _logger;
 
-    public LoginController(IAccountDB accountDB, IAccountMemoryDB memoryDB, ILogger<LoginController> logger)
+    public LoginController(IAccountDB accountDB, IRedisMemoryDB memoryDB, ILogger<LoginController> logger)
     {
         _accountDB = accountDB;
         _memoryDB = memoryDB;
@@ -82,7 +82,7 @@ public class LoginController : Controller
 
     async Task<ErrorCode> StoreUserInMemory(User user, string authToken)
     {
-        if (await _memoryDB.StoreUser(user, authToken) == false)
+        if (await _memoryDB.StoreUser(user.UserName, user.UserId, authToken, UserState.Login) == false)
         {
             return ErrorCode.FailedConnectRedis;
         }

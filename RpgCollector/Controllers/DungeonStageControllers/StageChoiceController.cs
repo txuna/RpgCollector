@@ -14,19 +14,16 @@ public class StageChoiceController : Controller
     ILogger<StageChoiceController> _logger;
     IDungeonStageDB _dungeonStageDB;
     IMasterDataDB _masterDataDB;
-    IStageMemoryDB _stageMemoryDB;
-    IAccountMemoryDB _accountMemoryDB;
+    IRedisMemoryDB _memoryDB;
     public StageChoiceController(IMasterDataDB masterDataDB, 
                                  IDungeonStageDB dungeonStageDB, 
                                  ILogger<StageChoiceController> logger,
-                                 IStageMemoryDB stageMemoryDB,
-                                 IAccountMemoryDB accountMemoryDB)
+                                 IRedisMemoryDB memoryDB)
     {
         _masterDataDB = masterDataDB;
         _dungeonStageDB = dungeonStageDB;
-        _stageMemoryDB = stageMemoryDB;
         _logger = logger;
-        _accountMemoryDB = accountMemoryDB;
+        _memoryDB = memoryDB;
     }
 
     [Route("/Stage/Choice")]
@@ -37,6 +34,14 @@ public class StageChoiceController : Controller
         string authToken = Convert.ToString(HttpContext.Items["Auth-Token"]);
         string userName = stageChoiceRequest.UserName;
 
+        if(await AlreadyEnterStage(userName) == false)
+        {
+            return new StageChoiceResponse
+            {
+                Error = ErrorCode.AlreadyPlayStage
+            };
+        }
+
         if(await Verify(stageChoiceRequest.StageId, userId) == false)
         {
             return new StageChoiceResponse
@@ -45,16 +50,17 @@ public class StageChoiceController : Controller
             };
         }
 
-        StageItem[] stageItem = LoadStageItem(stageChoiceRequest.StageId);
-        if(stageItem == null)
+        MasterStageItem[] masterStageItem = LoadStageItem(stageChoiceRequest.StageId);
+        if(masterStageItem == null)
         {
             return new StageChoiceResponse
             {
                 Error = ErrorCode.FaiedLoadStageItem
             };
         }
-        StageNpc[] stageNpc = LoadStageNpc(stageChoiceRequest.StageId);
-        if(stageNpc == null)
+
+        MasterStageNpc[] masterStageNpc = LoadStageNpc(stageChoiceRequest.StageId);
+        if(masterStageNpc == null)
         {
             return new StageChoiceResponse
             {
@@ -70,24 +76,117 @@ public class StageChoiceController : Controller
             };
         }
 
+        if(await SetPlayerStageInfoInMemory(userName, userId, stageChoiceRequest.StageId, masterStageItem, masterStageNpc) == false)
+        {
+            return new StageChoiceResponse
+            {
+                Error = ErrorCode.RedisErrorCannotEnterStage
+            };
+        }
+
         return new StageChoiceResponse
         {
             Error = ErrorCode.None,
-            Items = stageItem,
-            Npcs = stageNpc
+            Items = ProcessingItemResponseValue(masterStageItem),
+            Npcs = ProcessingNpcResponseValue(masterStageNpc)
         };
+    }
+
+    StageItem[] ProcessingItemResponseValue(MasterStageItem[] masterStageItem)
+    {
+        StageItem[] stageItems = new StageItem[masterStageItem.Length];
+
+        for(int i = 0; i < masterStageItem.Length; i++)
+        {
+            stageItems[i] = new StageItem
+            {
+                ItemId = masterStageItem[i].ItemId
+            };
+        }
+        return stageItems; 
+    }
+
+    StageNpc[] ProcessingNpcResponseValue(MasterStageNpc[] masterStageNpc)
+    {
+        StageNpc[] stageNpcs = new StageNpc[masterStageNpc.Length];
+
+        for(int i = 0; i<masterStageNpc.Length; i++)
+        {
+            stageNpcs[i] = new StageNpc
+            {
+                NpcId = masterStageNpc[i].NpcId,
+                Count = masterStageNpc[i].Count
+            };
+        }
+
+        return stageNpcs; 
+    }
+
+    async Task<bool> SetPlayerStageInfoInMemory(string userName, 
+                                                int userId, 
+                                                int stageId, 
+                                                MasterStageItem[] masterStageItem, 
+                                                MasterStageNpc[] masterStageNpc)
+    {
+        RedisStageItem[] redisStageItem = new RedisStageItem[masterStageItem.Length];
+        RedisStageNpc[] redisStageNpc = new RedisStageNpc[masterStageNpc.Length]; 
+
+        for(int i=0; i<masterStageItem.Length; i++)
+        {
+            redisStageItem[i] = new RedisStageItem
+            {
+                ItemId = masterStageItem[i].ItemId,
+                IsFarming = false
+            };
+        }
+
+        for(int i=0; i<masterStageNpc.Length; i++)
+        {
+            redisStageNpc[i] = new RedisStageNpc
+            {
+                NpcId = masterStageNpc[i].NpcId,
+                Count = masterStageNpc[i].Count,
+                RemaingCount = masterStageNpc[i].Count,
+                Exp = masterStageNpc[i].Exp
+            };
+        }
+
+        RedisPlayerStageInfo playerStageInfo = new RedisPlayerStageInfo
+        {
+            UserId = userId, 
+            StageId = stageId,
+            RewardExp = 0,
+            FarmingItems = redisStageItem, 
+            Npcs = redisStageNpc,
+        };
+
+        if(await _memoryDB.StoreRedisPlayerStageInfo(playerStageInfo, userName) == false)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     async Task<bool> ChangeUserState(string userName, string authToken, int userId, UserState userState)
     {
-        RedisUser user = new RedisUser
+        if(await _memoryDB.StoreUser(userName, userId, authToken, userState) == false)
         {
-            UserId = userId,
-            AuthToken = authToken,
-            State = userState
-        };
+            return false;
+        }
 
-        if(await _accountMemoryDB.StoreRedisUser(userName, user) == false)
+        return true;
+    }
+
+    async Task<bool> AlreadyEnterStage(string userName)
+    {
+        RedisUser? user = await _memoryDB.GetUser(userName);
+        if(user == null)
+        {
+            return false; 
+        }
+
+        if(user.State == UserState.Playing)
         {
             return false;
         }
@@ -111,12 +210,12 @@ public class StageChoiceController : Controller
         return true;
     }
 
-    StageNpc[] LoadStageNpc(int stageId)
+    MasterStageNpc[] LoadStageNpc(int stageId)
     {
         return _masterDataDB.GetMasterStageNpcs(stageId);
     }
 
-    StageItem[] LoadStageItem(int stageId)
+    MasterStageItem[] LoadStageItem(int stageId)
     {
         return _masterDataDB.GetMasterStageItems(stageId);
     }

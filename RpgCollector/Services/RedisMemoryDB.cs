@@ -3,6 +3,7 @@ using CloudStructures.Structures;
 using Microsoft.Extensions.Options;
 using RpgCollector.Models;
 using RpgCollector.Models.AccountModel;
+using RpgCollector.Models.StageModel;
 using RpgCollector.Utility;
 using StackExchange.Redis;
 using System.Text.Json;
@@ -10,25 +11,45 @@ using ZLogger;
 
 namespace RpgCollector.Services;
 
-public interface IAccountMemoryDB
+public interface IRedisMemoryDB
 {
     Task<bool> RemoveUser(string userName);
-    Task<bool> StoreUser(User user, string authToken);
+    Task<bool> StoreUser(string userName, int userId, string authToken, UserState state);
     Task<RedisUser?> GetUser(string userName);
     Task<GameVersion?> GetGameVersion();
-    Task<bool> StoreRedisUser(string userName, RedisUser redisUser);
+    Task<bool> StoreRedisPlayerStageInfo(RedisPlayerStageInfo playerStageInfo, string userName);
 }
 
-public class AccountMemoryDB : IAccountMemoryDB
+public class RedisMemoryDB : IRedisMemoryDB
 {
     RedisConnection _redisConn;
-    ILogger<AccountMemoryDB> _logger;
+    ILogger<RedisMemoryDB> _logger;
+    readonly string stageKey = "_Stage";
 
-    public AccountMemoryDB(IOptions<DbConfig> dbConfig, ILogger<AccountMemoryDB> logger) 
+    public RedisMemoryDB(IOptions<DbConfig> dbConfig, ILogger<RedisMemoryDB> logger) 
     {
         var config = new RedisConfig("default", dbConfig.Value.RedisDb);
         _redisConn = new RedisConnection(config);
         _logger = logger;
+    }
+
+    public async Task<bool> StoreRedisPlayerStageInfo(RedisPlayerStageInfo playerStageInfo, string userName)
+    {
+        try
+        {
+            TimeSpan expiration = TimeSpan.FromMinutes(10);
+            var redis = new RedisString<RedisPlayerStageInfo>(_redisConn, userName+stageKey, expiration);
+            if(await redis.SetAsync(playerStageInfo, expiration) == false)
+            {
+                return false;
+            }
+            return true;
+        }
+        catch(Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
     }
 
     public async Task<GameVersion?> GetGameVersion()
@@ -69,7 +90,7 @@ public class AccountMemoryDB : IAccountMemoryDB
             {
                 UserId = user.Value.UserId,
                 AuthToken = user.Value.AuthToken,
-                State = UserState.Login
+                State = user.Value.State
             };
             return redisUser;
         }
@@ -80,38 +101,19 @@ public class AccountMemoryDB : IAccountMemoryDB
         }
     }
 
-    public async Task<bool> StoreRedisUser(string userName, RedisUser redisUser)
-    {
-        try
-        {
-            TimeSpan expiration = TimeSpan.FromMinutes(60);
-            var redis = new RedisString<RedisUser>(_redisConn, userName, expiration);
-
-            if (await redis.SetAsync(redisUser, expiration) == false)
-            {
-                return false;
-            }
-            return true; 
-        }
-        catch(Exception ex)
-        {
-            _logger.ZLogError(ex.Message);
-            return false;
-        }
-    }
-
-    public async Task<bool> StoreUser(User user, string authToken)
+    public async Task<bool> StoreUser(string userName, int userId, string authToken, UserState state)
     {
         try
         {
             RedisUser redisUser = new RedisUser
             {
-                UserId = user.UserId,
-                AuthToken = authToken
+                UserId = userId,
+                AuthToken = authToken,
+                State = state
             };
 
             TimeSpan expiration = TimeSpan.FromMinutes(60);
-            var redis = new RedisString<RedisUser>(_redisConn, user.UserName, expiration);
+            var redis = new RedisString<RedisUser>(_redisConn, userName, expiration);
             if(await redis.SetAsync(redisUser, expiration) == false)
             {
                 return false;

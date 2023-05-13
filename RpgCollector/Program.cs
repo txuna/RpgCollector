@@ -38,9 +38,8 @@ builder.Services.AddTransient<IEnchantDB, EnchantDB>();
 builder.Services.AddTransient<IAttendanceDB, AttendanceDB>();
 builder.Services.AddTransient<IDungeonStageDB, DungeonStageDB>();
 
-builder.Services.AddSingleton<IStageMemoryDB, StageMemoryDB>();
 builder.Services.AddSingleton<IMasterDataDB, MasterDataDB>();
-builder.Services.AddSingleton<IAccountMemoryDB, AccountMemoryDB>();
+builder.Services.AddSingleton<IRedisMemoryDB, RedisMemoryDB>();
 
 builder.Services.Configure<KestrelServerOptions>(options =>
 {

@@ -1,11 +1,10 @@
 ﻿## Dungeon Stage Database 
 ### Player Stage Clear Info 
 ```
-CREATE TABLE `player_stage_clear_info` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `player_stage_info` (
   `userId` int NOT NULL,
   `stageId` int NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 ```
 
@@ -13,7 +12,6 @@ CREATE TABLE `player_stage_clear_info` (
 ```
 CREATE TABLE `master_stage_info` (
   `stageId` int NOT NULL,
-  `preconditionStageId` int NOT NULL,
   `stageName` varchar(45) NOT NULL,
   PRIMARY KEY (`stageId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
