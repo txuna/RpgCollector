@@ -1,9 +1,16 @@
-[gd_scene load_steps=5 format=3 uid="uid://dugwtiix35yu2"]
+[gd_scene load_steps=6 format=3 uid="uid://dugwtiix35yu2"]
 
 [ext_resource type="Script" path="res://Stage.gd" id="1_nvnh8"]
 [ext_resource type="Texture2D" uid="uid://cryylulirjn2d" path="res://assets/popup_background.png" id="2_xulki"]
 [ext_resource type="Texture2D" uid="uid://cj0avjaofdsd1" path="res://assets/close_btn_normal.png" id="3_00sdx"]
 [ext_resource type="Texture2D" uid="uid://bbr1ydo557c7a" path="res://assets/close_btn_pressed.png" id="4_emv5t"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bajaj"]
+bg_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="Stage" type="CanvasLayer"]
 script = ExtResource("1_nvnh8")
@@ -33,8 +40,72 @@ offset_right = 591.0
 offset_bottom = 137.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
-text = "리스항구"
+text = "MAP NAME"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="Button" type="Button" parent="TextureRect"]
+layout_mode = 0
+offset_left = 98.0
+offset_top = 546.0
+offset_right = 585.0
+offset_bottom = 605.0
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_bajaj")
+text = "NPC 잡기"
+
+[node name="Label2" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 260.0
+offset_top = 150.0
+offset_right = 417.0
+offset_bottom = 188.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "남은 NPC 현황"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label3" type="Label" parent="TextureRect"]
+layout_mode = 0
+offset_left = 255.0
+offset_top = 376.0
+offset_right = 435.0
+offset_bottom = 414.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "아이템 파밍 현황"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="TextureRect"]
+layout_mode = 0
+offset_left = 103.0
+offset_top = 193.0
+offset_right = 572.0
+offset_bottom = 356.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TextureRect/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="TextureRect/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "슬라임 : 10마리"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer2" type="ScrollContainer" parent="TextureRect"]
+layout_mode = 0
+offset_left = 103.0
+offset_top = 421.0
+offset_right = 572.0
+offset_bottom = 540.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TextureRect/ScrollContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [connection signal="pressed" from="TextureRect/TextureButton" to="." method="_on_texture_button_pressed"]
+[connection signal="pressed" from="TextureRect/Button" to="." method="_on_button_pressed"]

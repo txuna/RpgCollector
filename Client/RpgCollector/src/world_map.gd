@@ -1,6 +1,8 @@
 extends CanvasLayer
 
 @onready var map_list = $TextureRect/Control
+
+var cur_stage_id = -1
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	load_stage_request()
@@ -64,6 +66,7 @@ func enter_stage_request(stage_id):
 		"MasterVersion" : Global.master_version,
 		"StageId" : stage_id
 	})
+	cur_stage_id = stage_id
 	var http = HTTPRequest.new() 
 	add_child(http)
 	http.request_completed.connect(_on_enter_stage_response)
@@ -77,12 +80,18 @@ func _on_enter_stage_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
-		print(json)
+		load_stage(json, cur_stage_id)
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)
 
+
+func load_stage(json, stage_id):
+	var instance = load("res://src/stage.tscn").instantiate()
+	get_parent().add_child(instance)
+	instance.init_setup(json, stage_id)
+	
 
 func _on_texture_button_pressed():
 	queue_free()

@@ -65,7 +65,8 @@ namespace RpgCollector.Controllers.DungeonStageControllers
 
             return new StageHuntingNpcResponse
             {
-                Error = ErrorCode.None
+                Error = ErrorCode.None,
+                NpcId = stageHuntingNpcRequest.NpcId
             };
         }
 
@@ -109,8 +110,11 @@ namespace RpgCollector.Controllers.DungeonStageControllers
                 return false;
             }
 
-            redisStageNpc.RemaingCount -= 1;
-            redisPlayerStageInfo.RewardExp += redisStageNpc.Exp;
+            if(redisStageNpc.RemaingCount > 0)
+            {
+                redisStageNpc.RemaingCount -= 1;
+                redisPlayerStageInfo.RewardExp += redisStageNpc.Exp;
+            }
 
             int index = Array.IndexOf(redisPlayerStageInfo.Npcs, redisStageNpc);
             if(index != -1)
