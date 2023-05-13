@@ -108,7 +108,8 @@ public class StageChoiceController : Controller
         {
             stageItems[i] = new StageItem
             {
-                ItemId = masterStageItem[i].ItemId
+                ItemId = masterStageItem[i].ItemId,
+                Quantity = masterStageItem[i].Quantity,
             };
         }
         return stageItems; 
@@ -144,7 +145,8 @@ public class StageChoiceController : Controller
             redisStageItem[i] = new RedisStageItem
             {
                 ItemId = masterStageItem[i].ItemId,
-                IsFarming = false
+                MaxCount = masterStageItem[i].Quantity, 
+                FarmingCount = 0
             };
         }
 

@@ -29,7 +29,10 @@ func init_setup(json, _stage_id):
 	"name" : MasterData.stage_info[str(stage_id)].name
 	})
 	for item in stage_info.items:
-		item_farming_list[item.itemId] = false
+		item_farming_list[item.itemId] = {
+			"max_count" : item.quantity, 
+			"farming_count" : 0
+		}
 
 	load_npc()
 	load_item()
@@ -44,7 +47,7 @@ func load_npc():
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		
-		label.add_theme_font_size_override("font_size", 16)
+		label.add_theme_font_size_override("font_size", 18)
 		label.add_theme_color_override("font_color", Color.BLACK)
 		
 		label.text = "{name} : {num}마리".format({
@@ -64,12 +67,13 @@ func load_item():
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		
-		label.add_theme_font_size_override("font_size", 16)
+		label.add_theme_font_size_override("font_size", 18)
 		label.add_theme_color_override("font_color", Color.BLACK)
 
-		label.text = "{name} - {is}".format({
+		label.text = "{name} - [{c} / {m}]".format({
 			"name" : MasterData.item_data[str(item.itemId)], 
-			'is' : "발견 함" if item_farming_list[item.itemId] else "발견 못함"
+			"c" : item_farming_list[item.itemId].farming_count, 
+			"m" : item_farming_list[item.itemId].max_count
 		})
 		
 		item_container.add_child(label)
@@ -131,7 +135,8 @@ func _on_hunting_npc_response(result, response_code, headers, body):
 func farming_item_request():
 	pass
 	
-	
+
+# farmingCount ++ 
 func _on_farming_item_response():
 	pass
 	

@@ -5,7 +5,8 @@ namespace RpgCollector.Models.StageModel
     public class RedisStageItem
     {
         public int ItemId { get; set; }
-        public bool IsFarming { get; set; }
+        public int FarmingCount { get; set; }
+        public int MaxCount { get; set; }
     }
 
     public class RedisStageNpc
