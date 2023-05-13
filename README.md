@@ -962,6 +962,7 @@ public class StageChoiceRequest
 public class StageItem
 {
     public int ItemId { get; set; }
+    public int Quantity { get; set; }
 }
 
 public class StageNpc
