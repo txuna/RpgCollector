@@ -88,6 +88,7 @@ func _on_button_pressed():
 	if is_clear:
 		npc_hunting_btn.text = "스테이지 클리어"
 		npc_hunting_btn.disabled = true
+		# 스테이지 클리어시 파밍 아이템 전송 (받은 아이템 코드) 
 		print("스테이지 클리어")
 
 

@@ -76,8 +76,16 @@ public class StageChoiceController : Controller
             };
         }
 
+        // 실패시 다시 Login 상태로 
         if(await SetPlayerStageInfoInMemory(userName, userId, stageChoiceRequest.StageId, masterStageItem, masterStageNpc) == false)
         {
+            if(await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
+            {
+                return new StageChoiceResponse
+                {
+                    Error = ErrorCode.CannotChangeUserState
+                };
+            }
             return new StageChoiceResponse
             {
                 Error = ErrorCode.RedisErrorCannotEnterStage

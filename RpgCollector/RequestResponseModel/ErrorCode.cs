@@ -15,6 +15,7 @@
         FailedFetchPlayerItem = 10,
         InValidRequestHttpBody = 11,
         AuthTokenFailWrongKeyword = 12,
+        CannotChangeUserState = 13,
 
         /* Account 101 ~ 200 */
         InvalidPassword = 101,
