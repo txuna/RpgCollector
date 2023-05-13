@@ -24,8 +24,6 @@ public class MasterItemInfoGetController : Controller
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        _logger.ZLogInformation($"[{userId}] Request /Master/Item");
-
         MasterItem? masterItem = _masterDataDB.GetMasterItem(masterItemGetInfoRequest.ItemId);
 
         if (masterItem == null)

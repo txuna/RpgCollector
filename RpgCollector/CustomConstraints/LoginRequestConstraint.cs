@@ -1,5 +1,5 @@
 ﻿using Humanizer.Localisation;
-using RpgCollector.RequestResponseModel.LoginModel;
+using RpgCollector.RequestResponseModel.AccountReqRes;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 

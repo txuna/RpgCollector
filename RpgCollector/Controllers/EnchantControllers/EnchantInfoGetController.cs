@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RpgCollector.Models.EnchantModel;
 using RpgCollector.Models.MasterModel;
 using RpgCollector.Models.PlayerModel;
 using RpgCollector.RequestResponseModel;
-using RpgCollector.RequestResponseModel.EnchantInfoGet;
-using RpgCollector.RequestResponseModel.EnchantModel;
+using RpgCollector.RequestResponseModel.EnchantReqRes;
 using RpgCollector.Services;
 using ZLogger;
 using static System.Runtime.InteropServices.JavaScript.JSType;

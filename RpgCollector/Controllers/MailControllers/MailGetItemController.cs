@@ -2,8 +2,7 @@
 using RpgCollector.Models;
 using RpgCollector.Models.MailModel;
 using RpgCollector.RequestResponseModel;
-using RpgCollector.RequestResponseModel.MailGetItemModel;
-using RpgCollector.RequestResponseModel.MailReadModel;
+using RpgCollector.RequestResponseModel.MailReqRes;
 using RpgCollector.Services;
 using SqlKata;
 using ZLogger;

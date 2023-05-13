@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models;
 using RpgCollector.RequestResponseModel;
-using RpgCollector.RequestResponseModel.LogoutModel;
-using RpgCollector.RequestResponseModel.RegisterModel;
+using RpgCollector.RequestResponseModel.AccountReqRes;
 using RpgCollector.Services;
 using ZLogger;
 

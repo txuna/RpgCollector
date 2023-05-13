@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models.PackageItemModel;
-using RpgCollector.RequestResponseModel.PackageShowModel;
+using RpgCollector.RequestResponseModel.PaymentReqRes;
 using RpgCollector.Services;
 using ZLogger;
 

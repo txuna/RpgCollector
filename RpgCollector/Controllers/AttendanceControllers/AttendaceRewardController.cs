@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RpgCollector.RequestResponseModel.AttandenceModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
 using RpgCollector.Models.AttendanceData;
@@ -7,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using ZLogger;
 using RpgCollector.Models.AccountModel;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using RpgCollector.RequestResponseModel.AttendanceReqRes;
 
 namespace RpgCollector.Controllers.AttandanceControllers;
 

@@ -2,7 +2,7 @@
 using RpgCollector.Models.MasterModel;
 using RpgCollector.Models.StageModel;
 using RpgCollector.RequestResponseModel;
-using RpgCollector.RequestResponseModel.StageInfoGetModel;
+using RpgCollector.RequestResponseModel.DungeonStageReqRes;
 using RpgCollector.Services;
 using ZLogger;
 

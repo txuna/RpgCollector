@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models;
-using RpgCollector.RequestResponseModel.RegisterModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
 using System.Diagnostics;
 using ZLogger;
+using RpgCollector.RequestResponseModel.AccountReqRes;
 
 namespace RpgCollector.Controllers.AuthenticateController;
 

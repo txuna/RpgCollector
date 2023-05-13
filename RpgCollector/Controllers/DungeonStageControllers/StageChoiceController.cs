@@ -3,7 +3,7 @@ using RpgCollector.Models.AccountModel;
 using RpgCollector.Models.MasterModel;
 using RpgCollector.Models.StageModel;
 using RpgCollector.RequestResponseModel;
-using RpgCollector.RequestResponseModel.StageChoiceModel;
+using RpgCollector.RequestResponseModel.DungeonStageReqRes;
 using RpgCollector.Services;
 
 namespace RpgCollector.Controllers.DungeonStageControllers;

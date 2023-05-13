@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models.AccountModel;
 using RpgCollector.RequestResponseModel;
-using RpgCollector.RequestResponseModel.LoginModel;
+using RpgCollector.RequestResponseModel.AccountReqRes;
 using RpgCollector.Services;
 using RpgCollector.Utility;
 using System.Text.Json;

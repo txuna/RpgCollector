@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models.AttendanceData;
-using RpgCollector.RequestResponseModel.AttendanceGetLogModel;
+using RpgCollector.RequestResponseModel.AttendanceReqRes;
 using RpgCollector.Services;
 using ZLogger;
 

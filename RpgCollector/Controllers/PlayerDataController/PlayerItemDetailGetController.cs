@@ -3,7 +3,7 @@ using RpgCollector.Models.AccountModel;
 using RpgCollector.Models.EnchantModel;
 using RpgCollector.Models.MasterModel;
 using RpgCollector.Models.PlayerModel;
-using RpgCollector.RequestResponseModel.PlayerItemDetailGetModel;
+using RpgCollector.RequestResponseModel.PlayerReqRes;
 using RpgCollector.Services;
 using ZLogger;
 

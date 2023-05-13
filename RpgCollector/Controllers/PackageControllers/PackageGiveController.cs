@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RpgCollector.RequestResponseModel.PaymentModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
 using RpgCollector.Models;
 using ZLogger;
 using RpgCollector.Models.PackageItemModel;
+using RpgCollector.RequestResponseModel.PaymentReqRes;
 
 namespace RpgCollector.Controllers.PackageControllers;
 

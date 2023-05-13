@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models.MailModel;
 using RpgCollector.RequestResponseModel;
-using RpgCollector.RequestResponseModel.MailDeleteModel;
+using RpgCollector.RequestResponseModel.MailReqRes;
 using RpgCollector.Services;
 using ZLogger;
 

@@ -2,7 +2,7 @@
 using RpgCollector.Models.MasterModel;
 using RpgCollector.Models.PlayerModel;
 using RpgCollector.RequestResponseModel;
-using RpgCollector.RequestResponseModel.PlayerStateGetModel;
+using RpgCollector.RequestResponseModel.PlayerReqRes;
 using RpgCollector.Services;
 using ZLogger;
 

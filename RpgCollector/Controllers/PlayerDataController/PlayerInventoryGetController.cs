@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models.PlayerModel;
-using RpgCollector.RequestResponseModel.PlayerInventoryGetModel;
+using RpgCollector.RequestResponseModel.PlayerReqRes;
 using RpgCollector.Services;
 using ZLogger;
 

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models.MailModel;
-using RpgCollector.RequestResponseModel.MailReadModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
 using ZLogger;
+using RpgCollector.RequestResponseModel.MailReqRes;
 
 namespace RpgCollector.Controllers.MailControllers;
 

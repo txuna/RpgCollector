@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RpgCollector.RequestResponseModel.EnchantModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.Services;
 using RpgCollector.Models.MasterModel;
-using RpgCollector.Models.EnchantModel;
 using ZLogger;
 using RpgCollector.Models.PlayerModel;
 using RpgCollector.Models;
 using RpgCollector.Models.AccountModel;
 using StackExchange.Redis;
+using RpgCollector.RequestResponseModel.EnchantReqRes;
 
 namespace RpgCollector.Controllers.EnchantControllers;
 

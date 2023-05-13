@@ -1,4 +1,4 @@
-﻿using RpgCollector.RequestResponseModel.StageChoiceModel;
+﻿
 
 namespace RpgCollector.Models.StageModel
 {
