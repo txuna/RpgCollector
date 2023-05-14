@@ -33,11 +33,13 @@ public class PackageGiveController : Controller
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
+        _logger.ZLogDebug($"[{userId}] Request /Package/Buy");
+
         ErrorCode Error = await Verify(packageBuyRequest); 
 
         if(Error != ErrorCode.None)
         {
-            _logger.ZLogInformation($"[{userId}] Invalid PackageId : {packageBuyRequest.PackageId} or ReceiptId : {packageBuyRequest.ReceiptId}");
+            _logger.ZLogDebug($"[{userId}] Invalid PackageId : {packageBuyRequest.PackageId} or ReceiptId : {packageBuyRequest.ReceiptId}");
 
             return new PackageBuyResponse
             {
@@ -49,7 +51,7 @@ public class PackageGiveController : Controller
 
         if(Error != ErrorCode.None)
         {
-            _logger.ZLogInformation($"[{userId}] Cannot buy This PackageId : {packageBuyRequest.PackageId}");
+            _logger.ZLogDebug($"[{userId}] Cannot buy This PackageId : {packageBuyRequest.PackageId}");
 
             return new PackageBuyResponse
             {
@@ -61,7 +63,7 @@ public class PackageGiveController : Controller
 
         if(Error != ErrorCode.None)
         {
-            _logger.ZLogInformation($"[{userId}] Failed Send Mail This PackageId : {packageBuyRequest.PackageId} To Player");
+            _logger.ZLogDebug($"[{userId}] Failed Send Mail This PackageId : {packageBuyRequest.PackageId} To Player");
 
             Error = await UndoReportPackage(packageBuyRequest); 
             
@@ -71,7 +73,7 @@ public class PackageGiveController : Controller
             }
         }
 
-        _logger.ZLogInformation($"[{userId}] Success Send mail This PackageId : {packageBuyRequest.PackageId}");
+        _logger.ZLogDebug($"[{userId}] Success Send mail This PackageId : {packageBuyRequest.PackageId}");
 
         return new PackageBuyResponse
         {

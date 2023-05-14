@@ -40,6 +40,8 @@ public class AttendaceRewardController : Controller
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
+        _logger.ZLogDebug($"[{userId}] Request /Attendance");
+
         string toDay = DateTime.Now.ToString("yyyy-MM-dd");
         string yesterDay = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
 
@@ -51,7 +53,7 @@ public class AttendaceRewardController : Controller
         {
             if (IsAttendanceDay(playerAttendanceInfo, toDay) == true)
             {
-                _logger.ZLogInformation($"[{userId}] Today Already Attandace UserID");
+                _logger.ZLogDebug($"[{userId}] Today Already Attandace UserID");
 
                 return new AttendanceResponse
                 {
@@ -79,7 +81,7 @@ public class AttendaceRewardController : Controller
             };
         }
 
-        _logger.ZLogInformation($"[{userId}] Complement Send Attandace Reward");
+        _logger.ZLogDebug($"[{userId}] Complement Send Attandace Reward");
 
         return new AttendanceResponse
         {

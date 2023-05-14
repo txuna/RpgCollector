@@ -26,6 +26,8 @@ public class MailDeleteController : Controller
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorCode Error;
 
+        _logger.ZLogDebug($"[{userId}] Request /Mail/Delete");
+
         Error = await Verify(mailDeleteRequest.MailId, userId);
 
         if(Error != ErrorCode.None)

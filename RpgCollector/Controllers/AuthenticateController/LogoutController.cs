@@ -44,7 +44,7 @@ public class LogoutController : Controller
             };
         }
 
-        _logger.ZLogInformation($"[{userId}] Success Logout User in Redis UserId");
+        _logger.ZLogDebug($"[{userId}] Success Logout User in Redis UserId");
 
         return new LogoutResponse
         {

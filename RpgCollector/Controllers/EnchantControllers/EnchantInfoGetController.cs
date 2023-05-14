@@ -29,6 +29,8 @@ public class EnchantInfoGetController : Controller
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorCode Error;
 
+        _logger.ZLogDebug($"[{userId}] Request /Enchant/Info");
+
         PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(enchantInfoGetRequest.PlayerItemId, userId);
 
         if (playerItem == null)

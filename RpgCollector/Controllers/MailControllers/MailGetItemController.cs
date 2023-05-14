@@ -33,6 +33,8 @@ public class MailGetItemController : Controller
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         ErrorCode Error;
 
+        _logger.ZLogDebug($"[{userId}] Request /Mail/Item");
+
         Mailbox? mailbox = await _mailboxAccessDB.GetMailFromUserId(mailGetItemRequest.MailId, userId);
 
         if(mailbox == null)

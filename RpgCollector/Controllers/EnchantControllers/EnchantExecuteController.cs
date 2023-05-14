@@ -40,6 +40,8 @@ public class EnchantExecuteController : Controller
 
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
+        _logger.ZLogDebug($"[{userId}] Request /Enchant");
+
         PlayerItem? playerItem = await _playerAccessDB.GetPlayerItem(playerItemId, userId);
 
         if (playerItem == null)

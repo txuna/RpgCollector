@@ -40,8 +40,6 @@ public class NoticeGetController : Controller
             };
         }
 
-        _logger.ZLogInformation("Success Fetch Notice In Redis");
-
         return new NoticeGetResponse
         {
             Error = ErrorCode.None,

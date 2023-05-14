@@ -24,6 +24,8 @@ public class AttendanceGetInfoController : Controller
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
+        _logger.ZLogDebug($"[{userId}] Request /Attendance/Log");
+
         int count = await _attendanceDB.GetUserSequenceDayCount(userId);
 
 

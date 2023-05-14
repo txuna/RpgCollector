@@ -30,11 +30,13 @@ public class MailReadController : Controller
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
+        _logger.ZLogDebug($"[{userId}] Request /Mail/Read");
+
         Mailbox? mail = await _mailboxAccessDB.GetMailFromUserId(readMailRequest.MailId, userId);
 
         if(mail == null)
         {
-            _logger.ZLogInformation($"[{userId}] Failed Fetch Mail : {readMailRequest.MailId}");
+            _logger.ZLogDebug($"[{userId}] Failed Fetch Mail : {readMailRequest.MailId}");
 
             return new MailReadResponse
             {
@@ -50,7 +52,7 @@ public class MailReadController : Controller
             };
         }
 
-        _logger.ZLogInformation($"[{userId}] Success Read Mail {readMailRequest.MailId}");
+        _logger.ZLogDebug($"[{userId}] Success Read Mail {readMailRequest.MailId}");
 
         return new MailReadResponse
         {

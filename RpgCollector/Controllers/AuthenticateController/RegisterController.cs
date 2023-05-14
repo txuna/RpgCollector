@@ -48,7 +48,7 @@ public class RegisterController : Controller
             };
         }
 
-        _logger.ZLogInformation($"[{userId}] Success Register and Create Player in Database");
+        _logger.ZLogDebug($"[{userId}] Success Register and Create Player in Database");
 
         return new RegisterResponse
         {

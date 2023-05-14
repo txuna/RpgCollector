@@ -35,11 +35,11 @@ public class LoginController : Controller
     {
         User? user = await _accountDB.GetUser(loginRequest.UserName);
 
-        _logger.ZLogInformation($"[{loginRequest.UserName}] Request /Login");
+        _logger.ZLogDebug($"[{user.UserName}] Request /Login");
 
         if (user == null)
         {
-            _logger.ZLogInformation($"[{loginRequest.UserName}] None Exist UserName");
+            _logger.ZLogDebug($"[{loginRequest.UserName}] None Exist UserName");
             return new LoginResponse
             {
                 Error = ErrorCode.NoneExistName,
@@ -48,7 +48,7 @@ public class LoginController : Controller
 
         if(!VerifyPassword(user, loginRequest.Password))
         {
-            _logger.ZLogError($"[{user.UserId} {loginRequest.UserName}] Invalid Password");
+            _logger.ZLogDebug($"[{user.UserId} {loginRequest.UserName}] Invalid Password");
 
             return new LoginResponse
             {
@@ -62,7 +62,7 @@ public class LoginController : Controller
         
         if(Error != ErrorCode.None)
         {
-            _logger.ZLogInformation($"[{user.UserId} {loginRequest.UserName}] Failed Login");
+            _logger.ZLogDebug($"[{user.UserId} {loginRequest.UserName}] Failed Login");
 
             return new LoginResponse
             {
@@ -70,7 +70,7 @@ public class LoginController : Controller
             };
         }
 
-        _logger.ZLogInformation($"[{user.UserId} {loginRequest.UserName}] Complement Login");
+        _logger.ZLogDebug($"[{user.UserId} {loginRequest.UserName}] Complement Login");
 
         return new LoginResponse
         {
