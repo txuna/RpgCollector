@@ -269,6 +269,7 @@ func _on_texture_button_pressed():
 	add_child(http)
 	http.request_completed.connect(_on_exit_stage_response)
 	http.request(Global.BASE_URL + "Stage/Exit", Global.headers, Global.POST, json)
+	
 
 func _on_exit_stage_response(result, response_code, headers, body):
 	if response_code != 200:

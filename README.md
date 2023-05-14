@@ -77,7 +77,8 @@ public class LoginResponse
 3. GameDB의 init_player_items와 init_player_state의 테이블을 참고하여 초기 데이터 로드
 4. 플레이어의 정보는 players 테이블에 저장, player item은 player_items에 저장 
 5. 플레이어 기본 스테이지 정보 설정
-5. 플레이어 생성 실패시 accountDB에서 해당 유저 정보 롤백(삭제)
+6. 플레이어 생성 실패시 accountDB에서 해당 유저 정보 롤백(삭제)
+7.  
 
 **Database**
 
@@ -1092,6 +1093,81 @@ public class StageClearRequest
 **Response**
 ```csharp   
 public class StageClearRequest
+{
+    public ErrorCode Error { get; set; }
+}
+```
+
+### Stage Continue API
+1. 게임 진행 도중 끊겼을 시 다시 접속하여 던전 진행 정보를 받아옴
+
+**Database** 
+```csharp
+Redis DB - GET / INSERT
+```
+
+**Path** 
+```csharp
+POST /Stage/Continue
+```
+
+**Request**
+```csharp 
+public class StagePlayingInfoLoadRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class StagePlayingInfoLoadResponse
+{
+    public ErrorCode Error { get; set; }
+    public RedisStageItem[] Items { get; set; }
+    public RedisStageNpc[] Npcs { get; set; }
+    public int StageId { get; set; }
+}
+```
+
+### Stage Exit API
+1. 진행중인 던전을 끝내는 API 
+
+**Database** 
+```csharp
+Redis DB - GET / DELETE
+```
+
+**Path** 
+```csharp
+POST /Stage/Exit
+```
+
+**Request**
+```csharp 
+public class StageExitRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class StageExitResponse
 {
     public ErrorCode Error { get; set; }
 }
