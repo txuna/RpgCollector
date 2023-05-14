@@ -130,6 +130,7 @@ func _on_hunting_npc_response(result, response_code, headers, body):
 			if npc.count > 0:
 				continue  
 			farming_item()
+			break
 				
 		npc_hunting_btn.disabled = false
 
@@ -144,6 +145,7 @@ func farming_item():
 	for key in item_farming_list:
 		if item_farming_list[key].farming_count < item_farming_list[key].max_count:
 			is_full = false 
+			break
 			
 	if is_full:
 		return 
