@@ -65,7 +65,8 @@ public class StageFarmingItemController : Controller
 
         return new StageFarmingItemResponse
         {
-            Error = ErrorCode.None
+            Error = ErrorCode.None,
+            ItemId = stageFarmingItemRequest.ItemId
         };
     }
 

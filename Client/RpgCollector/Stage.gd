@@ -93,6 +93,7 @@ func _on_button_pressed():
 		npc_hunting_btn.text = "스테이지 클리어"
 		npc_hunting_btn.disabled = true
 		# 스테이지 클리어시 파밍 아이템 전송 (받은 아이템 코드) 
+		farming_item()
 		print("스테이지 클리어")
 
 
@@ -130,15 +131,61 @@ func _on_hunting_npc_response(result, response_code, headers, body):
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)	
+
+
+# farming_count가 max_count를 초과하지 않도록
+func farming_item():
+	var is_full = true 
+	for key in item_farming_list:
+		if item_farming_list[key].farming_count < item_farming_list[key].max_count:
+			is_full = false 
+			
+	if is_full:
+		return 
+		
+	while true:
+		var rng = RandomNumberGenerator.new()
+		var keys = item_farming_list.keys() 
+		var choice_key = keys[rng.randi() % keys.size()]
+		if item_farming_list[choice_key].farming_count >= item_farming_list[choice_key].max_count:
+			continue 
+		else:
+			farming_item_request(choice_key)
+			break
 	
 
-func farming_item_request():
-	pass
+func farming_item_request(item_id):
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
+		"ItemId" : item_id
+	})
+	var http = HTTPRequest.new() 
+	add_child(http)
+	http.request_completed.connect(_on_farming_item_response)
+	http.request(Global.BASE_URL + "Stage/Farming/Item", Global.headers, Global.POST, json)
 	
 
 # farmingCount ++ 
-func _on_farming_item_response():
-	pass
+func _on_farming_item_response(result, response_code, headers, body):
+	if response_code != 200:
+		print(body.get_string_from_utf8())
+		return 
+		
+	var json = JSON.parse_string(body.get_string_from_utf8())
+	if json.error == 0:
+		for item in item_farming_list:
+			if item == json.itemId:
+				item_farming_list[item].farming_count += 1
+				break 
+				
+		load_item()
+
+	else:
+		var msg = Global.ERROR_MSG[str(json['error'])]
+		Global.open_alert(msg)	
 	
 	
 func clear_stage_request():
