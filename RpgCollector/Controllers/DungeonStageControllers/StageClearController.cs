@@ -9,6 +9,7 @@ using RpgCollector.RequestResponseModel.DungeonStageReqRes;
 using RpgCollector.Services;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using ZLogger;
 
 namespace RpgCollector.Controllers.DungeonStageControllers;
 
@@ -44,7 +45,8 @@ public class StageClearController : Controller
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         string authToken = Convert.ToString(HttpContext.Items["Auth-Token"]);
 
-        // 클리어 검증 
+        _logger.ZLogDebug($"[{userId}] Request /Stage/Clear");
+
         RedisPlayerStageInfo? redisPlayerStageInfo = await LoadStagePlayerInfo(userName);
         if (redisPlayerStageInfo == null)
         {
@@ -62,17 +64,15 @@ public class StageClearController : Controller
             };
         }
 
-        // 유저 상태 변경 
         if (await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
         {
             return new StageClearResponse
             {
-                Error = ErrorCode.RedisErrorCannotEnterStage
+                Error = ErrorCode.CannotChangeUserState
             };
         }
         
-        // 던전 내용 백업 및 삭제 - 추후 아래 내용 실패시 user - playing으로 바꾸고 던전 내용 다시 삽입
-        if(await RemovePlayerStageInfo(userName) == false)
+        if(await RemovePlayerStageInfoInMemory(userName) == false)
         {
             if(await ChangeUserState(userName, authToken, userId, UserState.Playing) == false)
             {
@@ -103,7 +103,6 @@ public class StageClearController : Controller
             };
         }
 
-        // 현재 스테이지 ID와 디비에 저장된 스테이지 ID와 비교하여 같으면 +1 
         if(await SetNextStage(redisPlayerStageInfo.StageId, userId) == false)
         {
             return new StageClearResponse
@@ -196,7 +195,7 @@ public class StageClearController : Controller
         return true;
     }
 
-    async Task<bool> RemovePlayerStageInfo(string userName)
+    async Task<bool> RemovePlayerStageInfoInMemory(string userName)
     {
         if(await _redisMemoryDB.RemoveRedisPlayerStageInfo(userName) == false)
         {

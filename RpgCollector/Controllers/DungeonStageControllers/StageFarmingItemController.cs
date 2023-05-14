@@ -4,6 +4,7 @@ using RpgCollector.Models.StageModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.RequestResponseModel.DungeonStageReqRes;
 using RpgCollector.Services;
+using ZLogger;
 
 namespace RpgCollector.Controllers.DungeonStageControllers;
 
@@ -29,6 +30,8 @@ public class StageFarmingItemController : Controller
     {
         string userName = Convert.ToString(HttpContext.Items["User-Name"]);
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
+
+        _logger.ZLogDebug($"[{userId}] Request /Stage/Farming/Item");
 
         RedisPlayerStageInfo? redisPlayerStageInfo = await LoadStagePlayerInfo(userName);
         if (redisPlayerStageInfo == null)

@@ -30,6 +30,8 @@ public class StageInfoLoadController : Controller
     {
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
+        _logger.ZLogDebug($"[{userId}] Request /Stage/Info");
+
         PlayerStageInfo? info = await _dungeonStageDB.LoadPlayerStageInfo(userId);
 
         if(info == null)

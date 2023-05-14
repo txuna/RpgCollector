@@ -5,6 +5,7 @@ using RpgCollector.Models.StageModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.RequestResponseModel.DungeonStageReqRes;
 using RpgCollector.Services;
+using ZLogger;
 
 namespace RpgCollector.Controllers.DungeonStageControllers;
 
@@ -34,6 +35,8 @@ public class StageChoiceController : Controller
         string authToken = Convert.ToString(HttpContext.Items["Auth-Token"]);
         string userName = stageChoiceRequest.UserName;
 
+        _logger.ZLogDebug($"[{userId}] Request /Stage/Choice");
+
         if(await AlreadyEnterStage(userName) == false)
         {
             return new StageChoiceResponse
@@ -50,7 +53,7 @@ public class StageChoiceController : Controller
             };
         }
 
-        MasterStageItem[] masterStageItem = LoadStageItem(stageChoiceRequest.StageId);
+        MasterStageItem[] masterStageItem = LoadStageFarmingItem(stageChoiceRequest.StageId);
         if(masterStageItem == null)
         {
             return new StageChoiceResponse
@@ -76,7 +79,6 @@ public class StageChoiceController : Controller
             };
         }
 
-        // 실패시 다시 Login 상태로 
         if(await SetPlayerStageInfoInMemory(userName, userId, stageChoiceRequest.StageId, masterStageItem, masterStageNpc) == false)
         {
             if(await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
@@ -225,7 +227,7 @@ public class StageChoiceController : Controller
         return _masterDataDB.GetMasterStageNpcs(stageId);
     }
 
-    MasterStageItem[] LoadStageItem(int stageId)
+    MasterStageItem[] LoadStageFarmingItem(int stageId)
     {
         return _masterDataDB.GetMasterStageItems(stageId);
     }
