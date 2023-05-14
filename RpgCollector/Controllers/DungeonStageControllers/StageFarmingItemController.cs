@@ -30,14 +30,6 @@ public class StageFarmingItemController : Controller
         string userName = Convert.ToString(HttpContext.Items["User-Name"]);
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
 
-        if (await IsPlayingStage(userName) == false)
-        {
-            return new StageFarmingItemResponse
-            {
-                Error = ErrorCode.NotPlayingStage
-            };
-        }
-
         RedisPlayerStageInfo? redisPlayerStageInfo = await LoadStagePlayerInfo(userName);
         if (redisPlayerStageInfo == null)
         {

@@ -2,6 +2,7 @@
 using MySqlConnector;
 using RpgCollector.Models;
 using RpgCollector.Models.StageModel;
+using RpgCollector.RequestResponseModel;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;
@@ -12,7 +13,7 @@ namespace RpgCollector.Services;
 public interface IDungeonStageDB
 { 
     Task<PlayerStageInfo?> LoadPlayerStageInfo(int userId);
-    Task<bool> SetNextStage(int userId, int stageId);
+    Task<(ErrorCode, bool)> SetNextStage(int userId, int stageId);
 }
 
 public class DungeonStageDB : IDungeonStageDB
@@ -30,28 +31,29 @@ public class DungeonStageDB : IDungeonStageDB
         Open();
     }
 
-    public async Task<bool> SetNextStage(int userId, int stageId)
+    public async Task<(ErrorCode, bool)> SetNextStage(int userId, int stageId)
     {
         try
         {
             int effectedRow = await queryFactory.Query("player_stage_info")
                                                 .Where("userId", userId)
+                                                .Where("curStageId", stageId)
                                                 .UpdateAsync(new
                                                 {
-                                                    curStageId = stageId
+                                                    curStageId = stageId + 1
                                                 });
 
             if(effectedRow == 0)
             {
-                return false;
+                return (ErrorCode.None, false);
             }
 
-            return true;
+            return (ErrorCode.None, true);
         }
         catch(Exception ex)
         {
             _logger.ZLogError(ex.Message);
-            return false;
+            return (ErrorCode.FailedSetNextStage, false);
         }
     }
 

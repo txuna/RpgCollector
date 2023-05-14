@@ -126,11 +126,14 @@ func _on_hunting_npc_response(result, response_code, headers, body):
 				break 
 		load_npc()
 		
+		var is_field_clear = false
 		for npc in stage_info.npcs:
 			if npc.count > 0:
+				is_field_clear = true 
 				continue  
+		
+		if not is_field_clear:
 			farming_item()
-			break
 				
 		npc_hunting_btn.disabled = false
 

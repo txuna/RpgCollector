@@ -44,15 +44,6 @@ public class StageClearController : Controller
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         string authToken = Convert.ToString(HttpContext.Items["Auth-Token"]);
 
-        // 현재 던전 중인지 확인
-        if (await IsPlayingStage(userName) == false)
-        {
-            return new StageClearResponse
-            {
-                Error = ErrorCode.NotPlayingStage
-            };
-        }
-
         // 클리어 검증 
         RedisPlayerStageInfo? redisPlayerStageInfo = await LoadStagePlayerInfo(userName);
         if (redisPlayerStageInfo == null)
@@ -96,7 +87,6 @@ public class StageClearController : Controller
             };
         }
 
-        // 경험치 보상 및 파밍 아이템 제공 - 이 때 실패시 던전 내용 다시 집어넣기
         if(await SendStageItemReward(redisPlayerStageInfo) == false)
         {
             return new StageClearResponse
@@ -136,6 +126,10 @@ public class StageClearController : Controller
         int index = 0;
         foreach (RedisStageItem item in redisPlayerStageInfo.FarmingItems)
         {
+            if(item.FarmingCount == 0)
+            {
+                continue;
+            }
             values[index] = new object[] { 1,
                                            redisPlayerStageInfo.UserId,
                                            $"Stage {redisPlayerStageInfo.StageId} Clear Reward!",
@@ -156,18 +150,11 @@ public class StageClearController : Controller
     // 플레이어의 현재 스테이지와 같으면 증가 그렇지 않다면 패스
     async Task<bool> SetNextStage(int stageId, int userId)
     {
-        PlayerStageInfo? playerStageInfo = await _dungeonStageDB.LoadPlayerStageInfo(userId);
-        if (playerStageInfo == null)
+        var (Error, result) = await _dungeonStageDB.SetNextStage(userId, stageId);
+
+        if (Error != ErrorCode.None)
         {
             return false;
-        }
-
-        if(stageId == playerStageInfo.CurStageId)
-        {
-            if (await _dungeonStageDB.SetNextStage(userId, stageId + 1) == false)
-            {
-                return false;
-            }
         }
 
         return true;
