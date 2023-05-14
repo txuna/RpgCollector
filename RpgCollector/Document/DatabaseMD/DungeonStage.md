@@ -19,7 +19,7 @@ CREATE TABLE `master_stage_info` (
 
 ### Master Stage Item 
 ```
-CREATE TABLE `master_stage_item` (
+CREATE TABLE `master_stage_farming_item` (
   `id` int NOT NULL AUTO_INCREMENT,
   `stageId` int NOT NULL,
   `itemId` int NOT NULL,

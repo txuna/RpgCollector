@@ -200,7 +200,7 @@ public class MasterDataDB : IMasterDataDB
             masterStageNpc = (queryFactory.Query("master_stage_npc").Get<MasterStageNpc>()).ToArray();
 
             //스테이지별 아이템 불러오기 
-            masterStageItem = (queryFactory.Query("master_stage_item").Get<MasterStageItem>()).ToArray();
+            masterStageItem = (queryFactory.Query("master_stage_farming_item").Get<MasterStageItem>()).ToArray();
         }
         catch (Exception ex)
         {

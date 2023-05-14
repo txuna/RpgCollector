@@ -932,7 +932,7 @@ public class StageInfoGetResponse
 Redis DB - GET / INSERT
 player_stage_info - GET
 master_stage_npc - GET
-master_stage_item - GET
+master_stage_farming_item - GET
 ```
 
 **Path** 
