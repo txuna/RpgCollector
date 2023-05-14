@@ -12,7 +12,5 @@ namespace RpgCollector.RequestResponseModel.DungeonStageReqRes
         public string MasterVersion { get; set; }
         [Required]
         public string AuthToken { get; set; }
-        [Required]
-        public int StageId { get; set; }
     }
 }

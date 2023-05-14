@@ -46,6 +46,10 @@ func init_continue_setup(json):
 	stage_info["items"] = [] 
 	stage_info["npcs"] = []
 	
+	stage_name_label.text = "{name}(이어하기)".format({
+	"name" : MasterData.stage_info[str(stage_id)].name
+	})
+	
 	for item in json.items:
 		stage_info["items"].append({
 			"itemId" : item.itemId
@@ -170,7 +174,8 @@ func _on_hunting_npc_response(result, response_code, headers, body):
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)	
-
+		queue_free()
+		
 
 # farming_count가 max_count를 초과하지 않도록
 func farming_item():
@@ -226,7 +231,8 @@ func _on_farming_item_response(result, response_code, headers, body):
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)	
-	
+		queue_free()
+		
 	
 func clear_stage_request():
 	var json = JSON.stringify({
@@ -255,7 +261,7 @@ func _on_clear_stage_response(result, response_code, headers, body):
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)	
-	
+		queue_free()
 
 # Stage OUT 스테이지 나가기
 func _on_texture_button_pressed():
@@ -284,3 +290,4 @@ func _on_exit_stage_response(result, response_code, headers, body):
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)	
+		queue_free()

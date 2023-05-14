@@ -37,7 +37,7 @@ public class StageChoiceController : Controller
 
         _logger.ZLogDebug($"[{userId}] Request /Stage/Choice");
 
-        if(await AlreadyEnterStage(userName) == false)
+        if(await AlreadyEnterStage(userName, authToken, userId) == false)
         {
             return new StageChoiceResponse
             {
@@ -190,7 +190,8 @@ public class StageChoiceController : Controller
         return true;
     }
 
-    async Task<bool> AlreadyEnterStage(string userName)
+    // 던전 플레이 도중 TTL시간이 만료되어 PLAYING이지만 Redis에 플레이정보가 없어졌을 때 PLAYING을 Login으로 변경
+    async Task<bool> AlreadyEnterStage(string userName, string authToken, int userId)
     {
         RedisUser? user = await _memoryDB.GetUser(userName);
         if(user == null)
@@ -200,6 +201,15 @@ public class StageChoiceController : Controller
 
         if(user.State == UserState.Playing)
         {
+            RedisPlayerStageInfo? redisPlayerStageInfo = await _memoryDB.GetRedisPlayerStageInfo(userName); 
+            if(redisPlayerStageInfo == null)
+            {
+                if(await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
+                {
+                    return false;
+                }
+                return true;
+            }
             return false;
         }
 
