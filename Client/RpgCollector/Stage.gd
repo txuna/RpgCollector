@@ -88,14 +88,13 @@ func _on_button_pressed():
 			hunting_npc_request(npc.npcId)
 			npc_hunting_btn.disabled = true
 			break 
-	
+
 	if is_clear:
 		npc_hunting_btn.text = "스테이지 클리어"
 		npc_hunting_btn.disabled = true
 		# 스테이지 클리어시 파밍 아이템 전송 (받은 아이템 코드) 
-		farming_item()
 		print("스테이지 클리어")
-
+		clear_stage_request()
 
 #stage_info에 count 남은거 처리 
 # { "error": 0, "items": [{ "itemId": 2 }], "npcs": [{ "npcId": 101, "count": 10 }] }
@@ -126,6 +125,12 @@ func _on_hunting_npc_response(result, response_code, headers, body):
 				npc["count"] -= 1
 				break 
 		load_npc()
+		
+		for npc in stage_info.npcs:
+			if npc.count > 0:
+				continue  
+			farming_item()
+				
 		npc_hunting_btn.disabled = false
 
 	else:
@@ -189,11 +194,31 @@ func _on_farming_item_response(result, response_code, headers, body):
 	
 	
 func clear_stage_request():
-	pass
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
+	})
+	var http = HTTPRequest.new() 
+	add_child(http)
+	http.request_completed.connect(_on_clear_stage_response)
+	http.request(Global.BASE_URL + "Stage/Clear", Global.headers, Global.POST, json)
 	
 	
-func _on_clear_stage_response():
-	pass
+func _on_clear_stage_response(result, response_code, headers, body):
+	if response_code != 200:
+		print(body.get_string_from_utf8())
+		return 
+		
+	var json = JSON.parse_string(body.get_string_from_utf8())
+	if json.error == 0:
+		print("STAGE CLEAR!")
+		queue_free()
+
+	else:
+		var msg = Global.ERROR_MSG[str(json['error'])]
+		Global.open_alert(msg)	
 	
 
 func _on_texture_button_pressed():

@@ -34,6 +34,7 @@ public interface IPlayerAccessDB
     Task<int> GetPlayerMoney(int userId);
     Task<PlayerItem[]?> GetPlayerAllItems(int userId);
     Task<bool> UndoCreatePlayer(int userId);
+    Task<bool> UpdatePlayerState(int userId, int exp, int level, int hp);
 }
 
 public class PlayerAccessDB : IPlayerAccessDB
@@ -51,6 +52,33 @@ public class PlayerAccessDB : IPlayerAccessDB
         _logger = logger;
         _masterDataDB = masterDataDB;
         Open();
+    }
+
+    public async Task<bool> UpdatePlayerState(int userId, int exp, int level, int hp)
+    {
+        try
+        {
+            int effectedRow = await queryFactory.Query("players")
+                                                .Where("userId", userId)
+                                                .UpdateAsync(new
+                                                {
+                                                    hp = hp,
+                                                    exp = exp,
+                                                    level = level, 
+                                                });
+
+            if (effectedRow == 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        catch(Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
     }
 
     public async Task<bool> UndoCreatePlayer(int userId)

@@ -12,6 +12,7 @@ namespace RpgCollector.Services;
 public interface IDungeonStageDB
 { 
     Task<PlayerStageInfo?> LoadPlayerStageInfo(int userId);
+    Task<bool> SetNextStage(int userId, int stageId);
 }
 
 public class DungeonStageDB : IDungeonStageDB
@@ -27,6 +28,31 @@ public class DungeonStageDB : IDungeonStageDB
         _dbConfig = dbConfig;
         _logger = logger;
         Open();
+    }
+
+    public async Task<bool> SetNextStage(int userId, int stageId)
+    {
+        try
+        {
+            int effectedRow = await queryFactory.Query("player_stage_info")
+                                                .Where("userId", userId)
+                                                .UpdateAsync(new
+                                                {
+                                                    curStageId = stageId
+                                                });
+
+            if(effectedRow == 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        catch(Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
     }
 
     public async Task<PlayerStageInfo?> LoadPlayerStageInfo(int userId)

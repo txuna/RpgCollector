@@ -24,11 +24,12 @@ public interface IMasterDataDB
     public MasterItemType? GetMasterItemType(int typeId);
     public MasterPackage[] GetMasterPackage(int packageId);
     public MasterPlayerState? GetMasterPlayerState(int level);
+    public MasterPlayerState[] GetMasterAllPlayerState();
     public MasterPackagePayment[] GetPackagePayment();
     public MasterStageInfo[] GetMasterStageInfoList();
     public MasterStageInfo GetMasterStageInfo(int stageId);
-    MasterStageNpc[] GetMasterStageNpcs(int stageId);
-    MasterStageItem[] GetMasterStageItems(int stageId);
+    public MasterStageNpc[] GetMasterStageNpcs(int stageId);
+    public MasterStageItem[] GetMasterStageItems(int stageId);
 }
 
 public class MasterDataDB : IMasterDataDB
@@ -59,6 +60,11 @@ public class MasterDataDB : IMasterDataDB
         _logger = logger;
         Open();
         Load();
+    }
+
+    public MasterPlayerState[] GetMasterAllPlayerState()
+    {
+        return masterPlayerState;
     }
     public MasterStageItem[] GetMasterStageItems(int stageId)
     {

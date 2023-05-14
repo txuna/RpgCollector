@@ -85,5 +85,9 @@
         NoneExistNpcInStage = 708,
         FailedProcessHuntingNpc = 709,
         FailedProcessFarmingItem = 710,
+        NoneClearStage = 711,
+        FailedSendStageReward = 712,
+        FailedSetNextStage = 713,
+        FailedSetStageRewardExp = 714,
     }
 }
