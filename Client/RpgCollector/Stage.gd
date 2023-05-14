@@ -215,7 +215,8 @@ func _on_clear_stage_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
-		print("STAGE CLEAR!")
+		Global.open_alert("스테이지가 클리어 되었습니다.")
+		get_node("/root/Main/ColorRect/Hud").player_state_request()
 		queue_free()
 
 	else:
