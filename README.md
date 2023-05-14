@@ -887,7 +887,7 @@ public class PlayerStateGetResponse
 }
 ```
 
-### Player State Get API
+### Player Stage Info API 
 1. 현재 플레이어가 진행할 수 있는 스테이지를 반환함
 
 **Database** 
@@ -924,7 +924,7 @@ public class StageInfoGetResponse
 }
 ```
 
-### Player State Get API
+### Player Stage Choice API
 1. 플레이어가 선택한 스테이지에 대한 검증
 
 **Database** 
@@ -979,44 +979,7 @@ public class StageChoiceResponse
 }
 ```
 
-### Player State Get API
-1. 현재 플레이어가 진행할 수 있는 스테이지를 반환함
-
-**Database** 
-```csharp
-player_stage_info - GET
-```
-
-**Path** 
-```csharp
-POST /Stage/Info
-```
-
-**Request**
-```csharp 
-public class StageInfoGetRequest
-{
-    [Required]
-    public string UserName { get; set; }
-    [Required]
-    public string ClientVersion { get; set; }
-    [Required]
-    public string MasterVersion { get; set; }
-    [Required]
-    public string AuthToken { get; set; }
-}
-```
-
-**Response**
-```csharp   
-public class StageInfoGetResponse
-{
-    public ErrorCode Error { get; set; }
-    public int CurStageId { get; set; }
-}
-```
-
-### Player State Get API
+### Stage Hunting NPC API
 1. 클라이언트가 NPC을 잡았다고 보내는 API
 
 **Database** 
@@ -1051,6 +1014,85 @@ public class StageHuntingNpcRequest
 public class StageHuntingNpcResponse
 {
     public int NpcId { get; set; }
+    public ErrorCode Error { get; set; }
+}
+```
+
+### Stage Farming Item API
+1. 클라이언트가 아이템을 파밍했다는 API 
+
+**Database** 
+```csharp
+Redis DB - GET / INSERT
+```
+
+**Path** 
+```csharp
+POST /Stage/Farming/Item
+```
+
+**Request**
+```csharp 
+public class StageFarmingItemRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+    [Required]
+    public int ItemId { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class StageFarmingItemResponse
+{
+    public int ItemId { get; set; }
+    public ErrorCode Error { get; set; }
+}
+```
+
+### Stage Clear API
+1. 클라이언트가 해당 스테이지를 클리어했다는 API 
+1. 아이템 보상 및 경험치 보상 진행
+
+**Database** 
+```csharp
+Redis DB - GET / INSERT
+master_player_state - GET
+players - GET / UPDATE
+palyer_stage_info / UPDATE
+```
+
+**Path** 
+```csharp
+POST /Stage/Farming/Item
+```
+
+**Request**
+```csharp 
+public class StageClearRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class StageClearRequest
+{
     public ErrorCode Error { get; set; }
 }
 ```
