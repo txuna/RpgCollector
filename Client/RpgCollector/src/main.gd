@@ -3,7 +3,42 @@ extends Node2D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	if Global.login_state == Global.PLAYING:
+		continue_stage_request()
+		
+
+func continue_stage():
+	pass
+	
+	
+func continue_stage_request():
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
+	})
+	var http = HTTPRequest.new() 
+	add_child(http)
+	http.request_completed.connect(_on_continue_stage_response)
+	http.request(Global.BASE_URL + "Stage/Continue", Global.headers, Global.POST, json)
+	
+	
+func _on_continue_stage_response(result, response_code, headers, body):
+	if response_code != 200:
+		print(body.get_string_from_utf8())
+		return 
+		
+	var json = JSON.parse_string(body.get_string_from_utf8())
+	if json.error == 0:
+		print(json)
+		var instance = load("res://src/stage.tscn").instantiate()
+		get_parent().add_child(instance)
+		instance.init_continue_setup(json)
+
+	else:
+		var msg = Global.ERROR_MSG[str(json['error'])]
+		Global.open_alert(msg)	
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

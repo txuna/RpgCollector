@@ -66,6 +66,7 @@ func _on_http_register_response(result, response_code, headers, body):
 		Global.open_alert(msg)
 	
 
+# 이어하기 옵션이 있다면 flag 값을 주어 main화면 이동시 던전 오픈 함
 func _on_http_login_response(result, response_code, headers, body):
 	if response_code != 200:
 		return 
@@ -74,6 +75,8 @@ func _on_http_login_response(result, response_code, headers, body):
 	if json.error == 0:
 		Global.user_name = json.userName
 		Global.auth_token = json.authToken
+		
+		Global.login_state = json.state
 		get_tree().change_scene_to_file("res://src/main.tscn")
 	
 	else:

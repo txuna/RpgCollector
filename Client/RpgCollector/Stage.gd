@@ -5,7 +5,7 @@ extends CanvasLayer
 @onready var item_container = $TextureRect/ScrollContainer2/VBoxContainer
 @onready var npc_hunting_btn = $TextureRect/Button
 
-var stage_info
+var stage_info = {}
 var stage_id 
 
 var item_farming_list = {
@@ -21,6 +21,7 @@ func _process(delta):
 	pass
 
 
+# { "error": 0, "items": [{ "itemId": 2 }], "npcs": [{ "npcId": 101, "count": 10 }] }
 func init_setup(json, _stage_id):
 	stage_info = json 
 	stage_id = _stage_id
@@ -37,6 +38,35 @@ func init_setup(json, _stage_id):
 	load_npc()
 	load_item()
 	
+#{ "error": 0, "items": [{ "itemId": 2, "farmingCount": 0, "maxCount": 1 }], "npcs": [{ "npcId": 101, "count": 10, "remaingCount": 8, "exp": 10 }] }
+func init_continue_setup(json):
+	stage_id = json.stageId
+	# stage_info 설정 
+	stage_info["error"] = json.error 
+	stage_info["items"] = [] 
+	stage_info["npcs"] = []
+	
+	for item in json.items:
+		stage_info["items"].append({
+			"itemId" : item.itemId
+		})
+		
+	for npc in json.npcs:
+		stage_info["npcs"].append({
+			"npcId" : npc.npcId,
+			"count" : npc.remaingCount
+		})
+	
+	# item_farming_list 설정
+	for item in json.items:
+		item_farming_list[item.itemId] = {
+			"max_count" : item.maxCount, 
+			"farming_count" : item.farmingCount
+		}
+
+	load_npc()
+	load_item()
+
 
 func load_npc():
 	for node in npc_container.get_children():

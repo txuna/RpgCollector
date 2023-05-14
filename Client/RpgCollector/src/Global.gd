@@ -9,7 +9,12 @@ var client_version = "1.0.0"
 var master_version = "1.0.0"
 
 var headers = ["Content-Type: application/json"]
-				
+
+const PLAYING = 2
+const LOGIN = 1
+
+var login_state = LOGIN
+
 const ERROR_MSG = {
 	'0' : "정상",
 	'1' : "유효하지 않은 모델입니다. ",

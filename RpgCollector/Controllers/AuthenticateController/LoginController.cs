@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using RpgCollector.Models.AccountModel;
+using RpgCollector.Models.StageModel;
 using RpgCollector.RequestResponseModel;
 using RpgCollector.RequestResponseModel.AccountReqRes;
 using RpgCollector.Services;
@@ -57,10 +58,21 @@ public class LoginController : Controller
         }
        
         string authToken = HashManager.GenerateAuthToken();
+        ErrorCode Error;
+        UserState state; 
+        // 기존 정보가 있다면 playing이였는지 확인
+        if (await IsPlayingGame(user.UserName) == true)
+        {
+            state = UserState.Playing;
+        }
+        else
+        {
+            state = UserState.Login;
+        }
 
-        ErrorCode Error = await StoreUserInMemory(user, authToken);
-        
-        if(Error != ErrorCode.None)
+        Error = await StoreUserInMemory(user, authToken, state);
+
+        if (Error != ErrorCode.None)
         {
             _logger.ZLogDebug($"[{user.UserId} {loginRequest.UserName}] Failed Login");
 
@@ -76,13 +88,14 @@ public class LoginController : Controller
         {
             Error = ErrorCode.None, 
             UserName = user.UserName,
-            AuthToken = authToken
+            AuthToken = authToken,
+            State = state
         };
     }
 
-    async Task<ErrorCode> StoreUserInMemory(User user, string authToken)
+    async Task<ErrorCode> StoreUserInMemory(User user, string authToken, UserState state)
     {
-        if (await _memoryDB.StoreUser(user.UserName, user.UserId, authToken, UserState.Login) == false)
+        if (await _memoryDB.StoreUser(user.UserName, user.UserId, authToken, state) == false)
         {
             return ErrorCode.FailedConnectRedis;
         }
@@ -93,6 +106,29 @@ public class LoginController : Controller
     bool VerifyPassword(User user, string requestPassword)
     {
         if (user.Password != HashManager.GenerateHash(requestPassword, user.PasswordSalt))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Playing인데 redisplayerinfo가 없다면 login으로
+    async Task<bool> IsPlayingGame(string userName)
+    {
+        RedisUser? user = await _memoryDB.GetUser(userName);
+        if (user == null)
+        {
+            return false;
+        }
+
+        if (user.State != UserState.Playing)
+        {
+            return false;
+        }
+
+        RedisPlayerStageInfo? redisPlayerStageInfo = await _memoryDB.GetRedisPlayerStageInfo(userName);
+        if(redisPlayerStageInfo == null)
         {
             return false;
         }
