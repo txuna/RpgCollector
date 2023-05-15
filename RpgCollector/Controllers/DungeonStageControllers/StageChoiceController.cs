@@ -31,8 +31,12 @@ public class StageChoiceController : Controller
     [HttpPost]
     public async Task<StageChoiceResponse> ChoiceStage(StageChoiceRequest stageChoiceRequest)
     {
+        //TODO:최흥배. 코드를 좀 나누어주세요. 보기가 좋지는 않네요
+
         int userId = Convert.ToInt32(HttpContext.Items["User-Id"]);
         string authToken = Convert.ToString(HttpContext.Items["Auth-Token"]);
+        //TODO:최흥배. 유저이름은 클라이언트로 부터 요청 받으면 안됩니다. 신뢰하기가 어렵습니다.
+        // 그리고 이것을 받는 이유도 불필요합니다. userId를 Redis의 key로 사용하는게 더 좋습니다.
         string userName = stageChoiceRequest.UserName;
 
         _logger.ZLogDebug($"[{userId}] Request /Stage/Choice");
@@ -81,7 +85,8 @@ public class StageChoiceController : Controller
 
         if(await SetPlayerStageInfoInMemory(userName, userId, stageChoiceRequest.StageId, masterStageItem, masterStageNpc) == false)
         {
-            if(await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
+            //TODO: 최흥배. 처음부터 RedisUser를 다 미들웨어에서 가져왔으면 더 좋았을 것 가텐요. 던전 플레이로 상태만 바꾸는 것인데 아래 함수는 모든 정보를 다 바꾸는 것 같습니다.
+            if (await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
             {
                 return new StageChoiceResponse
                 {
@@ -139,6 +144,7 @@ public class StageChoiceController : Controller
                                                 MasterStageItem[] masterStageItem, 
                                                 MasterStageNpc[] masterStageNpc)
     {
+        //TODO:최흥배. 마스터데이터에서 처음부터 Redis에 담을 형태로 가져왔으면 되는데 여기서 불필요하게 정리하는 것 같네요.
         RedisStageItem[] redisStageItem = new RedisStageItem[masterStageItem.Length];
         RedisStageNpc[] redisStageNpc = new RedisStageNpc[masterStageNpc.Length]; 
 
@@ -193,13 +199,15 @@ public class StageChoiceController : Controller
     // 던전 플레이 도중 TTL시간이 만료되어 PLAYING이지만 Redis에 플레이정보가 없어졌을 때 PLAYING을 Login으로 변경
     async Task<bool> AlreadyEnterStage(string userName, string authToken, int userId)
     {
+        //TODO:최흥배. 여기에 게임 플레이 상태를 넣을 것이라면 미들웨어에서 RedisUser 전체를 컨트룰러로 다 넘겨주세요. redis 접근 횟수를 줄이는게 좋겠죠
         RedisUser? user = await _memoryDB.GetUser(userName);
         if(user == null)
         {
             return false; 
         }
 
-        if(user.State == UserState.Playing)
+        //TODO: 최흥배. 이미 플레이 중이라면 연결하서 하던가 또는 기존 데이터를 다 지워야 하는데 그렇게 하는 것일까요?
+        if (user.State == UserState.Playing)
         {
             RedisPlayerStageInfo? redisPlayerStageInfo = await _memoryDB.GetRedisPlayerStageInfo(userName); 
             if(redisPlayerStageInfo == null)

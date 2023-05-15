@@ -68,6 +68,7 @@ public class StageFarmingItemController : Controller
     // 아이템 갯수 초과 확인
     async Task<bool> ProcessingFarmingItem(string userName, RedisPlayerStageInfo redisPlayerStageInfo, int itemId)
     {
+        //TODO:최흥배. RedisStageItem는 클래스인데 너무 C++의 구조체처럼 사용하네요
         RedisStageItem? redisStageItem = redisPlayerStageInfo.FarmingItems.FirstOrDefault(item => item.ItemId == itemId);
         if(redisStageItem == null)
         {
