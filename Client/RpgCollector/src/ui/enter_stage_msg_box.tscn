@@ -13,6 +13,7 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [node name="EnterStageMsgBox" type="CanvasLayer"]
+layer = 3
 script = ExtResource("1_0a5v4")
 
 [node name="TextureRect" type="TextureRect" parent="."]

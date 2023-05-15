@@ -182,13 +182,8 @@ public class StageChoiceController : Controller
     // 던전 플레이 도중 TTL시간이 만료되어 PLAYING이지만 Redis에 플레이정보가 없어졌을 때 PLAYING을 Login으로 변경
     async Task<bool> AlreadyEnterStage(string userName, string authToken, int userId)
     {
-        //TODO:최흥배. 여기에 게임 플레이 상태를 넣을 것이라면 미들웨어에서 RedisUser 전체를 컨트룰러로 다 넘겨주세요. redis 접근 횟수를 줄이는게 좋겠죠
-        RedisUser? user = await _memoryDB.GetUser(userName);
-
-        if(user == null)
-        {
-            return false; 
-        }
+        //TODO:최흥배. 여기에 게임 플레이 상태를 넣을 것이라면 미들웨어에서 RedisUser 전체를 컨트룰러로 다 넘겨주세요. redis 접근 횟수를 줄이는게 좋겠죠 - 해결
+        RedisUser user = (RedisUser)HttpContext.Items["Redis-User"]; // 미들웨어에서 이미 NULL 검증 완료
 
         //TODO: 최흥배. 이미 플레이 중이라면 연결하서 하던가 또는 기존 데이터를 다 지워야 하는데 그렇게 하는 것일까요? - 해결 
         if (user.State == UserState.Playing)

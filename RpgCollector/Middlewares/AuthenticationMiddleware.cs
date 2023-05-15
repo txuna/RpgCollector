@@ -88,6 +88,7 @@ public class AuthenticationMiddleware
                 SetUserIdInHttpContext(httpContext, user.UserId);
                 SetAuthTokenInHttpContext(httpContext, user.AuthToken);
                 SetUserNameInHttpContext(httpContext, userName);
+                SetRedisUserInHttpContext(httpContext, user);
             }
         }
 
@@ -130,6 +131,11 @@ public class AuthenticationMiddleware
             }
         }
         return false;
+    }
+
+    void SetRedisUserInHttpContext(HttpContext httpContext, RedisUser redisUser)
+    {
+        httpContext.Items["Redis-User"] = redisUser;
     }
 
     void SetUserIdInHttpContext(HttpContext httpContext, int userId)
