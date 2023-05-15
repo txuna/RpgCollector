@@ -64,22 +64,6 @@ public class StageHuntingNpcController : Controller
         };
     }
 
-    async Task<bool> IsPlayingStage(string userName)
-    {
-        RedisUser? user = await _redisMemoryDB.GetUser(userName);
-        if(user == null)
-        {
-            return false; 
-        }
-
-        if(user.State != UserState.Playing)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
     async Task<RedisPlayerStageInfo?> LoadStagePlayerInfo(string userName)
     {
         RedisPlayerStageInfo? redisPlayerStageInfo = await _redisMemoryDB.GetRedisPlayerStageInfo(userName);

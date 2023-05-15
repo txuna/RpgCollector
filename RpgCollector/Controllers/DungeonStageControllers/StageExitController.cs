@@ -27,7 +27,7 @@ namespace RpgCollector.Controllers.DungeonStageControllers
 
             _logger.ZLogDebug($"[{userId}] Request /Stage/Clear");
 
-            if(await IsPlayingStage(userName) == false)
+            if(IsPlayingStage() == false)
             {
                 return new StageExitResponse
                 {
@@ -64,13 +64,9 @@ namespace RpgCollector.Controllers.DungeonStageControllers
             };
         }
 
-        async Task<bool> IsPlayingStage(string userName)
+        bool IsPlayingStage()
         {
-            RedisUser? user = await _redisMemoryDB.GetUser(userName);
-            if (user == null)
-            {
-                return false;
-            }
+            RedisUser user = (RedisUser)HttpContext.Items["Redis-User"];
 
             if (user.State != UserState.Playing)
             {

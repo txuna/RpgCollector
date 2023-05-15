@@ -47,7 +47,7 @@ public class StageClearController : Controller
 
         _logger.ZLogDebug($"[{userId}] Request /Stage/Clear");
 
-        if(await IsPlayingStage(userName) == false)
+        if(IsPlayingStage() == false)
         {
             return new StageClearResponse
             {
@@ -107,7 +107,7 @@ public class StageClearController : Controller
         {
             return false; 
         }
-        if(!await SetNextStage(redisPlayerStageInfo.StageId, userId) == false)
+        if(await SetNextStage(redisPlayerStageInfo.StageId, userId) == false)
         {
             return false;
         }
@@ -227,13 +227,9 @@ public class StageClearController : Controller
         return true;
     }
 
-    async Task<bool> IsPlayingStage(string userName)
+    bool IsPlayingStage()
     {
-        RedisUser? user = await _redisMemoryDB.GetUser(userName);
-        if (user == null)
-        {
-            return false;
-        }
+        RedisUser user = (RedisUser)HttpContext.Items["Redis-User"];
 
         if (user.State != UserState.Playing)
         {

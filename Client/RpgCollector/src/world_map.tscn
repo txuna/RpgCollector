@@ -13,28 +13,28 @@
 script = ExtResource("1_77sso")
 
 [node name="TextureRect" type="TextureRect" parent="."]
-offset_left = -5.0
-offset_top = -20.0
-offset_right = 1221.0
-offset_bottom = 827.0
+offset_left = 85.0
+offset_top = 13.0
+offset_right = 1164.0
+offset_bottom = 731.0
 texture = ExtResource("1_bv8sw")
 
 [node name="TextureButton" type="TextureButton" parent="TextureRect"]
 layout_mode = 0
-offset_left = 1035.0
-offset_top = 103.0
-offset_right = 1067.0
-offset_bottom = 135.0
+offset_left = 906.0
+offset_top = 91.0
+offset_right = 938.0
+offset_bottom = 123.0
 texture_normal = ExtResource("2_tnoky")
 texture_pressed = ExtResource("3_j45hv")
 texture_hover = ExtResource("3_j45hv")
 
 [node name="Label" type="Label" parent="TextureRect"]
 layout_mode = 0
-offset_left = 180.0
-offset_top = 98.0
-offset_right = 1047.0
-offset_bottom = 231.0
+offset_left = 137.0
+offset_top = 78.0
+offset_right = 939.0
+offset_bottom = 211.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("5_iwg8b")
 theme_override_font_sizes/font_size = 76
@@ -49,10 +49,10 @@ offset_bottom = 40.0
 
 [node name="TextureRect" type="TextureRect" parent="TextureRect/Control"]
 layout_mode = 0
-offset_left = 139.0
-offset_top = 200.0
-offset_right = 395.0
-offset_bottom = 456.0
+offset_left = 140.0
+offset_top = 154.0
+offset_right = 396.0
+offset_bottom = 410.0
 texture = ExtResource("4_t15qb")
 
 [node name="Button" type="Button" parent="TextureRect/Control/TextureRect"]
@@ -70,10 +70,10 @@ text = "리스항구"
 
 [node name="TextureRect2" type="TextureRect" parent="TextureRect/Control"]
 layout_mode = 0
-offset_left = 195.0
-offset_top = 449.0
-offset_right = 451.0
-offset_bottom = 705.0
+offset_left = 179.0
+offset_top = 387.0
+offset_right = 435.0
+offset_bottom = 643.0
 texture = ExtResource("4_t15qb")
 
 [node name="Button" type="Button" parent="TextureRect/Control/TextureRect2"]
@@ -91,10 +91,10 @@ text = "헤네시스"
 
 [node name="TextureRect3" type="TextureRect" parent="TextureRect/Control"]
 layout_mode = 0
-offset_left = 447.0
-offset_top = 276.0
-offset_right = 703.0
-offset_bottom = 532.0
+offset_left = 401.0
+offset_top = 194.0
+offset_right = 657.0
+offset_bottom = 450.0
 texture = ExtResource("4_t15qb")
 
 [node name="Button" type="Button" parent="TextureRect/Control/TextureRect3"]
@@ -112,10 +112,10 @@ text = "엘리니아"
 
 [node name="TextureRect4" type="TextureRect" parent="TextureRect/Control"]
 layout_mode = 0
-offset_left = 586.0
-offset_top = 496.0
-offset_right = 842.0
-offset_bottom = 752.0
+offset_left = 514.0
+offset_top = 408.0
+offset_right = 770.0
+offset_bottom = 664.0
 texture = ExtResource("4_t15qb")
 
 [node name="Button" type="Button" parent="TextureRect/Control/TextureRect4"]
@@ -133,10 +133,10 @@ text = "커닝시티"
 
 [node name="TextureRect5" type="TextureRect" parent="TextureRect/Control"]
 layout_mode = 0
-offset_left = 795.0
-offset_top = 267.0
-offset_right = 1051.0
-offset_bottom = 523.0
+offset_left = 697.0
+offset_top = 183.0
+offset_right = 953.0
+offset_bottom = 439.0
 texture = ExtResource("4_t15qb")
 
 [node name="Button" type="Button" parent="TextureRect/Control/TextureRect5"]

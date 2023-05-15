@@ -108,20 +108,4 @@ public class StageFarmingItemController : Controller
         return redisPlayerStageInfo;
     }
 
-    async Task<bool> IsPlayingStage(string userName)
-    {
-        RedisUser? user = await _redisMemoryDB.GetUser(userName);
-        if (user == null)
-        {
-            return false;
-        }
-
-        if (user.State != UserState.Playing)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
 }

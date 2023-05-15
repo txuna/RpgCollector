@@ -45,9 +45,8 @@ public class DungeonStageDB : IDungeonStageDB
 
             if(effectedRow == 0)
             {
-                return (ErrorCode.None, false);
+                return (ErrorCode.None, true);
             }
-
             return (ErrorCode.None, true);
         }
         catch(Exception ex)
