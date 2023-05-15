@@ -74,7 +74,7 @@ public class StageClearController : Controller
         }
 
         //TODO:최흥배. 이런 것은 함수로 빼는게 좋지 않을까요? 여기 이외에 다른 곳도 이런 류가 꽤 있네요 - 해결
-        if(await RemovePlayerStageInfoInMemory(userName, authToken, userId) == false)
+        if(await RemovePlayerStageInfoInMemory(userName) == false)
         {
             return new StageClearResponse
             {
@@ -107,6 +107,7 @@ public class StageClearController : Controller
         {
             return false; 
         }
+
         if(await SetNextStage(redisPlayerStageInfo.StageId, userId) == false)
         {
             return false;
@@ -194,16 +195,16 @@ public class StageClearController : Controller
         return true;
     }
 
-    async Task<bool> RemovePlayerStageInfoInMemory(string userName, string authToken, int userId)
+    async Task<bool> RemovePlayerStageInfoInMemory(string userName)
     {
-        if(await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
+        if(await ChangeUserState(userName, UserState.Login) == false)
         {
             return false;
         }
 
         if(await _redisMemoryDB.RemoveRedisPlayerStageInfo(userName) == false)
         {
-            if (await ChangeUserState(userName, authToken, userId, UserState.Playing) == false)
+            if (await ChangeUserState(userName, UserState.Playing) == false)
             {
                 return false;
             }
@@ -245,9 +246,11 @@ public class StageClearController : Controller
         return redisPlayerStageInfo;
     }
 
-    async Task<bool> ChangeUserState(string userName, string authToken, int userId, UserState userState)
+    async Task<bool> ChangeUserState(string userName, UserState userState)
     {
-        if (await _redisMemoryDB.StoreUser(userName, userId, authToken, userState) == false)
+        RedisUser redisUser = (RedisUser)HttpContext.Items["Redis-User"];
+        redisUser.State = userState;
+        if (await _redisMemoryDB.StoreRedisUser(userName, redisUser) == false)
         {
             return false;
         }

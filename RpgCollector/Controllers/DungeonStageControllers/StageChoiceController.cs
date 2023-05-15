@@ -41,7 +41,7 @@ public class StageChoiceController : Controller
 
         _logger.ZLogDebug($"[{userId}] Request /Stage/Choice");
 
-        if(await AlreadyEnterStage(userName, authToken, userId) == false)
+        if(await AlreadyEnterStage(userName) == false)
         {
             return new StageChoiceResponse
             {
@@ -57,7 +57,7 @@ public class StageChoiceController : Controller
             };
         }
 
-        if(await SetPlayerStageInfoInMemory(userName, userId, stageChoiceRequest.StageId, authToken) == false)
+        if(await SetPlayerStageInfoInMemory(userName, userId, stageChoiceRequest.StageId) == false)
         {
             //TODO: 최흥배. 처음부터 RedisUser를 다 미들웨어에서 가져왔으면 더 좋았을 것 가텐요. 던전 플레이로 상태만 바꾸는 것인데 아래 함수는 모든 정보를 다 바꾸는 것 같습니다.
             return new StageChoiceResponse
@@ -135,9 +135,9 @@ public class StageChoiceController : Controller
         return stageNpcs; 
     }
 
-    async Task<bool> SetPlayerStageInfoInMemory(string userName, int userId, int stageId, string authToken)
+    async Task<bool> SetPlayerStageInfoInMemory(string userName, int userId, int stageId)
     {
-        if (await ChangeUserState(userName, authToken, userId, UserState.Playing) == false)
+        if (await ChangeUserState(userName, UserState.Playing) == false)
         {
             Console.WriteLine("a");
             return false;
@@ -158,7 +158,7 @@ public class StageChoiceController : Controller
 
         if(await _memoryDB.StoreRedisPlayerStageInfo(playerStageInfo, userName) == false)
         {
-            if (await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
+            if (await ChangeUserState(userName, UserState.Login) == false)
             {
                 return false;
             }
@@ -169,9 +169,11 @@ public class StageChoiceController : Controller
         return true;
     }
 
-    async Task<bool> ChangeUserState(string userName, string authToken, int userId, UserState userState)
+    async Task<bool> ChangeUserState(string userName, UserState userState)
     {
-        if(await _memoryDB.StoreUser(userName, userId, authToken, userState) == false)
+        RedisUser redisUser = (RedisUser)HttpContext.Items["Redis-User"];
+        redisUser.State = userState;
+        if(await _memoryDB.StoreRedisUser(userName, redisUser) == false)
         {
             return false;
         }
@@ -180,7 +182,7 @@ public class StageChoiceController : Controller
     }
 
     // 던전 플레이 도중 TTL시간이 만료되어 PLAYING이지만 Redis에 플레이정보가 없어졌을 때 PLAYING을 Login으로 변경
-    async Task<bool> AlreadyEnterStage(string userName, string authToken, int userId)
+    async Task<bool> AlreadyEnterStage(string userName)
     {
         //TODO:최흥배. 여기에 게임 플레이 상태를 넣을 것이라면 미들웨어에서 RedisUser 전체를 컨트룰러로 다 넘겨주세요. redis 접근 횟수를 줄이는게 좋겠죠 - 해결
         RedisUser user = (RedisUser)HttpContext.Items["Redis-User"]; // 미들웨어에서 이미 NULL 검증 완료
@@ -192,7 +194,7 @@ public class StageChoiceController : Controller
 
             if(redisPlayerStageInfo == null)
             {
-                if(await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
+                if(await ChangeUserState(userName, UserState.Login) == false)
                 {
                     return false;
                 }
