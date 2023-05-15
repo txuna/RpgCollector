@@ -57,24 +57,6 @@ public class StageChoiceController : Controller
             };
         }
 
-        MasterStageItem[] masterStageItem = LoadStageFarmingItem(stageChoiceRequest.StageId);
-        if(masterStageItem == null)
-        {
-            return new StageChoiceResponse
-            {
-                Error = ErrorCode.FaiedLoadStageItem
-            };
-        }
-
-        MasterStageNpc[] masterStageNpc = LoadStageNpc(stageChoiceRequest.StageId);
-        if(masterStageNpc == null)
-        {
-            return new StageChoiceResponse
-            {
-                Error = ErrorCode.FailedLoadStageNpc
-            };
-        }
-
         if(await SetPlayerStageInfoInMemory(userName, userId, stageChoiceRequest.StageId, authToken) == false)
         {
             //TODO: 최흥배. 처음부터 RedisUser를 다 미들웨어에서 가져왔으면 더 좋았을 것 가텐요. 던전 플레이로 상태만 바꾸는 것인데 아래 함수는 모든 정보를 다 바꾸는 것 같습니다.
@@ -84,16 +66,40 @@ public class StageChoiceController : Controller
             };
         }
 
+        StageItem[]? stageItem = ProcessingItemResponseValue(stageChoiceRequest.StageId);
+        if(stageItem == null)
+        {
+            return new StageChoiceResponse
+            {
+                Error = ErrorCode.FaiedLoadStageItem
+            };
+        }
+
+        StageNpc[]? stageNpc = ProcessingNpcResponseValue(stageChoiceRequest.StageId);
+        if(stageNpc == null)
+        {
+            return new StageChoiceResponse
+            {
+                Error = ErrorCode.FailedLoadStageNpc
+            };
+        }
+
         return new StageChoiceResponse
         {
             Error = ErrorCode.None,
-            Items = ProcessingItemResponseValue(masterStageItem),
-            Npcs = ProcessingNpcResponseValue(masterStageNpc)
+            Items = stageItem,
+            Npcs = stageNpc
         };
     }
 
-    StageItem[] ProcessingItemResponseValue(MasterStageItem[] masterStageItem)
+    StageItem[]? ProcessingItemResponseValue(int stageId)
     {
+        MasterStageItem[] masterStageItem = LoadStageFarmingItem(stageId);
+        if (masterStageItem == null)
+        {
+            return null;
+        }
+
         StageItem[] stageItems = new StageItem[masterStageItem.Length];
 
         for(int i = 0; i < masterStageItem.Length; i++)
@@ -107,8 +113,14 @@ public class StageChoiceController : Controller
         return stageItems; 
     }
 
-    StageNpc[] ProcessingNpcResponseValue(MasterStageNpc[] masterStageNpc)
+    StageNpc[]? ProcessingNpcResponseValue(int stageId)
     {
+        MasterStageNpc[] masterStageNpc = LoadStageNpc(stageId);
+        if (masterStageNpc == null)
+        {
+            return null;
+        }
+
         StageNpc[] stageNpcs = new StageNpc[masterStageNpc.Length];
 
         for(int i = 0; i<masterStageNpc.Length; i++)
@@ -131,7 +143,7 @@ public class StageChoiceController : Controller
             return false;
         }
 
-        //TODO:최흥배. 마스터데이터에서 처음부터 Redis에 담을 형태로 가져왔으면 되는데 여기서 불필요하게 정리하는 것 같네요.
+        //TODO:최흥배. 마스터데이터에서 처음부터 Redis에 담을 형태로 가져왔으면 되는데 여기서 불필요하게 정리하는 것 같네요. - 해결
         RedisStageItem[] redisStageItem = _masterDataDB.GetRedisStageItems(stageId);
         RedisStageNpc[] redisStageNpc = _masterDataDB.GetRedisStageNpcs(stageId);
 
@@ -146,10 +158,8 @@ public class StageChoiceController : Controller
 
         if(await _memoryDB.StoreRedisPlayerStageInfo(playerStageInfo, userName) == false)
         {
-            Console.WriteLine("b");
             if (await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
             {
-                Console.WriteLine("c");
                 return false;
             }
 
@@ -174,23 +184,27 @@ public class StageChoiceController : Controller
     {
         //TODO:최흥배. 여기에 게임 플레이 상태를 넣을 것이라면 미들웨어에서 RedisUser 전체를 컨트룰러로 다 넘겨주세요. redis 접근 횟수를 줄이는게 좋겠죠
         RedisUser? user = await _memoryDB.GetUser(userName);
+
         if(user == null)
         {
             return false; 
         }
 
-        //TODO: 최흥배. 이미 플레이 중이라면 연결하서 하던가 또는 기존 데이터를 다 지워야 하는데 그렇게 하는 것일까요?
+        //TODO: 최흥배. 이미 플레이 중이라면 연결하서 하던가 또는 기존 데이터를 다 지워야 하는데 그렇게 하는 것일까요? - 해결 
         if (user.State == UserState.Playing)
         {
             RedisPlayerStageInfo? redisPlayerStageInfo = await _memoryDB.GetRedisPlayerStageInfo(userName); 
+
             if(redisPlayerStageInfo == null)
             {
                 if(await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
                 {
                     return false;
                 }
+
                 return true;
             }
+
             return false;
         }
 

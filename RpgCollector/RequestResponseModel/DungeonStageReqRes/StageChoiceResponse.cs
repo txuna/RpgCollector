@@ -17,7 +17,7 @@ namespace RpgCollector.RequestResponseModel.DungeonStageReqRes
     public class StageChoiceResponse
     {
         public ErrorCode Error { get; set; }
-        public StageItem[] Items { get; set; }
-        public StageNpc[] Npcs { get; set; }
+        public StageItem[]? Items { get; set; }
+        public StageNpc[]? Npcs { get; set; }
     }
 }

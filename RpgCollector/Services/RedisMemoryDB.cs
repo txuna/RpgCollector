@@ -26,11 +26,14 @@ public class RedisMemoryDB : IRedisMemoryDB
 {
     RedisConnection _redisConn;
     ILogger<RedisMemoryDB> _logger;
-    readonly string stageKey = "_Stage";
+    string redisStageKey = string.Empty;
+    readonly int loginExpireTime = 60;
+    readonly int stageExpireTime = 10;
 
     public RedisMemoryDB(IOptions<DbConfig> dbConfig, ILogger<RedisMemoryDB> logger) 
     {
         var config = new RedisConfig("default", dbConfig.Value.RedisDb);
+        redisStageKey = dbConfig.Value.RedisStageSecretKey;
         _redisConn = new RedisConnection(config);
         _logger = logger;
     }
@@ -39,7 +42,7 @@ public class RedisMemoryDB : IRedisMemoryDB
     {
         try
         {
-            var redis = new RedisString<RedisPlayerStageInfo>(_redisConn, userName+stageKey, null);
+            var redis = new RedisString<RedisPlayerStageInfo>(_redisConn, userName+ redisStageKey, null);
             var info = await redis.GetAsync();
             if (!info.HasValue)
             {
@@ -68,7 +71,7 @@ public class RedisMemoryDB : IRedisMemoryDB
     {
         try
         {
-            var redis = new RedisString<RedisPlayerStageInfo>(_redisConn, userName+stageKey, null); // 키 확인
+            var redis = new RedisString<RedisPlayerStageInfo>(_redisConn, userName+ redisStageKey, null); // 키 확인
             var redisResult = await redis.DeleteAsync();
             if(redisResult == false)
             {
@@ -87,10 +90,10 @@ public class RedisMemoryDB : IRedisMemoryDB
     {
         try
         {
-            //TODO:최흥배. 매직넘버를 사용하면 안됩니다.
-            // Redis key를 이렇게 코드에서 만들면 관리하기 힘듭니다.
-            TimeSpan expiration = TimeSpan.FromMinutes(10);
-            var redis = new RedisString<RedisPlayerStageInfo>(_redisConn, userName+stageKey, expiration);
+            //TODO:최흥배. 매직넘버를 사용하면 안됩니다. - 해결
+            // Redis key를 이렇게 코드에서 만들면 관리하기 힘듭니다. - 해결
+            TimeSpan expiration = GetStageUserExpireTime();
+            var redis = new RedisString<RedisPlayerStageInfo>(_redisConn, userName+redisStageKey, expiration);
             if(await redis.SetAsync(playerStageInfo, expiration) == false)
             {
                 return false;
@@ -164,7 +167,7 @@ public class RedisMemoryDB : IRedisMemoryDB
                 State = state
             };
 
-            TimeSpan expiration = TimeSpan.FromMinutes(60);
+            TimeSpan expiration = GetLoginUserExpireTime();
             var redis = new RedisString<RedisUser>(_redisConn, userName, expiration);
             if(await redis.SetAsync(redisUser, expiration) == false)
             {
@@ -192,5 +195,17 @@ public class RedisMemoryDB : IRedisMemoryDB
             _logger.ZLogError(ex.Message);
             return false;
         }
+    }
+
+    TimeSpan GetLoginUserExpireTime()
+    {
+        TimeSpan expiration = TimeSpan.FromMinutes(loginExpireTime);
+        return expiration;
+    }
+
+    TimeSpan GetStageUserExpireTime()
+    {
+        TimeSpan expiration = TimeSpan.FromMinutes(stageExpireTime);
+        return expiration;
     }
 }

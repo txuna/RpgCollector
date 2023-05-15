@@ -57,7 +57,14 @@ func load_map(cur_stage_id):
 	
 
 func enter_stage(stage_id):
-	enter_stage_request(stage_id)
+	if get_node_or_null("stage_msg_box") != null:
+		return 
+		
+	var instance = load("res://src/ui/enter_stage_msg_box.tscn").instantiate()
+	instance.name = "stage_msg_box"
+	add_child(instance)
+	instance.set_stage_name(MasterData.stage_info[str(stage_id)].name)
+	instance.enter_stage.connect(enter_stage_request.bind(stage_id))
 
 	
 func enter_stage_request(stage_id):
