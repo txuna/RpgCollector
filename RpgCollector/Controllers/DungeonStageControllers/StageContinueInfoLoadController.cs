@@ -18,6 +18,9 @@ public class StageContinueInfoLoadController : Controller
         _logger = logger;
     }
 
+    /*
+     *  클라이언트 로그인 리스폰스에 user playing이라는 플래그가 포함된다면 아래 API 요청
+     */
     [Route("/Stage/Continue")]
     [HttpPost]
     public async Task<StagePlayingInfoLoadResponse> Post(StagePlayingInfoLoadRequest stagePlayingInfoLoadRequest)
