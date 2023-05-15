@@ -23,7 +23,7 @@ namespace RpgCollector.Models.StageModel
         public int UserId { get; set; }
         public int StageId { get; set; }
         public RedisStageNpc[] Npcs { get; set; }
-        public RedisStageItem[] FarmingItems { get; set; } //클라이언트 보상 검증 
+        public RedisStageItem[] FarmingItems { get; set; }
         public int RewardExp { get; set; }
     }
 }

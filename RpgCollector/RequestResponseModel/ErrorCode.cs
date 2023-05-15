@@ -90,5 +90,6 @@
         FailedSetNextStage = 713,
         FailedSetStageRewardExp = 714,
         FailedRemoveStageInfoInMemory = 715,
+        FailedSetPlayerInfoInRedis = 716,
     }
 }

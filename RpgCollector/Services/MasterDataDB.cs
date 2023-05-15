@@ -5,6 +5,7 @@ using RpgCollector.Models.AttendanceData;
 using RpgCollector.Models.InitPlayerModel;
 using RpgCollector.Models.MasterModel;
 using RpgCollector.Models.PackageItemModel;
+using RpgCollector.Models.StageModel;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using System.Data;
@@ -30,6 +31,8 @@ public interface IMasterDataDB
     public MasterStageInfo GetMasterStageInfo(int stageId);
     public MasterStageNpc[] GetMasterStageNpcs(int stageId);
     public MasterStageItem[] GetMasterStageItems(int stageId);
+    public RedisStageItem[] GetRedisStageItems(int stageId);
+    public RedisStageNpc[] GetRedisStageNpcs(int stageId);
 }
 
 public class MasterDataDB : IMasterDataDB
@@ -48,6 +51,9 @@ public class MasterDataDB : IMasterDataDB
 
     MasterStageNpc[] masterStageNpc;
     MasterStageItem[] masterStageItem;
+
+    RedisStageNpc[] redisStageNpc;
+    RedisStageItem[] redisStageItem;    
 
     IOptions<DbConfig> _dbConfig;
     IDbConnection dbConnection;
@@ -75,34 +81,38 @@ public class MasterDataDB : IMasterDataDB
     {
         return masterStageNpc.Where(e => e.StageId == stageId).ToArray();
     }
-    //public StageItem[] GetMasterStageItems(int stageId)
-    //{
-    //    MasterStageItem[] items = masterStageItem.Where(e => e.StageId == stageId).ToArray();
-    //    StageItem[] stageItem = new StageItem[items.Length];
-    //    for (int i = 0; i < items.Length; i++)
-    //    {
-    //        stageItem[i] = new StageItem
-    //        {
-    //            ItemId = items[i].ItemId,
-    //        };
-    //    }
-    //    return stageItem;
-    //}
+    public RedisStageItem[] GetRedisStageItems(int stageId)
+    {
+        MasterStageItem[] items = masterStageItem.Where(e => e.StageId == stageId).ToArray();
+        RedisStageItem[] stageItem = new RedisStageItem[items.Length];
+        for (int i = 0; i < items.Length; i++)
+        {
+            stageItem[i] = new RedisStageItem
+            {
+                ItemId = items[i].ItemId,
+                FarmingCount = 0, 
+                MaxCount = items[i].Quantity
+            };
+        }
+        return stageItem;
+    }
 
-    //public StageNpc[] GetMasterStageNpcs(int stageId)
-    //{
-    //    MasterStageNpc[] npcs = masterStageNpc.Where(e => e.StageId == stageId).ToArray();
-    //    StageNpc[] stageNpc = new StageNpc[npcs.Length];
-    //    for (int i = 0; i < npcs.Length; i++)
-    //    {
-    //        stageNpc[i] = new StageNpc
-    //        {
-    //            NpcId = npcs[i].NpcId, 
-    //            Count = npcs[i].Count
-    //        };
-    //    }
-    //    return stageNpc;
-    //}
+    public RedisStageNpc[] GetRedisStageNpcs(int stageId)
+    {
+        MasterStageNpc[] npcs = masterStageNpc.Where(e => e.StageId == stageId).ToArray();
+        RedisStageNpc[] stageNpc = new RedisStageNpc[npcs.Length];
+        for (int i = 0; i < npcs.Length; i++)
+        {
+            stageNpc[i] = new RedisStageNpc
+            {
+                NpcId = npcs[i].NpcId,
+                Count = npcs[i].Count,
+                RemaingCount = npcs[i].Count, 
+                Exp = npcs[i].Exp
+            };
+        }
+        return stageNpc;
+    }
     public MasterPackagePayment[] GetPackagePayment()
     {
         return masterPackagePayment;
@@ -201,6 +211,7 @@ public class MasterDataDB : IMasterDataDB
 
             //스테이지별 아이템 불러오기 
             masterStageItem = (queryFactory.Query("master_stage_farming_item").Get<MasterStageItem>()).ToArray();
+
         }
         catch (Exception ex)
         {

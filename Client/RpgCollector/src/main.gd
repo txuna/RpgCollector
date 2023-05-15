@@ -4,11 +4,37 @@ extends Node2D
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	if Global.login_state == Global.PLAYING:
-		continue_stage_request()
+		var instance = load("res://src/ui/msg_box.tscn").instantiate()
+		add_child(instance)
+		instance.continue_stage.connect(continue_stage_request)
+		instance.exit_stage.connect(exit_stage_request)
 		
 
-func continue_stage():
-	pass
+func exit_stage_request():
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
+	})
+	var http = HTTPRequest.new() 
+	add_child(http)
+	http.request_completed.connect(_on_exit_stage_response)
+	http.request(Global.BASE_URL + "Stage/Exit", Global.headers, Global.POST, json)
+	
+	
+func _on_exit_stage_response(result, response_code, headers, body):
+	if response_code != 200:
+		print(body.get_string_from_utf8())
+		return 
+		
+	var json = JSON.parse_string(body.get_string_from_utf8())
+	if json.error == 0:
+		Global.open_alert("스테이지를 정상적으로 나갔습니다.")
+
+	else:
+		var msg = Global.ERROR_MSG[str(json['error'])]
+		Global.open_alert(msg)	
 	
 	
 func continue_stage_request():

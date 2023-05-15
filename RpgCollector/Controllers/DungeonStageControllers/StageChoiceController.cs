@@ -75,27 +75,12 @@ public class StageChoiceController : Controller
             };
         }
 
-        if(await ChangeUserState(userName, authToken, userId, UserState.Playing) == false)
-        {
-            return new StageChoiceResponse
-            {
-                Error = ErrorCode.RedisErrorCannotEnterStage
-            };
-        }
-
-        if(await SetPlayerStageInfoInMemory(userName, userId, stageChoiceRequest.StageId, masterStageItem, masterStageNpc) == false)
+        if(await SetPlayerStageInfoInMemory(userName, userId, stageChoiceRequest.StageId, authToken) == false)
         {
             //TODO: 최흥배. 처음부터 RedisUser를 다 미들웨어에서 가져왔으면 더 좋았을 것 가텐요. 던전 플레이로 상태만 바꾸는 것인데 아래 함수는 모든 정보를 다 바꾸는 것 같습니다.
-            if (await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
-            {
-                return new StageChoiceResponse
-                {
-                    Error = ErrorCode.CannotChangeUserState
-                };
-            }
             return new StageChoiceResponse
             {
-                Error = ErrorCode.RedisErrorCannotEnterStage
+                Error = ErrorCode.FailedSetPlayerInfoInRedis
             };
         }
 
@@ -138,36 +123,17 @@ public class StageChoiceController : Controller
         return stageNpcs; 
     }
 
-    async Task<bool> SetPlayerStageInfoInMemory(string userName, 
-                                                int userId, 
-                                                int stageId, 
-                                                MasterStageItem[] masterStageItem, 
-                                                MasterStageNpc[] masterStageNpc)
+    async Task<bool> SetPlayerStageInfoInMemory(string userName, int userId, int stageId, string authToken)
     {
+        if (await ChangeUserState(userName, authToken, userId, UserState.Playing) == false)
+        {
+            Console.WriteLine("a");
+            return false;
+        }
+
         //TODO:최흥배. 마스터데이터에서 처음부터 Redis에 담을 형태로 가져왔으면 되는데 여기서 불필요하게 정리하는 것 같네요.
-        RedisStageItem[] redisStageItem = new RedisStageItem[masterStageItem.Length];
-        RedisStageNpc[] redisStageNpc = new RedisStageNpc[masterStageNpc.Length]; 
-
-        for(int i=0; i<masterStageItem.Length; i++)
-        {
-            redisStageItem[i] = new RedisStageItem
-            {
-                ItemId = masterStageItem[i].ItemId,
-                MaxCount = masterStageItem[i].Quantity, 
-                FarmingCount = 0
-            };
-        }
-
-        for(int i=0; i<masterStageNpc.Length; i++)
-        {
-            redisStageNpc[i] = new RedisStageNpc
-            {
-                NpcId = masterStageNpc[i].NpcId,
-                Count = masterStageNpc[i].Count,
-                RemaingCount = masterStageNpc[i].Count,
-                Exp = masterStageNpc[i].Exp
-            };
-        }
+        RedisStageItem[] redisStageItem = _masterDataDB.GetRedisStageItems(stageId);
+        RedisStageNpc[] redisStageNpc = _masterDataDB.GetRedisStageNpcs(stageId);
 
         RedisPlayerStageInfo playerStageInfo = new RedisPlayerStageInfo
         {
@@ -180,6 +146,13 @@ public class StageChoiceController : Controller
 
         if(await _memoryDB.StoreRedisPlayerStageInfo(playerStageInfo, userName) == false)
         {
+            Console.WriteLine("b");
+            if (await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
+            {
+                Console.WriteLine("c");
+                return false;
+            }
+
             return false;
         }
 

@@ -14,6 +14,7 @@
 ![enchant](./Images/enchant.png)
 ![worlds](./Images/worlds.png)
 ![stage](./Images/stage.png)
+![continue](./Images/continue.png)
 
 ## API 목록
 ### Login API

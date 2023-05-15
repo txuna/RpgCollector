@@ -63,9 +63,9 @@ public class DungeonStageDB : IDungeonStageDB
         {
             //TODO:최흥배. 데이터가 아마 없으면 예외가 발생하는 것으로 알고 있습니다.
             // 예외를 발생하지 않는 FirstOrDefaultAsync()를 사용해주세요.
-            PlayerStageInfo info = await queryFactory.Query("player_stage_info")
+            PlayerStageInfo? info = await queryFactory.Query("player_stage_info")
                                                      .Where("userId", userId)
-                                                     .FirstAsync<PlayerStageInfo>();
+                                                     .FirstOrDefaultAsync<PlayerStageInfo>();
 
             return info;
         }

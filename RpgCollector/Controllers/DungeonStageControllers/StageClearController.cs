@@ -47,6 +47,14 @@ public class StageClearController : Controller
 
         _logger.ZLogDebug($"[{userId}] Request /Stage/Clear");
 
+        if(await IsPlayingStage(userName) == false)
+        {
+            return new StageClearResponse
+            {
+                Error = ErrorCode.NotPlayingStage
+            };
+        }
+
         RedisPlayerStageInfo? redisPlayerStageInfo = await LoadStagePlayerInfo(userName);
         if (redisPlayerStageInfo == null)
         {
@@ -56,7 +64,7 @@ public class StageClearController : Controller
             };
         }
 
-        //TODO:최흥배. 던전 플레이 중인지는 체크하지 않네요
+        //TODO:최흥배. 던전 플레이 중인지는 체크하지 않네요 - 해결 
         if (VerifyClearCondition(redisPlayerStageInfo) == false)
         {
             return new StageClearResponse
@@ -65,33 +73,16 @@ public class StageClearController : Controller
             };
         }
 
-        if (await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
+        //TODO:최흥배. 이런 것은 함수로 빼는게 좋지 않을까요? 여기 이외에 다른 곳도 이런 류가 꽤 있네요 - 해결
+        if(await RemovePlayerStageInfoInMemory(userName, authToken, userId) == false)
         {
             return new StageClearResponse
             {
-                Error = ErrorCode.CannotChangeUserState
+                Error = ErrorCode.FailedRemoveStageInfoInMemory
             };
         }
 
-        //TODO:최흥배. 이런 것은 함수로 빼는게 좋지 않을까요? 여기 이외에 다른 곳도 이런 류가 꽤 있네요 
-        if (await RemovePlayerStageInfoInMemory(userName) == false)
-        {
-            if(await ChangeUserState(userName, authToken, userId, UserState.Playing) == false)
-            {
-                return new StageClearResponse
-                {
-                    Error = ErrorCode.CannotChangeUserState
-                };
-            }
-            return new StageClearResponse
-            {
-                Error = ErrorCode.FailedConnectRedis
-            };
-        }
-
-        // 보상 수령 실패시 다시 던전 내용을 redis에 다시 백업해야하는가 
-        // 아아템 보상 전송에는 성공했으나 경험치 제공에 실패했을떄 어디까지 백업을 해야하고 로깅을 해야하는가가 고민중입니다..!
-        if(await SendStageItemReward(redisPlayerStageInfo) == false)
+        if(await TakeStageReward(userId, redisPlayerStageInfo) == false)
         {
             return new StageClearResponse
             {
@@ -99,26 +90,29 @@ public class StageClearController : Controller
             };
         }
 
-        if(await SetStageExpReward(userId, redisPlayerStageInfo.RewardExp) == false)
-        {
-            return new StageClearResponse
-            {
-                Error = ErrorCode.FailedSetStageRewardExp
-            };
-        }
-
-        if(await SetNextStage(redisPlayerStageInfo.StageId, userId) == false)
-        {
-            return new StageClearResponse
-            {
-                Error = ErrorCode.FailedSetNextStage
-            };
-        }
-
         return new StageClearResponse
         {
             Error = ErrorCode.None
         };
+    }
+
+    async Task<bool> TakeStageReward(int userId, RedisPlayerStageInfo redisPlayerStageInfo)
+    {
+        if (await SendStageItemReward(redisPlayerStageInfo) == false)
+        {
+            return false;
+        }
+
+        if(await SetStageExpReward(userId, redisPlayerStageInfo.RewardExp) == false)
+        {
+            return false; 
+        }
+        if(!await SetNextStage(redisPlayerStageInfo.StageId, userId) == false)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     // farming item 메일로 전송 및 경험치 설정
@@ -200,10 +194,20 @@ public class StageClearController : Controller
         return true;
     }
 
-    async Task<bool> RemovePlayerStageInfoInMemory(string userName)
+    async Task<bool> RemovePlayerStageInfoInMemory(string userName, string authToken, int userId)
     {
+        if(await ChangeUserState(userName, authToken, userId, UserState.Login) == false)
+        {
+            return false;
+        }
+
         if(await _redisMemoryDB.RemoveRedisPlayerStageInfo(userName) == false)
         {
+            if (await ChangeUserState(userName, authToken, userId, UserState.Playing) == false)
+            {
+                return false;
+            }
+
             return false;
         }
         return true;
