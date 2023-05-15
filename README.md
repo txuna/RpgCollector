@@ -20,6 +20,7 @@
 
 1. username과 password를 입력받아 AccountDB의 users 테이블 검증
 2. 검증된 유저에 대해 인증토큰 발급 및 redis에 해당 유저 useranem : token 형식 저장
+3. redis에 유저상태가 이미 PLAYING이면서 게임스테이지 정보가 있다면 PLAYING으로 전송
 
 **Database**
 
@@ -67,6 +68,7 @@ public class LoginResponse
     public ErrorState Error { get; set; }
     public string UserName { get; set; }
     public string AuthToken { get; set; }
+    public UserState State { get; set; }
 }
 ```
 
@@ -1100,6 +1102,11 @@ public class StageClearRequest
 
 ### Stage Continue API
 1. 게임 진행 도중 끊겼을 시 다시 접속하여 던전 진행 정보를 받아옴
+1. 던전 스테이지 클리어 과정에서 팅김 
+2. 클라이언트는 다시 로그인 요청 
+3. 서버는 로그인 요청시 기존 Redis에서 해당 userName를 key로 가지는 value중에 UserState가 Playing이였다면 토큰 갱신 및 클라이언트에게 게임진행중이였다 정보 전송
+4. 받은 클라이언트는 로그인 화면에서 메인화면으로 넘어가는 과정에서 던전이 진행중이였음 플래그 전송 
+5. 플래그를 받은 클라이언트는 서버에 진행중이였던 던전 내용을 받아서 화면으로 표시함
 
 **Database** 
 ```csharp

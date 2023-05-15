@@ -87,6 +87,8 @@ public class StageClearController : Controller
             };
         }
 
+        // 보상 수령 실패시 다시 던전 내용을 redis에 다시 백업해야하는가 
+        // 아아템 보상 전송에는 성공했으나 경험치 제공에 실패했을떄 어디까지 백업을 해야하고 로깅을 해야하는가가 고민중입니다..!
         if(await SendStageItemReward(redisPlayerStageInfo) == false)
         {
             return new StageClearResponse
