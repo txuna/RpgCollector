@@ -106,6 +106,7 @@ theme_override_font_sizes/font_size = 24
 theme_override_styles/normal = SubResource("StyleBoxFlat_6tuh8")
 placeholder_text = "password"
 alignment = 1
+secret = true
 
 [node name="LoginBtn" type="Button" parent="ColorRect/FormControl"]
 layout_mode = 0

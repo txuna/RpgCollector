@@ -1,26 +1,36 @@
-[gd_scene load_steps=2 format=3 uid="uid://csure74ld3dpk"]
+[gd_scene load_steps=4 format=3 uid="uid://csure74ld3dpk"]
 
 [ext_resource type="Script" path="res://src/ui/alert_popup.gd" id="1_vh57d"]
+[ext_resource type="Texture2D" uid="uid://cryylulirjn2d" path="res://assets/popup_background.png" id="2_ur5fr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lmpmv"]
+bg_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="AlertPopup" type="CanvasLayer"]
 layer = 2
 script = ExtResource("1_vh57d")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-offset_left = 391.0
-offset_top = 249.0
-offset_right = 843.0
-offset_bottom = 511.0
-color = Color(0.776471, 0.776471, 0.776471, 1)
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = 333.0
+offset_top = 212.0
+offset_right = 976.0
+offset_bottom = 572.0
+texture = ExtResource("2_ur5fr")
 
-[node name="Title" type="Label" parent="ColorRect"]
+[node name="Title" type="Label" parent="TextureRect"]
 layout_mode = 1
 anchors_preset = 14
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_top = -131.0
-offset_bottom = -61.0
+offset_left = 77.0
+offset_top = -136.0
+offset_right = -81.0
+offset_bottom = -66.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -29,14 +39,16 @@ text = "Warning"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Content" type="Label" parent="ColorRect"]
+[node name="Content" type="Label" parent="TextureRect"]
 layout_mode = 1
 anchors_preset = 14
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_top = -22.0
-offset_bottom = 16.0
+offset_left = 83.0
+offset_top = -34.0
+offset_right = -79.0
+offset_bottom = 4.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -45,14 +57,14 @@ text = "로그인정보가 일치하지 않습니다."
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="OkBtn" type="Button" parent="ColorRect"]
+[node name="OkBtn" type="Button" parent="TextureRect"]
 layout_mode = 0
-offset_left = 162.0
-offset_top = 214.0
-offset_right = 299.0
-offset_bottom = 256.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+offset_left = 230.0
+offset_top = 257.0
+offset_right = 412.0
+offset_bottom = 299.0
 theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_lmpmv")
 text = "확인"
 
-[connection signal="pressed" from="ColorRect/OkBtn" to="." method="_on_ok_btn_pressed"]
+[connection signal="pressed" from="TextureRect/OkBtn" to="." method="_on_ok_btn_pressed"]

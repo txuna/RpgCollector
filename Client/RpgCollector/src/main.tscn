@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://6eu5evtihtr"]
+[gd_scene load_steps=12 format=3 uid="uid://6eu5evtihtr"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_b13uu"]
 [ext_resource type="PackedScene" uid="uid://dn7up6bqfy0i5" path="res://src/ui/hud.tscn" id="2_j7hda"]
 [ext_resource type="Texture2D" uid="uid://brntry5qrsnpb" path="res://assets/stage/village.png" id="3_y555c"]
+[ext_resource type="PackedScene" uid="uid://sp681bd0wcyd" path="res://src/chat_container.tscn" id="4_kxeds"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tnqoq"]
 bg_color = Color(0, 0, 0, 1)
@@ -147,6 +148,13 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_akt1s")
 text = "상점"
 
 [node name="Hud" parent="ColorRect" instance=ExtResource("2_j7hda")]
+
+[node name="ChatContainer" parent="ColorRect" instance=ExtResource("4_kxeds")]
+layout_mode = 0
+offset_left = 186.0
+offset_top = 4.0
+offset_right = 761.0
+offset_bottom = 440.0
 
 [connection signal="pressed" from="ColorRect/Control/MailboxBtn" to="." method="_on_mailbox_btn_pressed"]
 [connection signal="pressed" from="ColorRect/Control/InventoryBtn" to="." method="_on_inventory_btn_pressed"]

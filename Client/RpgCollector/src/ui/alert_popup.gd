@@ -1,8 +1,8 @@
 extends CanvasLayer
 
-@onready var title = $ColorRect/Title
-@onready var content = $ColorRect/Content
-@onready var ok_btn = $ColorRect/OkBtn
+@onready var title = $TextureRect/Title
+@onready var content = $TextureRect/Content
+@onready var ok_btn = $TextureRect/OkBtn
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

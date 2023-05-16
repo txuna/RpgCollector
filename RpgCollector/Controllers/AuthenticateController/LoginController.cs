@@ -60,6 +60,7 @@ public class LoginController : Controller
         string authToken = HashManager.GenerateAuthToken();
         ErrorCode Error;
         UserState state; 
+
         // 기존 정보가 있다면 playing이였는지 확인
         if (await IsPlayingGame(user.UserName) == true)
         {
@@ -113,7 +114,6 @@ public class LoginController : Controller
         return true;
     }
 
-    // Playing인데 redisplayerinfo가 없다면 login으로
     async Task<bool> IsPlayingGame(string userName)
     {
         RedisUser? user = await _memoryDB.GetUser(userName);
@@ -127,6 +127,7 @@ public class LoginController : Controller
             return false;
         }
 
+        // 플레이어 상태는 PLAYING이지만 던전 스테이지 정보가 없을 경우에는 PLAYING이 아닌 LOING으로 설정
         RedisPlayerStageInfo? redisPlayerStageInfo = await _memoryDB.GetRedisPlayerStageInfo(userName);
         if(redisPlayerStageInfo == null)
         {
