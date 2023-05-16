@@ -41,6 +41,14 @@ public class StageChoiceController : Controller
 
         _logger.ZLogDebug($"[{userId}] Request /Stage/Choice");
 
+        if(IsExistStage(stageChoiceRequest.StageId) == false)
+        {
+            return new StageChoiceResponse
+            {
+                Error = ErrorCode.NoneExistStageId
+            };
+        }
+
         if(await AlreadyEnterStage(userName) == false)
         {
             return new StageChoiceResponse
@@ -139,7 +147,6 @@ public class StageChoiceController : Controller
     {
         if (await ChangeUserState(userName, UserState.Playing) == false)
         {
-            Console.WriteLine("a");
             return false;
         }
 
@@ -208,6 +215,12 @@ public class StageChoiceController : Controller
         return true;
     }
 
+    bool IsExistStage(int stageId)
+    {
+        return _masterDataDB.IsExistStageId(stageId);
+    }
+
+    // 유효한 던전 스테이지인지 확인 필요 
     async Task<bool> Verify(int stageId, int userId)
     {
         PlayerStageInfo? info = await _dungeonStageDB.LoadPlayerStageInfo(userId);

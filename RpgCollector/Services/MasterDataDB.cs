@@ -33,6 +33,7 @@ public interface IMasterDataDB
     public MasterStageItem[] GetMasterStageItems(int stageId);
     public RedisStageItem[] GetRedisStageItems(int stageId);
     public RedisStageNpc[] GetRedisStageNpcs(int stageId);
+    public bool IsExistStageId(int stageId);
 }
 
 public class MasterDataDB : IMasterDataDB
@@ -68,6 +69,10 @@ public class MasterDataDB : IMasterDataDB
         Load();
     }
 
+    public bool IsExistStageId(int stageId)
+    {
+        return masterStageInfo.Any(info => info.StageId == stageId);
+    }
     public MasterPlayerState[] GetMasterAllPlayerState()
     {
         return masterPlayerState;
