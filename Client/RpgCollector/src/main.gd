@@ -133,3 +133,7 @@ func _on_stage_btn_pressed():
 	var world_map_instance = load("res://src/world_map.tscn").instantiate()
 	world_map_instance.name = "world_map"
 	add_child(world_map_instance)
+
+
+func _on_shop_btn_pressed():
+	pass # Replace with function body.
