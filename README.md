@@ -13,6 +13,7 @@
 ![package](./Images/payment.png)
 ![enchant](./Images/enchant.png)
 ![worlds](./Images/worlds.png)
+![enter_stage](./Images/enter_stage.png)
 ![stage](./Images/stage.png)
 ![continue](./Images/continue.png)
 

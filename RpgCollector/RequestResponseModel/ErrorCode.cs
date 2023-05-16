@@ -91,5 +91,6 @@
         FailedSetStageRewardExp = 714,
         FailedRemoveStageInfoInMemory = 715,
         FailedSetPlayerInfoInRedis = 716,
+        NoneExistStageId = 717,
     }
 }

@@ -69,6 +69,8 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("3_y555c")
 
+[node name="Hud" parent="ColorRect" instance=ExtResource("2_j7hda")]
+
 [node name="Control" type="Control" parent="ColorRect"]
 anchors_preset = 0
 offset_left = 21.0
@@ -146,8 +148,6 @@ offset_bottom = 728.0
 theme_override_font_sizes/font_size = 36
 theme_override_styles/normal = SubResource("StyleBoxFlat_akt1s")
 text = "상점"
-
-[node name="Hud" parent="ColorRect" instance=ExtResource("2_j7hda")]
 
 [node name="ChatContainer" parent="ColorRect" instance=ExtResource("4_kxeds")]
 layout_mode = 0
