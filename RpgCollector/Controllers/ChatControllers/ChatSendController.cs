@@ -24,15 +24,15 @@ namespace RpgCollector.Controllers.ChatControllers
             RedisUser user = (RedisUser)HttpContext.Items["Redis-User"];
             bool result = await _redisMemoryDB.UploadChat(new Chat
             {
+                UserId = user.UserId,
                 UserName = chatSendRequest.UserName,
                 Content = chatSendRequest.Content,
-                Date = DateTime.Now.ToString("yyyy-MM-dd")
+                TimeStamp = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond
 
         });
 
             if(result == false)
             {
-                Console.WriteLine("FALSE");
                 return new ChatSendResponse
                 {
                     Error = RequestResponseModel.ErrorCode.FailedSendChat

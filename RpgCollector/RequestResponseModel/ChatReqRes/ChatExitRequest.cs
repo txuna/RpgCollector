@@ -2,7 +2,7 @@
 
 namespace RpgCollector.RequestResponseModel.ChatReqRes
 {
-    public class ChatSendRequest
+    public class ChatExitRequest
     {
         [Required]
         public string UserName { get; set; }
@@ -12,7 +12,5 @@ namespace RpgCollector.RequestResponseModel.ChatReqRes
         public string MasterVersion { get; set; }
         [Required]
         public string AuthToken { get; set; }
-        [Required]
-        public string Content { get; set; }
     }
 }
