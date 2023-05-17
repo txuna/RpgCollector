@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://sp681bd0wcyd"]
+[gd_scene load_steps=5 format=3 uid="uid://sp681bd0wcyd"]
 
 [ext_resource type="Texture2D" uid="uid://cryylulirjn2d" path="res://assets/popup_background.png" id="1_ocex8"]
+[ext_resource type="Script" path="res://src/chat_container.gd" id="2_ulfx7"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_877th"]
 bg_color = Color(1, 1, 1, 1)
@@ -27,6 +28,7 @@ offset_top = 87.0
 offset_right = 543.0
 offset_bottom = 523.0
 texture = ExtResource("1_ocex8")
+script = ExtResource("2_ulfx7")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 layout_mode = 0
@@ -63,3 +65,5 @@ offset_bottom = 385.0
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_wqadh")
 text = "전송"
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

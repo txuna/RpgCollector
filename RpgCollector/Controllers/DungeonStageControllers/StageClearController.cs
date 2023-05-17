@@ -64,7 +64,6 @@ public class StageClearController : Controller
             };
         }
 
-        //TODO:최흥배. 던전 플레이 중인지는 체크하지 않네요 - 해결 
         if (VerifyClearCondition(redisPlayerStageInfo) == false)
         {
             return new StageClearResponse
@@ -73,7 +72,6 @@ public class StageClearController : Controller
             };
         }
 
-        //TODO:최흥배. 이런 것은 함수로 빼는게 좋지 않을까요? 여기 이외에 다른 곳도 이런 류가 꽤 있네요 - 해결
         if(await RemovePlayerStageInfoInMemory(userName) == false)
         {
             return new StageClearResponse
@@ -119,7 +117,6 @@ public class StageClearController : Controller
     // farming item 메일로 전송 및 경험치 설정
     async Task<bool> SendStageItemReward(RedisPlayerStageInfo redisPlayerStageInfo)
     {
-        //TODO:최흥배. object는 가급적 사용하지 마세요.
         object[][] values = new object[redisPlayerStageInfo.FarmingItems.Length][];
 
         int index = 0;

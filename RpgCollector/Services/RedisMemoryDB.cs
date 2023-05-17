@@ -1,8 +1,10 @@
 ﻿using CloudStructures;
 using CloudStructures.Structures;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using RpgCollector.Models;
 using RpgCollector.Models.AccountModel;
+using RpgCollector.Models.ChatModel;
 using RpgCollector.Models.StageModel;
 using RpgCollector.Utility;
 using StackExchange.Redis;
@@ -21,6 +23,7 @@ public interface IRedisMemoryDB
     Task<bool> StoreRedisPlayerStageInfo(RedisPlayerStageInfo playerStageInfo, string userName);
     Task<bool> RemoveRedisPlayerStageInfo(string userName);
     Task<RedisPlayerStageInfo?> GetRedisPlayerStageInfo(string userName);
+    Task<bool> UploadChat(Chat chat);
 }
 
 public class RedisMemoryDB : IRedisMemoryDB
@@ -208,6 +211,35 @@ public class RedisMemoryDB : IRedisMemoryDB
             var redis = new RedisString<RedisUser>(_redisConn, userName, null);
             var redisResult = await redis.DeleteAsync();
             return redisResult;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
+    }
+
+    // 로비 확인 필요 지금은 없이
+    public async Task<bool> UploadChat(Chat chat)
+    {
+        try
+        {
+            var script =
+@"local max = tonumber(ARGV[1]) 
+local l = tonumber(redis.call('llen', KEYS[1])) 
+if(l < max) then 
+	redis.call('rpush', KEYS[1], ARGV[2]) 
+else 
+	redis.call('lpop', KEYS[1]) 
+    redis.call('rpush', KEYS[1], ARGV[2]) 
+end 
+return l
+";
+            var redis = new RedisLua(_redisConn, "chat_log");
+            var keys = new RedisKey[] { "chat_log" };
+            var values = new RedisValue[] {5, JsonConvert.SerializeObject(chat)};
+            await redis.ScriptEvaluateAsync(script, keys, values);
+            return true;
         }
         catch (Exception ex)
         {
