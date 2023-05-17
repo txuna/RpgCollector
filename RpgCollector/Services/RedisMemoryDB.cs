@@ -94,8 +94,6 @@ public class RedisMemoryDB : IRedisMemoryDB
     {
         try
         {
-            //TODO:최흥배. 매직넘버를 사용하면 안됩니다. - 해결
-            // Redis key를 이렇게 코드에서 만들면 관리하기 힘듭니다. - 해결
             TimeSpan expiration = GetStageUserExpireTime();
             var redis = new RedisString<RedisPlayerStageInfo>(_redisConn, userName+redisStageKey, expiration);
             if(await redis.SetAsync(playerStageInfo, expiration) == false)
