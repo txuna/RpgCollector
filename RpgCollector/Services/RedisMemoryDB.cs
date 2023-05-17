@@ -24,6 +24,9 @@ public interface IRedisMemoryDB
     Task<bool> RemoveRedisPlayerStageInfo(string userName);
     Task<RedisPlayerStageInfo?> GetRedisPlayerStageInfo(string userName);
     Task<bool> UploadChat(Chat chat);
+    Task<bool> InserUserInLobby(ChatUser chatUser);
+    Task<ChatUser[]?> GetLobby();
+    Task<bool> SaveLobby(ChatUser[] chatUser);
 }
 
 public class RedisMemoryDB : IRedisMemoryDB
@@ -211,6 +214,51 @@ public class RedisMemoryDB : IRedisMemoryDB
             return redisResult;
         }
         catch (Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<ChatUser[]?> GetLobby()
+    {
+        try
+        {
+            var redis = new RedisList<ChatUser>(_redisConn, "Lobby", null);
+            ChatUser[] users = await redis.RangeAsync(0, -1);
+            return users;
+        }
+        catch(Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<bool> SaveLobby(ChatUser[] chatUser)
+    {
+        try
+        {
+            var redis = new RedisList<ChatUser>(_redisConn, "Lobby", null);
+            await redis.RightPushAsync(chatUser);
+            return true;
+        }
+        catch(Exception ex)
+        {
+            _logger.ZLogError(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> InserUserInLobby(ChatUser chatUser)
+    {
+        try
+        {
+            var redis = new RedisList<ChatUser>(_redisConn, "Lobby", null);
+            await redis.RightPushAsync(chatUser);
+            return true;
+        }
+        catch(Exception ex)
         {
             _logger.ZLogError(ex.Message);
             return false;

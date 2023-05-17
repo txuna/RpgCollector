@@ -66,4 +66,13 @@ theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_wqadh")
 text = "전송"
 
+[node name="TestJoin" type="Button" parent="."]
+layout_mode = 0
+offset_left = 271.0
+offset_top = 191.0
+offset_right = 314.0
+offset_bottom = 222.0
+text = "JOIN"
+
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="TestJoin" to="." method="_on_test_join_pressed"]

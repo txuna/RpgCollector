@@ -8,9 +8,10 @@
         public Int64 TimeStamp { get; set; }
     }
 
-    public class Lobby
+    public class ChatUser
     {
         public int LobbyId { get; set; }
-        public int[] UserList { get; set; }
+        public int UserId { get; set; }
+        public string UserName { get; set; }
     }
 }
