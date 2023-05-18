@@ -24,6 +24,7 @@ func _on_button_pressed():
 		"MasterVersion" : Global.master_version,
 		"Content" : content.text
 	})
+	content.text = ""
 
 	var http = HTTPRequest.new() 
 	add_child(http)

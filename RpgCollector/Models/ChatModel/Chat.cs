@@ -14,4 +14,9 @@
         public int UserId { get; set; }
         public string UserName { get; set; }
     }
+
+    public class ConfigLobby
+    {
+        public string LobbySuffix { get; set; }
+    }
 }

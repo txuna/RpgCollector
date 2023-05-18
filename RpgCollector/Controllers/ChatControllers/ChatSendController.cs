@@ -22,16 +22,23 @@ namespace RpgCollector.Controllers.ChatControllers
         public async Task<ChatSendResponse> Post(ChatSendRequest chatSendRequest)
         {
             RedisUser user = (RedisUser)HttpContext.Items["Redis-User"];
-            bool result = await _redisMemoryDB.UploadChat(new Chat
+
+            int lobbyId = await GetUserLobbyId(user.UserId);
+            if(lobbyId == -1)
+            {
+                return new ChatSendResponse
+                {
+                    Error = RequestResponseModel.ErrorCode.FailedFindUser
+                };
+            }
+
+            if(await _redisMemoryDB.UploadChat(lobbyId, new Chat
             {
                 UserId = user.UserId,
                 UserName = chatSendRequest.UserName,
                 Content = chatSendRequest.Content,
                 TimeStamp = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond
-
-        });
-
-            if(result == false)
+            }) == false)
             {
                 return new ChatSendResponse
                 {
@@ -43,6 +50,23 @@ namespace RpgCollector.Controllers.ChatControllers
             {
                 Error = RequestResponseModel.ErrorCode.None
             };
+        }
+
+        async Task<int> GetUserLobbyId(int userId)
+        {
+            ChatUser[]? users = await _redisMemoryDB.GetLobbyUser(); 
+            if(users == null)
+            {
+                return -1;
+            }
+
+            ChatUser? thisUser = users.Where(user => user.UserId == userId).FirstOrDefault();
+            if(thisUser == null)
+            {
+                return -1;
+            }
+
+            return thisUser.LobbyId;
         }
     }
 }

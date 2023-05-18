@@ -18,6 +18,7 @@ using RpgCollector.Models.AccountModel;
 using CloudStructures;
 using CloudStructures.Structures;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using RpgCollector.Models.ChatModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,7 @@ builder.Services.AddControllers();
 IConfiguration configuration = builder.Configuration;
 
 builder.Services.Configure<DbConfig>(configuration.GetSection(nameof(DbConfig)));
+builder.Services.Configure<ConfigLobby>(configuration.GetSection("LobbySuffix"));
 builder.Services.AddTransient<IAccountDB, AccountDB>(); 
 builder.Services.AddTransient<INoticeMemoryDB, NoticeMemoryDB>();
 builder.Services.AddTransient<IPlayerAccessDB, PlayerAccessDB>();

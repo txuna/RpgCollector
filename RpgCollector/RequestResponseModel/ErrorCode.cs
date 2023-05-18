@@ -96,5 +96,8 @@
         /* CHAT */ 
         FailedSendChat = 801,
         FailedJoinRoom = 802,
+        FailedLoadLobbyUser = 803,
+        FailedFindUser = 804,
+        FailedLoadChat = 805,
     }
 }

@@ -23,10 +23,10 @@ public interface IRedisMemoryDB
     Task<bool> StoreRedisPlayerStageInfo(RedisPlayerStageInfo playerStageInfo, string userName);
     Task<bool> RemoveRedisPlayerStageInfo(string userName);
     Task<RedisPlayerStageInfo?> GetRedisPlayerStageInfo(string userName);
-    Task<bool> UploadChat(Chat chat);
-    Task<bool> InserUserInLobby(ChatUser chatUser);
-    Task<ChatUser[]?> GetLobby();
-    Task<bool> SaveLobby(ChatUser[] chatUser);
+    Task<bool> UploadChat(int lobbyId, Chat chat);
+    Task<bool> InsertUserInLobby(ChatUser chatUser);
+    Task<ChatUser[]?> GetLobbyUser();
+    Task<Chat[]?> LoadChat(int lobbyId);
 }
 
 public class RedisMemoryDB : IRedisMemoryDB
@@ -36,13 +36,15 @@ public class RedisMemoryDB : IRedisMemoryDB
     string redisStageKey = string.Empty;
     readonly int loginExpireTime = 60;
     readonly int stageExpireTime = 10;
+    IOptions<ConfigLobby> _configLobby; 
 
-    public RedisMemoryDB(IOptions<DbConfig> dbConfig, ILogger<RedisMemoryDB> logger) 
+    public RedisMemoryDB(IOptions<DbConfig> dbConfig, ILogger<RedisMemoryDB> logger, IOptions<ConfigLobby> configLobby) 
     {
         var config = new RedisConfig("default", dbConfig.Value.RedisDb);
         redisStageKey = dbConfig.Value.RedisStageSecretKey;
         _redisConn = new RedisConnection(config);
         _logger = logger;
+        _configLobby = configLobby;
     }
 
     public async Task<RedisPlayerStageInfo?> GetRedisPlayerStageInfo(string userName)
@@ -220,12 +222,12 @@ public class RedisMemoryDB : IRedisMemoryDB
         }
     }
 
-    public async Task<ChatUser[]?> GetLobby()
+    public async Task<ChatUser[]?> GetLobbyUser()
     {
         try
         {
-            var redis = new RedisList<ChatUser>(_redisConn, "Lobby", null);
-            ChatUser[] users = await redis.RangeAsync(0, -1);
+            var redis = new RedisSet<ChatUser>(_redisConn, "Lobby", null);
+            ChatUser[] users = await redis.MembersAsync();
             return users;
         }
         catch(Exception ex)
@@ -235,13 +237,12 @@ public class RedisMemoryDB : IRedisMemoryDB
         }
     }
 
-    public async Task<bool> SaveLobby(ChatUser[] chatUser)
+    public async Task<bool> InsertUserInLobby(ChatUser chatUser)
     {
         try
         {
-            var redis = new RedisList<ChatUser>(_redisConn, "Lobby", null);
-            await redis.RightPushAsync(chatUser);
-            return true;
+            var redis = new RedisSet<ChatUser>(_redisConn, "Lobby", null);
+            return await redis.AddAsync(chatUser);
         }
         catch(Exception ex)
         {
@@ -250,23 +251,22 @@ public class RedisMemoryDB : IRedisMemoryDB
         }
     }
 
-    public async Task<bool> InserUserInLobby(ChatUser chatUser)
+    public async Task<Chat[]?> LoadChat(int lobbyId)
     {
         try
         {
-            var redis = new RedisList<ChatUser>(_redisConn, "Lobby", null);
-            await redis.RightPushAsync(chatUser);
-            return true;
+            string lobbyName = Convert.ToString(lobbyId) + _configLobby.Value.LobbySuffix;
+            var redis = new RedisList<Chat>(_redisConn, lobbyName, null);
+            return await redis.RangeAsync(0, -1);
         }
         catch(Exception ex)
         {
             _logger.ZLogError(ex.Message);
-            return false;
+            return null;
         }
     }
 
-    // 로비 확인 필요 지금은 없이
-    public async Task<bool> UploadChat(Chat chat)
+    public async Task<bool> UploadChat(int lobbyId, Chat chat)
     {
         try
         {
@@ -281,8 +281,9 @@ else
 end 
 return l
 ";
-            var redis = new RedisLua(_redisConn, "chat_log");
-            var keys = new RedisKey[] { "chat_log" };
+            string lobbyName = Convert.ToString(lobbyId) + _configLobby.Value.LobbySuffix;
+            var redis = new RedisLua(_redisConn, lobbyName);
+            var keys = new RedisKey[] { lobbyName };
             var values = new RedisValue[] {5, JsonConvert.SerializeObject(chat)};
             await redis.ScriptEvaluateAsync(script, keys, values);
             return true;
