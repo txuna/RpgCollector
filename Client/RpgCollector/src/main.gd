@@ -136,4 +136,12 @@ func _on_stage_btn_pressed():
 
 
 func _on_shop_btn_pressed():
-	pass # Replace with function body.
+	if get_node_or_null("shop") != null:
+		return 
+		
+	var shop_instance = load("res://src/shop.tscn").instantiate()
+	shop_instance.name = "shop"
+	add_child(shop_instance)
+
+
+

@@ -16,7 +16,8 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	pass
+	if Input.is_action_just_pressed("enter"):
+		_on_button_pressed()
 
 
 func _on_button_pressed():
@@ -45,12 +46,12 @@ func _on_send_chat_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
-		print("OK")
+		pass
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)
-
+			
 
 func _on_test_join_pressed():
 	var json = JSON.stringify({
@@ -79,40 +80,16 @@ func _on_join_chat_response(result, response_code, headers, body):
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)
 
-
-func _on_load_chat_request(i):
-	var json = JSON.stringify({
-		"UserName" : Global.user_name,
-		"AuthToken" : Global.auth_token, 
-		"ClientVersion" : Global.client_version,
-		"MasterVersion" : Global.master_version,
-		"TimeStamp" : last_timestamp,
-	})
-
-	var http = HTTPRequest.new() 
-	add_child(http)
-	http.name = "http_"+str(i)
-	http.request_completed.connect(_on_load_chat_response)
-	http.request(Global.BASE_URL + "Chat/Load", Global.headers, Global.POST, json)
-
-
-func _on_load_chat_response(result, response_code, headers, body):
-	if response_code != 200:
-		print(body.get_string_from_utf8())
-		return 
 		
-	var json = JSON.parse_string(body.get_string_from_utf8())
-	if json.error == 0:
-		last_timestamp = json.timeStamp
-		load_chat(json.chatLog)
-		
-	else:
+func load_chat(json):
+	if json.error != 0:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)
-		
-		
-func load_chat(chat_log):
-	for chat in chat_log:
+		return
+	
+	last_timestamp = json.timeStamp
+	
+	for chat in json.chatLog:
 		var label = Label.new() 
 		label.add_theme_font_size_override("font_size", 16)
 		label.add_theme_color_override("font_color", Color.BLACK)
@@ -124,5 +101,11 @@ func load_chat(chat_log):
 
 
 func _on_timer_timeout():
-	_on_load_chat_request(index)
-	index+=1
+	var chat_node = load("res://src/chat_load_node.tscn").instantiate()
+	chat_node.chat_load_response.connect(load_chat)
+	add_child(chat_node)
+	chat_node._on_load_chat_request(last_timestamp)
+
+
+
+

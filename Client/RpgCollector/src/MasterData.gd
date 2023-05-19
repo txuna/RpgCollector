@@ -19,6 +19,29 @@ var item_data = {
 	'6' : "포션",
 }
 
+var item_price = {
+	'2' : {
+		'sell' : 200, 
+		'buy' : 1000
+	},
+	'3' : {
+		'sell' : 500, 
+		'buy' : 3000
+	},
+	'4' : {
+		'sell' : 350, 
+		'buy' : 1500
+	},
+	'5' : {
+		'sell' : 500, 
+		'buy' : 2000
+	},
+	'6' : {
+		'sell' : 50, 
+		'buy' : 500
+	},
+}
+
 
 var package_texture = {
 	'1' : load("res://assets/one_pack.png"),

@@ -78,7 +78,7 @@ namespace RpgCollector.Controllers.ChatControllers
         {
             if (AlreadyInLobby(chatUsers, redisUser) == true)
             {
-                return false;
+                return true;
             }
 
             int lobbyId = FindAvailableLobbyId(chatUsers);
