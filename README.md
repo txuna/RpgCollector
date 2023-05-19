@@ -35,6 +35,7 @@
 ![stage](./Images/stage.png)
 ![continue](./Images/continue.png)
 ![chat](./Images/chat.png)
+![shop](./Images/shop.png)
 
 ## API 목록
 ### Login API
