@@ -99,5 +99,8 @@
         FailedLoadLobbyUser = 803,
         FailedFindUser = 804,
         FailedLoadChat = 805,
+        
+        /* Shop */
+        FailedBuyItem = 901,
     }
 }

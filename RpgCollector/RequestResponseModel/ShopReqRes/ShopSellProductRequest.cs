@@ -2,7 +2,7 @@
 
 namespace RpgCollector.RequestResponseModel.ShopReqRes
 {
-    public class ShopBuyProductRequest
+    public class ShopSellProductRequest
     {
         [Required]
         public string UserName { get; set; }
@@ -12,7 +12,8 @@ namespace RpgCollector.RequestResponseModel.ShopReqRes
         public string MasterVersion { get; set; }
         [Required]
         public string AuthToken { get; set; }
+
         [Required]
-        public int ItemId { get; set; }
+        public int PlayerItmeId { get; set; }
     }
 }
