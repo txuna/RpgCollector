@@ -67,6 +67,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_wqadh")
 text = "전송"
 
 [node name="TestJoin" type="Button" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 271.0
 offset_top = 191.0
@@ -74,5 +75,10 @@ offset_right = 314.0
 offset_bottom = 222.0
 text = "JOIN"
 
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="TestJoin" to="." method="_on_test_join_pressed"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

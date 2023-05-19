@@ -17,7 +17,7 @@ namespace RpgCollector.Controllers.ChatControllers
             _redisMemoryDB = redisMemoryDB;
         }
 
-        [Route("/Chat")]
+        [Route("/Chat/Send")]
         [HttpPost]
         public async Task<ChatSendResponse> Post(ChatSendRequest chatSendRequest)
         {

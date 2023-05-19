@@ -36,8 +36,6 @@ public class LoginController : Controller
     {
         User? user = await _accountDB.GetUser(loginRequest.UserName);
 
-        _logger.ZLogDebug($"[{user.UserName}] Request /Login");
-
         if (user == null)
         {
             _logger.ZLogDebug($"[{loginRequest.UserName}] None Exist UserName");

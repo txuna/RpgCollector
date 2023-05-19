@@ -41,11 +41,17 @@ namespace RpgCollector.Controllers.ChatControllers
                 };
             }
 
+            Int64 lastTimeStamp = GetLastTimeStamp(chats);
+            if(lastTimeStamp == 0)
+            {
+                lastTimeStamp = chatLoadResquest.TimeStamp;
+            }
+
             return new ChatLoadResponse
             {
                 Error = RequestResponseModel.ErrorCode.None,
                 ChatLog = chats, 
-                TimeStamp = GetLastTimeStamp(chats)
+                TimeStamp = lastTimeStamp
             };
         }
 
@@ -69,7 +75,7 @@ namespace RpgCollector.Controllers.ChatControllers
                 return null;
             }
 
-            chats = chats.Where(chat => chat.TimeStamp >= timeStamp).ToArray();
+            chats = chats.Where(chat => chat.TimeStamp > timeStamp).ToArray();
             return chats;
         }
 

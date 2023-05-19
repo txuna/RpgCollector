@@ -11,6 +11,7 @@
 7. 강화 
 8. 공지 
 9. 던전 스테이지 클리어 및 아이템 파밍 및 던전 이어하기 
+10. 채팅
 
 ### 사용 기술 스택
 1. ASP.NET Core 7.0 
@@ -33,6 +34,7 @@
 ![enter_stage](./Images/enter_stage.png)
 ![stage](./Images/stage.png)
 ![continue](./Images/continue.png)
+![chat](./Images/chat.png)
 
 ## API 목록
 ### Login API
@@ -1194,6 +1196,129 @@ public class StageExitRequest
 **Response**
 ```csharp   
 public class StageExitResponse
+{
+    public ErrorCode Error { get; set; }
+}
+```
+
+### Chat Lobby Join API
+1. 채팅 로비에 가입하는 API
+
+**Database** 
+```csharp
+Redis DB - INSERT / GET
+```
+
+**Path** 
+```csharp
+POST /Chat/Join
+```
+
+**Request**
+```csharp 
+public class ChatJoinLobbyRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class StageExitResponse
+{
+    public ErrorCode Error { get; set; }
+}
+```
+
+### Chat Load API
+1. 클라이언트가 받은 마지막의 메시지의 TimeStamp의 값을 기반으로 그 이후의 메시지를 보냄 
+
+**Database** 
+```csharp
+Redis DB - GET / INSERT
+```
+
+**Path** 
+```csharp
+POST /Chat/Load
+```
+
+**Request**
+```csharp 
+public class StageExitRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+    [Required]
+    public Int64 TimeStamp { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class ChatLoadResponse
+{
+    public ErrorCode Error { get; set; }
+    public Chat[] ChatLog { get; set; }
+    public Int64 TimeStamp { get; set; }
+}
+```
+
+### Chat Load API
+1. 클라이언트가 보낸 채팅을 해당 클라이언트가 속한 로비에 넣음
+이때 각 로비마다 리스트에 저장되는 채팅의 갯수는 50개이다. 
+레디스에서 리스트를 가지고와서 50개인지 확인하고 넣는 작업은 2개의 명령어가 필요한데 이때 서로 다른 스레드가 아래와 같이 접근하면 문제가 발생한다. 
+A라는 스레드에서 50인지 확인 
+B라는 스레드에서 50인지 확인 
+A라는 스레드에서 50이 아니기에 값을 넣음 
+B라는 스레드에서 50이 아니기에 값을 넣음
+
+비록 레디스가 싱글스레드로 동작하더라도 명령어 하나씩만 따로 처리하다보니 위와같은 상황이 벌여지는데 해결책으로 루아스크립트를 사용하면 된다. 
+이 때 루아스크립트 하나를 하나의 명령어로 인식 
+
+**Database** 
+```csharp
+Redis DB - GET / INSERT
+```
+
+**Path** 
+```csharp
+POST /Chat/Send
+```
+
+**Request**
+```csharp 
+public class ChatSendRequest
+{
+    [Required]
+    public string UserName { get; set; }
+    [Required]
+    public string ClientVersion { get; set; }
+    [Required]
+    public string MasterVersion { get; set; }
+    [Required]
+    public string AuthToken { get; set; }
+    [Required]
+    public string Content { get; set; }
+}
+```
+
+**Response**
+```csharp   
+public class ChatSendResponse
 {
     public ErrorCode Error { get; set; }
 }
