@@ -17,6 +17,12 @@ namespace RpgCollector.Controllers.ShopControllers
         [HttpPost]
         public async Task<ShopSellProductResponse> Post(ShopSellProductRequest shopSellProductRequest)
         {
+            // load player item 
+
+            // load master item 
+
+            // sell item 
+
             return new ShopSellProductResponse
             {
                 Error = RequestResponseModel.ErrorCode.None
