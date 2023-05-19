@@ -21,7 +21,7 @@ namespace RpgCollector.Controllers.ShopControllers
 
             // load master item 
 
-            // sell item 
+            // sell item and sub money
 
             return new ShopSellProductResponse
             {
