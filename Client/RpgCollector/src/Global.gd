@@ -76,7 +76,10 @@ const ERROR_MSG = {
 	'716' : "플레이어 던전 스테이지 정보를 저장하는데 실패했습니다. ",
 	'801' : "채팅 전송을 실패했습니다.",
 	'802' : "채팅 로비에 접속을 실패하였습니다.",
-	'901' : "아이템 구매를 실패했습니다."
+	'803' : "로비 유저 불러오기를 실패했습니다.",
+	'804' : "유저를 찾는데 실패했습니다.", 
+	'805' : "채팅을 불러오는 것을 실패했습니다",
+	'901' : "아이템 구매를 실패했습니다.",
 }
 
 
@@ -94,7 +97,7 @@ func add_auth_token_in_header(auth_token:String):
 	headers.append("Auth-Token: {auth_token}".format({
 		"auth_token" : auth_token
 	}))
-	
+
 
 func open_alert(msg):
 	var alert_popup = load("res://src/ui/alert_popup.tscn").instantiate() 
