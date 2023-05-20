@@ -102,5 +102,6 @@
         
         /* Shop */
         FailedBuyItem = 901,
+        FailedSellItem = 902,
     }
 }
