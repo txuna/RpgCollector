@@ -2,11 +2,14 @@ extends CanvasLayer
 
 @onready var buy_container = $TextureRect/TextureRect/ScrollContainer/BuyContainer
 @onready var sell_container = $TextureRect/TextureRect2/ScrollContainer/SellContainer
+@onready var money_label = $TextureRect/Label2
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	load_buy_product()
 	_on_load_player_items_request()
+	_on_load_player_money_request()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -171,7 +174,8 @@ func _on_buy_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
-		pass
+		Global.open_alert("아이템 구매가 완료되었습니다.")
+		_on_load_player_money_request()
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
@@ -199,11 +203,43 @@ func _on_sell_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
-		pass
+		Global.open_alert("아이템 판매가 완료되었습니다.")
+		_on_load_player_money_request()
+		_on_load_player_items_request()
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)
+	
+	
+func _on_load_player_money_request():
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
+	})
+	var http = HTTPRequest.new() 
+	add_child(http)
+	http.request_completed.connect(_on_load_player_money_response)
+	http.request(Global.BASE_URL + "Player/State", Global.headers, Global.POST, json)
+	
+	
+func _on_load_player_money_response(result, response_code, headers, body):
+	if response_code != 200:
+		print(body.get_string_from_utf8())
+		return 
+		
+	var json = JSON.parse_string(body.get_string_from_utf8())
+	if json.error == 0:
+		money_label.text = "Money : ${m}".format({
+			"m" : json.state.money
+		})
+		
+	else:
+		var msg = Global.ERROR_MSG[str(json['error'])]
+		Global.open_alert(msg)
+	
 	
 	
 func _on_open_detail(event: InputEvent, player_item_id):

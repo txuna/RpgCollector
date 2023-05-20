@@ -14,6 +14,6 @@ namespace RpgCollector.RequestResponseModel.ShopReqRes
         public string AuthToken { get; set; }
 
         [Required]
-        public int PlayerItmeId { get; set; }
+        public int PlayerItemId { get; set; }
     }
 }
