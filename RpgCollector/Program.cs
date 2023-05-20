@@ -43,6 +43,11 @@ builder.Services.AddTransient<IDungeonStageDB, DungeonStageDB>();
 builder.Services.AddSingleton<IMasterDataDB, MasterDataDB>();
 builder.Services.AddSingleton<IRedisMemoryDB, RedisMemoryDB>();
 
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.AllowSynchronousIO = true;
+});
+
 
 SettingLogger();
 
