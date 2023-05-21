@@ -362,6 +362,7 @@ func set_player_state(json):
 # 여기서 승리해야 hunting_npc_request 호출 
 # 선공은 player
 # player나 npc의 체력이 0이 되어야 종료
+# 만약 player의 체력이 0이 된다면 던전 아웃
 func simulate_combat(npc_id):
 	var npc = MasterData.npc_data[str(npc_id)].duplicate()
 	var combat_order = ["player", "npc"]
@@ -378,6 +379,9 @@ func simulate_combat(npc_id):
 	if npc.hp <= 0:
 		hunting_npc_request(npc_id)
 
+	elif PlayerState.player_state.state.hp <= 0:
+		Global.open_alert("던전에서 쓰러졌습니다.")
+		_on_texture_button_pressed()
 
 
 
