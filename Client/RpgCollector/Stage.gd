@@ -349,8 +349,8 @@ func set_player_state(json):
 			"m" : json.masterState.hp
 		})
 	
-	hp_bar.max_value = json.state.hp
-	hp_bar.value = json.masterState.hp
+	hp_bar.value = json.state.hp
+	hp_bar.max_value = json.masterState.hp 
 	
 	PlayerState.player_state.state.hp = json.state.hp
 	PlayerState.player_state.master_state.hp = json.masterState.hp
