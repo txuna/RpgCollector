@@ -176,6 +176,7 @@ func _on_buy_response(result, response_code, headers, body):
 	if json.error == 0:
 		Global.open_alert("아이템 구매가 완료되었습니다.")
 		_on_load_player_money_request()
+		get_node("/root/Main/ColorRect/Hud").player_state_request()
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]
@@ -206,6 +207,7 @@ func _on_sell_response(result, response_code, headers, body):
 		Global.open_alert("아이템 판매가 완료되었습니다.")
 		_on_load_player_money_request()
 		_on_load_player_items_request()
+		get_node("/root/Main/ColorRect/Hud").player_state_request()
 		
 	else:
 		var msg = Global.ERROR_MSG[str(json['error'])]

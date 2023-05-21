@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 Global="*res://src/Global.gd"
 MasterData="*res://src/MasterData.gd"
+PlayerState="*res://src/PlayerState.gd"
 
 [display]
 
