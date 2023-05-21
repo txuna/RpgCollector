@@ -34,7 +34,7 @@
 ![enchant](./Images/enchant.png)
 ![worlds](./Images/worlds.png)
 ![enter_stage](./Images/enter_stage.png)
-![stage](./Images/stage.png)
+![new_stage](./Images/new_stage.png)
 ![continue](./Images/continue.png)
 ![chat](./Images/chat.png)
 ![shop](./Images/shop.png)
