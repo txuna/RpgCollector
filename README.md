@@ -1,15 +1,3 @@
-### Github 개발 방향 
-develop branch, release branch, main branch를 이용하여 개발 진행
-
-develop branch에서 작업 하여 release branch로 이동 
-
-release branch에서 버그 발생시 develop branch에서 pull 및 수정 하여 다시 release branch로 merge 
-
-release branch는 문제가 없다면 main branch로 머지요청 후 main branch를 빌드
-
-main branch는 다이렉트 커밋 제한 및 pull request만 가능하도록 Rule 설정 
-
-
 
 ### 컴투스 서버캠퍼스 1기 
 서머너즈워를 모작으로 수집형 RPG 멀티플레이어 게임입니다. 

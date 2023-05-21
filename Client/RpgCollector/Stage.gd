@@ -1,9 +1,12 @@
 extends CanvasLayer
 
 @onready var stage_name_label = $TextureRect/Label
-@onready var npc_container = $TextureRect/ScrollContainer/VBoxContainer
-@onready var item_container = $TextureRect/ScrollContainer2/VBoxContainer
+@onready var npc_container = $TextureRect/TextureRect4/ScrollContainer/NpcContainer
+@onready var item_container = $TextureRect/TextureRect3/ScrollContainer2/ItemFarmingContainer
 @onready var npc_hunting_btn = $TextureRect/Button
+@onready var hp_label = $TextureRect/TextureRect/HpLabel
+@onready var hp_bar = $TextureRect/TextureRect/TextureProgressBar
+@onready var combat_container = $TextureRect/TextureRect2/ScrollContainer3/CombatContainer
 
 var stage_info = {}
 var stage_id 
@@ -13,7 +16,10 @@ var item_farming_list = {
 }
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass
+	for node in combat_container.get_children():
+			node.queue_free() 
+			
+	_on_load_player_state_request()
 	
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -81,7 +87,7 @@ func load_npc():
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		
-		label.add_theme_font_size_override("font_size", 18)
+		label.add_theme_font_size_override("font_size", 12)
 		label.add_theme_color_override("font_color", Color.BLACK)
 		
 		label.text = "{name} : {num}마리".format({
@@ -101,7 +107,7 @@ func load_item():
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		
-		label.add_theme_font_size_override("font_size", 18)
+		label.add_theme_font_size_override("font_size", 12)
 		label.add_theme_color_override("font_color", Color.BLACK)
 
 		label.text = "{name} - [{c} / {m}]".format({
@@ -119,7 +125,8 @@ func _on_button_pressed():
 	for npc in stage_info.npcs:
 		if npc.count > 0:
 			is_clear = false 
-			hunting_npc_request(npc.npcId)
+			simulate_combat(npc.npcId)
+			#hunting_npc_request(npc.npcId)
 			npc_hunting_btn.disabled = true
 			break 
 
@@ -127,7 +134,6 @@ func _on_button_pressed():
 		npc_hunting_btn.text = "스테이지 클리어"
 		npc_hunting_btn.disabled = true
 		# 스테이지 클리어시 파밍 아이템 전송 (받은 아이템 코드) 
-		print("스테이지 클리어")
 		clear_stage_request()
 
 #stage_info에 count 남은거 처리 
@@ -154,6 +160,19 @@ func _on_hunting_npc_response(result, response_code, headers, body):
 		
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if json.error == 0:
+		var label = Label.new() 
+		label.text = "[{n}]을/를 쓰러트렸습니다.".format({
+			"n" : MasterData.npc_data[str(json.npcId)]["name"]
+		})
+		label.add_theme_color_override("font_color", Color.BLACK)
+		combat_container.add_child(label)
+		hp_label.text = "HP : [{c} / {m}]".format({
+			"c" : PlayerState.player_state.state.hp, 
+			"m" : PlayerState.player_state.master_state.hp
+		})
+		hp_bar.max_value = PlayerState.player_state.master_state.hp
+		hp_bar.value = PlayerState.player_state.state.hp
+		
 		for npc in stage_info.npcs:
 			if npc["npcId"] == json.npcId:
 				npc["count"] -= 1
@@ -233,13 +252,15 @@ func _on_farming_item_response(result, response_code, headers, body):
 		Global.open_alert(msg)	
 		queue_free()
 		
-	
+
+# 보낼 때 플레이어 상태도 같이 보냄 (HP 상태)
 func clear_stage_request():
 	var json = JSON.stringify({
 		"UserName" : Global.user_name,
 		"AuthToken" : Global.auth_token, 
 		"ClientVersion" : Global.client_version,
 		"MasterVersion" : Global.master_version,
+		"PlayerHp" : PlayerState.player_state.state.hp
 	})
 	var http = HTTPRequest.new() 
 	add_child(http)
@@ -291,3 +312,82 @@ func _on_exit_stage_response(result, response_code, headers, body):
 		var msg = Global.ERROR_MSG[str(json['error'])]
 		Global.open_alert(msg)	
 		queue_free()
+
+
+# 전투 시작시 딱 한번 호출
+func _on_load_player_state_request():
+	var json = JSON.stringify({
+		"UserName" : Global.user_name,
+		"AuthToken" : Global.auth_token, 
+		"ClientVersion" : Global.client_version,
+		"MasterVersion" : Global.master_version,
+	})
+	var http = HTTPRequest.new() 
+	add_child(http)
+	http.request_completed.connect(_on_load_player_state_response)
+	http.request(Global.BASE_URL + "Player/State", Global.headers, Global.POST, json)
+	
+	
+func _on_load_player_state_response(result, response_code, headers, body):
+	if response_code != 200:
+		print(body.get_string_from_utf8())
+		return 
+		
+	var json = JSON.parse_string(body.get_string_from_utf8())
+	if json.error == 0:
+		set_player_state(json)
+		
+	else:
+		var msg = Global.ERROR_MSG[str(json['error'])]
+		Global.open_alert(msg)
+
+
+# 추후 장비또한 착용
+func set_player_state(json):
+	hp_label.text = "HP : [{c} / {m}]".format({
+			"c" : json.state.hp, 
+			"m" : json.masterState.hp
+		})
+	
+	hp_bar.max_value = json.state.hp
+	hp_bar.value = json.masterState.hp
+	
+	PlayerState.player_state.state.hp = json.state.hp
+	PlayerState.player_state.master_state.hp = json.masterState.hp
+	PlayerState.player_state.state.attack = json.state.attack 
+	PlayerState.player_state.state.magic = json.state.magic
+	PlayerState.player_state.state.defence = json.state.defence
+
+
+# 여기서 승리해야 hunting_npc_request 호출 
+# 선공은 player
+# player나 npc의 체력이 0이 되어야 종료
+func simulate_combat(npc_id):
+	var npc = MasterData.npc_data[str(npc_id)].duplicate()
+	var combat_order = ["player", "npc"]
+	
+	while npc.hp > 0 and PlayerState.player_state.state.hp > 0:
+		if combat_order[0] == "player":
+			PlayerState.player_state.state.hp -= npc.attack 
+			
+		elif combat_order[0] == "npc":
+			npc.hp -= PlayerState.player_state.state.attack
+
+		combat_order.reverse()
+
+	if npc.hp <= 0:
+		hunting_npc_request(npc_id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

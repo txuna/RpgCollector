@@ -80,7 +80,7 @@ public class StageClearController : Controller
             };
         }
 
-        if(await TakeStageReward(userId, redisPlayerStageInfo) == false)
+        if(await TakeStageReward(userId, redisPlayerStageInfo, stageClearRequest.PlayerHp) == false)
         {
             return new StageClearResponse
             {
@@ -94,14 +94,14 @@ public class StageClearController : Controller
         };
     }
 
-    async Task<bool> TakeStageReward(int userId, RedisPlayerStageInfo redisPlayerStageInfo)
+    async Task<bool> TakeStageReward(int userId, RedisPlayerStageInfo redisPlayerStageInfo, int hp)
     {
         if (await SendStageItemReward(redisPlayerStageInfo) == false)
         {
             return false;
         }
 
-        if(await SetStageExpReward(userId, redisPlayerStageInfo.RewardExp) == false)
+        if(await SetStageExpReward(userId, redisPlayerStageInfo.RewardExp, hp) == false)
         {
             return false; 
         }
@@ -157,7 +157,7 @@ public class StageClearController : Controller
     }
     
     // 경험치 초과시 레벨 설정 
-    async Task<bool> SetStageExpReward(int userId, int rewardExp)
+    async Task<bool> SetStageExpReward(int userId, int rewardExp, int hp)
     {
         MasterPlayerState[]? masterPlayerState = _masterDataDB.GetMasterAllPlayerState();
         if(masterPlayerState == null)
@@ -182,9 +182,13 @@ public class StageClearController : Controller
             max = masterPlayerState.First(x => x.Level == level).Exp;
         }
 
-        int hp = masterPlayerState.First(x => x.Level == level).Hp; 
+        int maxHp = masterPlayerState.First(x => x.Level == level).Hp;
+        if(hp <= 0 || hp > maxHp)
+        {
+            hp = 1;
+        }
 
-        if(await _playerAccessDB.UpdatePlayerState(userId, curExp, level, hp) == false)
+        if (await _playerAccessDB.UpdatePlayerState(userId, curExp, level, hp) == false)
         {
             return false;
         }
