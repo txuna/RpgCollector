@@ -114,6 +114,12 @@ void SettingLogger()
 async Task<bool> LoadData()
 {
     string redisDBAddress = configuration.GetSection("DbConfig")["RedisDB"];
+    //string password = configuration.GetSection("DbConfig")["RedisPassword"];
+
+    //ConfigurationOptions option = ConfigurationOptions.Parse(redisDBAddress);
+    //option.Password = password;
+
+    //var config = new RedisConfig("default", option);
     var config = new RedisConfig("default", redisDBAddress);
     var _redisConn = new RedisConnection(config);
 

@@ -20,6 +20,50 @@
 2. Redis 
 3. Mysql 
 
+### ASP.NET Build 
+1. Make Dockerfile 
+```
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
+WORKDIR /App
+
+# Copy everything
+COPY . ./
+# Restore as distinct layers
+RUN dotnet restore
+# Build and publish a release
+RUN dotnet publish -c Release -o out
+
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
+WORKDIR /App
+COPY --from=build-env /App/out .
+ENTRYPOINT ["dotnet", "[자신의 프로젝트이름].dll"]
+```
+
+2. Create Docker Image
+```
+docker build -t [이미지 이름] -f Dockerfile .
+```
+
+3. Create Docker Network 
+```
+docker network create --driver bridge server-net
+```
+
+4. Create Container Using Image
+--network 옵션을주어 server-net이라는 네트워크에 묶는다. 
+-> server-net 네트워크에 엮인 도커들은 서로 통신 가능
+ex) ping AspNetServer
+```
+docker run -it -p 5000:80 --name [컨테이너 이름] [이미지 이름]
+sudo docker run -it -p 56000:80 --network server-net --name AspNetServer [닷넷 이미지 파일]
+```
+
+### Trouble Shooting 
+1. 호스트에 설정된 ufw는 호스트 내부에 돌아가는 Docker에는 적용되지 않는다. 
+대안으로 RedisServer가 만약 로컬에서만 접근가능하게 하려면 포트 바인딩시 
+127.0.0.1:10000:6379 이런식으로 옵션을 걸어주어 로컬에서만 접근을 가능하게 한다. 
+
 
 ## Images 
 ![Login](./Images/login.png)

@@ -40,7 +40,10 @@ public class RedisMemoryDB : IRedisMemoryDB
 
     public RedisMemoryDB(IOptions<DbConfig> dbConfig, ILogger<RedisMemoryDB> logger, IOptions<ConfigLobby> configLobby) 
     {
+        //ConfigurationOptions option = ConfigurationOptions.Parse(dbConfig.Value.RedisDb);
+        //option.Password = dbConfig.Value.RedisPassword;
         var config = new RedisConfig("default", dbConfig.Value.RedisDb);
+        //var config = new RedisConfig("default", option);
         redisStageKey = dbConfig.Value.RedisStageSecretKey;
         _redisConn = new RedisConnection(config);
         _logger = logger;
