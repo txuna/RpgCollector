@@ -1,6 +1,6 @@
 extends Node
 
-const BASE_URL = "http://158.247.242.199:58000/"
+const BASE_URL = "http://127.0.0.1:58000/"
 const POST = HTTPClient.METHOD_POST
 
 var user_name = ""
